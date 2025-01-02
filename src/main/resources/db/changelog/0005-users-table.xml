@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="0005-1" author="jangluzniewicz">
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="role_id" type="bigint" defaultValue="2">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="role_id"
+                                 constraintName="fk_users_role_id" referencedTableName="roles"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="0005-2" author="jangluzniewicz" context="dev">
+        <insert tableName="users">
+            <column name="role_id" valueNumeric="1"/>
+            <column name="email" value="admin@admin.com"/>
+            <column name="password" value="$2a$10$gu3a4.R8d06WuUZilj3eGua39fG3I5.1grjiOW2cmT0Z2Q1X6vaA2"/>
+            <column name="phone_number" value="111111111"/>
+        </insert>
+        <insert tableName="users">
+            <column name="role_id" valueNumeric="2"/>
+            <column name="email" value="client@client.com"/>
+            <column name="password" value="$2a$10$tv8foJr7GtbQfW.kQ2E7LOJEvAVbFjhqYvxxOTaTSC8ZgTgxePcma"/>
+            <column name="phone_number" value="222222222"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

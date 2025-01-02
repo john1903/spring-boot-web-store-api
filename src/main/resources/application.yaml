@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: web-store
+  liquibase:
+    change-log: classpath:db/master.xml
+  banner:
+    charset: utf-8
+    location: banner.txt
+  jpa:
+    hibernate:
+      ddl-auto: validate

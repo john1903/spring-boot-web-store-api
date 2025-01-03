@@ -22,6 +22,5 @@ public class OrderItemEntity {
     @NonNull private Integer quantity;
     @Column(nullable = false)
     @NonNull private BigDecimal price;
-    @Column(nullable = false)
-    @NonNull private BigDecimal discount;
+    private BigDecimal discount;
 }

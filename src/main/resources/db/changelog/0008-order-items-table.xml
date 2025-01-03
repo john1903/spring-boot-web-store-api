@@ -21,9 +21,7 @@
             <column name="price" type="decimal(10, 2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="discount" type="decimal(10, 2)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="discount" type="decimal(10, 2)" defaultValue="0.0"/>
         </createTable>
         <addForeignKeyConstraint baseTableName="order_items" baseColumnNames="order_id"
                                  constraintName="fk_order_items_order_id" referencedTableName="orders"

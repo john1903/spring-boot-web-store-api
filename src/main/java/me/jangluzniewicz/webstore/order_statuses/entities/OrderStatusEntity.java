@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Getter @Setter @NoArgsConstructor
+@NoArgsConstructor @Getter @Setter @ToString
 @Table(name = "order_statuses")
 public class OrderStatusEntity {
     @Id

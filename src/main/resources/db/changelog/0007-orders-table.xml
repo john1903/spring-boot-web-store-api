@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="0007-1" author="jangluzniewicz">
+        <createTable tableName="orders">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="order_date" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="status_change_date" type="timestamp"/>
+            <column name="customer_id" type="bigint"/>
+            <column name="order_status_id" type="bigint" defaultValue="1"/>
+            <column name="rating_id" type="bigint"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="customer_id"
+                                 constraintName="fk_orders_customer_id" referencedTableName="users"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="order_status_id"
+                                 constraintName="fk_orders_order_status_id" referencedTableName="order_statuses"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="rating_id"
+                                    constraintName="fk_orders_rating_id" referencedTableName="ratings"
+                                    referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

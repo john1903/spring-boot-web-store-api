@@ -9,4 +9,9 @@
     <include file="changelog/0003-roles-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/0004-products-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/0005-users-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0006-ratings-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0007-orders-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0008-order-items-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0009-carts-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0010-cart-items-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

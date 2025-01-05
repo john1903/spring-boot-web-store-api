@@ -8,6 +8,7 @@ import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 @AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
 @Getter @Setter
 @ToString
+@Builder
 @Table(name = "cart_items")
 public class CartItemEntity {
     @Id

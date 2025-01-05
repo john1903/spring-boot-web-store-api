@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
 @Getter @Setter
 @ToString
+@Builder
 @Table(name = "orders")
 public class OrderEntity {
     @Id

@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
 @Getter @Setter
 @ToString
+@Builder
 @Table(name = "carts")
 public class CartEntity {
     @Id

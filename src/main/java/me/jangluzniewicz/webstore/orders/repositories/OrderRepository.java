@@ -3,7 +3,7 @@ package me.jangluzniewicz.webstore.orders.repositories;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.sql.Timestamp;
 import java.util.List;
 

@@ -1,16 +1,19 @@
 package me.jangluzniewicz.webstore.users.services;
 
-import jakarta.validation.Valid;
-import me.jangluzniewicz.webstore.exceptions.NotFound;
-import me.jangluzniewicz.webstore.exceptions.NotUnique;
+import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
+import me.jangluzniewicz.webstore.exceptions.IdViolationException;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.users.entities.RoleEntity;
 import me.jangluzniewicz.webstore.users.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.users.models.Role;
 import me.jangluzniewicz.webstore.users.repositories.RoleRepository;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -23,19 +26,20 @@ public class RoleService {
         this.roleMapper = roleMapper;
     }
 
-    public Long createNewRole(@Valid Role role) {
+    @Transactional
+    public Long createNewRole(Role role) {
+        if (roleRepository.existsById(role.getId())) {
+            throw new IdViolationException("Role with id " + role.getId() + " already exists");
+        }
         if (roleRepository.existsByNameLike(role.getName())) {
-            throw new NotUnique("Role with name " + role.getName() + " already exists");
+            throw new NotUniqueException("Role with name " + role.getName() + " already exists");
         }
         return roleRepository.save(roleMapper.toEntity(role)).getId();
     }
 
     public Role getRoleById(Long id) {
-        Optional<RoleEntity> optionalRoleEntity = roleRepository.findById(id);
-        if (optionalRoleEntity.isEmpty()) {
-            throw new NotFound("Role with id " + id + " not found");
-        }
-        return roleMapper.fromEntity(optionalRoleEntity.get());
+        return roleMapper.fromEntity(roleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found")));
     }
 
     public List<Role> getAllRoles() {
@@ -44,24 +48,28 @@ public class RoleService {
                 .toList();
     }
 
-    public Role updateRole(Long id, @Valid Role role) {
-        Optional<RoleEntity> optionalRoleEntity = roleRepository.findById(id);
-        if (optionalRoleEntity.isEmpty()) {
-            throw new NotFound("Role with id " + id + " not found");
-        }
-        RoleEntity roleEntity = optionalRoleEntity.get();
-        if (roleRepository.existsByNameLike(role.getName())) {
-            throw new NotUnique("Role with name " + role.getName() + " already exists");
+    @Transactional
+    public Role updateRole(Long id, Role role) {
+        RoleEntity roleEntity = roleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
+        if (roleRepository.existsByNameLike(role.getName()) && !roleEntity.getName().equals(role.getName())) {
+            throw new NotUniqueException("Role with name " + role.getName() + " already exists");
         }
         roleEntity.setName(role.getName());
         return roleMapper.fromEntity(roleRepository.save(roleEntity));
     }
 
+    @Transactional
     public void deleteRole(Long id) {
-        Optional<RoleEntity> optionalRoleEntity = roleRepository.findById(id);
-        if (optionalRoleEntity.isEmpty()) {
-            throw new NotFound("Role with id " + id + " not found");
+        if (!roleRepository.existsById(id)) {
+            throw new NotFoundException("Role with id " + id + " not found");
         }
-        roleRepository.delete(optionalRoleEntity.get());
+        try {
+            roleRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getCause() instanceof ConstraintViolationException) {
+                throw new DeletionNotAllowedException("Role with id " + id + " cannot be deleted due to existing relations");
+            }
+        }
     }
 }

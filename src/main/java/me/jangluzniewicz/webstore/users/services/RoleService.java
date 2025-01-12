@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -28,7 +29,7 @@ public class RoleService {
 
     @Transactional
     public Long createNewRole(Role role) {
-        if (roleRepository.existsById(role.getId())) {
+        if (role.getId() != null && roleRepository.existsById(role.getId())) {
             throw new IdViolationException("Role with id " + role.getId() + " already exists");
         }
         if (roleRepository.existsByNameLike(role.getName())) {
@@ -37,9 +38,9 @@ public class RoleService {
         return roleRepository.save(roleMapper.toEntity(role)).getId();
     }
 
-    public Role getRoleById(Long id) {
-        return roleMapper.fromEntity(roleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found")));
+    public Optional<Role> getRoleById(Long id) {
+        return roleRepository.findById(id)
+                .map(roleMapper::fromEntity);
     }
 
     public List<Role> getAllRoles() {
@@ -49,14 +50,14 @@ public class RoleService {
     }
 
     @Transactional
-    public Role updateRole(Long id, Role role) {
+    public Long updateRole(Long id, Role role) {
         RoleEntity roleEntity = roleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
         if (roleRepository.existsByNameLike(role.getName()) && !roleEntity.getName().equals(role.getName())) {
             throw new NotUniqueException("Role with name " + role.getName() + " already exists");
         }
         roleEntity.setName(role.getName());
-        return roleMapper.fromEntity(roleRepository.save(roleEntity));
+        return roleRepository.save(roleEntity).getId();
     }
 
     @Transactional

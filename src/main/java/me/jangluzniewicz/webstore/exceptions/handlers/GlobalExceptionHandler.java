@@ -1,10 +1,7 @@
 package me.jangluzniewicz.webstore.exceptions.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
-import me.jangluzniewicz.webstore.exceptions.IdViolationException;
-import me.jangluzniewicz.webstore.exceptions.NotFoundException;
-import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -80,6 +77,30 @@ public class GlobalExceptionHandler {
                 .path(url)
                 .timestamp(LocalDateTime.now())
                 .errors(errorDetails)
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiError> handleUsernameNotFoundException(UsernameNotFoundException ex, HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND.name())
+                .detail(ex.getMessage())
+                .path(url)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST.name())
+                .detail(ex.getMessage())
+                .path(url)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }

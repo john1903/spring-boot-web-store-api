@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class RoleRequest {
-    @NotNull(message = "Name is required")
+    @NotNull(message = "name is required")
     @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     private String name;
 }

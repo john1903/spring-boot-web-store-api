@@ -11,7 +11,7 @@ public interface IRole {
 
     Optional<Role> getRoleById(Long id);
 
-    List<Role> getAllRoles();
+    List<Role> getAllRoles(Integer page, Integer size);
 
     Long updateRole(Long id, RoleRequest roleRequest);
 

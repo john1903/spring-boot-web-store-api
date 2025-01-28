@@ -14,11 +14,13 @@ import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
 public class CategoryService implements ICategory {
@@ -49,10 +51,10 @@ public class CategoryService implements ICategory {
     }
 
     @Override
-    public List<Category> getAllCategories() {
-        return StreamSupport.stream(categoryRepository.findAll().spliterator(), false)
-                .map(categoryMapper::fromEntity)
-                .toList();
+    public List<Category> getAllCategories(@Min(1) Integer page, @Min(1) Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Category> categories = categoryRepository.findAll(pageable).map(categoryMapper::fromEntity);
+        return categories.toList();
     }
 
     @Override

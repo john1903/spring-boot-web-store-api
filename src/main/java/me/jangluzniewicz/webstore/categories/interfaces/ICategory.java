@@ -11,7 +11,7 @@ public interface ICategory {
 
     Optional<Category> getCategoryById(Long id);
 
-    List<Category> getAllCategories();
+    List<Category> getAllCategories(Integer page, Integer size);
 
     Long updateCategory(Long id, CategoryRequest categoryRequest);
 

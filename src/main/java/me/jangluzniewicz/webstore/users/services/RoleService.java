@@ -13,12 +13,14 @@ import me.jangluzniewicz.webstore.users.models.Role;
 import me.jangluzniewicz.webstore.users.repositories.RoleRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
 public class RoleService implements IRole {
@@ -49,10 +51,10 @@ public class RoleService implements IRole {
     }
 
     @Override
-    public List<Role> getAllRoles() {
-        return StreamSupport.stream(roleRepository.findAll().spliterator(), false)
-                .map(roleMapper::fromEntity)
-                .toList();
+    public List<Role> getAllRoles(@Min(1) Integer page, @Min(1) Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Role> roles = roleRepository.findAll(pageable).map(roleMapper::fromEntity);
+        return roles.toList();
     }
 
     @Override

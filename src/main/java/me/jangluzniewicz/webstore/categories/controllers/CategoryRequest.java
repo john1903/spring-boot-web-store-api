@@ -1,20 +1,13 @@
-package me.jangluzniewicz.webstore.categories.models;
+package me.jangluzniewicz.webstore.categories.controllers;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
-@RequiredArgsConstructor
-@NoArgsConstructor
 @Getter
-@Setter
-@ToString
-@EqualsAndHashCode
-@Builder
-public class Category {
-    private Long id;
-    @NonNull
+public class CategoryRequest {
     @NotNull(message = "Name is required")
     @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     private String name;

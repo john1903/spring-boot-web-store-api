@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 public class ApiError {
     private String status;
+    private Integer code;
     private String detail;
     private String path;
     private LocalDateTime timestamp;

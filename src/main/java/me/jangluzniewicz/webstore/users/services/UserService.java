@@ -1,13 +1,16 @@
 package me.jangluzniewicz.webstore.users.services;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
-import me.jangluzniewicz.webstore.exceptions.IdViolationException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
+import me.jangluzniewicz.webstore.users.interfaces.IRole;
+import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
-import me.jangluzniewicz.webstore.users.repositories.RoleRepository;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,67 +25,74 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements IUser {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final IRole roleService;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       UserMapper userMapper, RoleRepository roleRepository) {
+                       UserMapper userMapper, IRole roleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
 
+    @Override
     @Transactional
-    public Long registerNewUser(User user) {
-        if (user.getId() != null && userRepository.existsById(user.getId())) {
-            throw new IdViolationException("User with id " + user.getId() + " already exists");
+    public Long registerNewUser(@NotNull UserRequest userRequest) {
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new NotUniqueException("User with email " + user.getEmail() + " already exists");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = User.builder()
+                .email(userRequest.getEmail())
+                .phoneNumber(userRequest.getPhoneNumber())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .role(roleService.getRoleById(userRequest.getRoleId())
+                        .orElseThrow(() ->
+                                new NotFoundException("Role with id " + userRequest.getRoleId() + " not found")))
+                .build();
         return userRepository.save(userMapper.toEntity(user)).getId();
     }
 
+    @Override
     @Transactional
-    public Long updateUser (Long id, User user) {
+    public Long updateUser(@Min(1) Long id, @NotNull UserRequest userRequest) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
-        if (userRepository.existsByEmail(user.getEmail()) && !userEntity.getEmail().equals(user.getEmail())) {
-            throw new NotUniqueException("User with email " + user.getEmail() + " already exists");
+        if (userRepository.existsByEmail(userRequest.getEmail()) &&
+                !userEntity.getEmail().equals(userRequest.getEmail())) {
+            throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
         }
-        userEntity.setEmail(user.getEmail());
-        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
-        userEntity.setRole(roleRepository.findById(user.getRole().getId())
-                .orElseThrow(() -> new NotFoundException("Role with id " + user.getRole().getId() + " not found")));
-        return userRepository.save(userEntity).getId();
+        userEntity.setEmail(userRequest.getEmail());
+        userEntity.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        userEntity.setPhoneNumber(userRequest.getPhoneNumber());
+        return userEntity.getId();
     }
 
-    public Optional<User> getUserByEmail(String email) {
+    @Override
+    public Optional<User> getUserByEmail(@NotNull String email) {
         return userRepository.findByEmail(email)
                 .map(userMapper::fromEntity);
     }
 
-    public Optional<User> getUserById(Long id) {
+    @Override
+    public Optional<User> getUserById(@Min(1) Long id) {
         return userRepository.findById(id)
                 .map(userMapper::fromEntity);
     }
 
-    public List<User> getAllUsers(int page, int size) {
-        if (page < 0 || size < 1) {
-            throw new IllegalArgumentException("Page must be greater than or equal to 0 and size must be greater than 0");
-        }
+    @Override
+    public List<User> getAllUsers(@Min(1) Integer page, @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.findAll(pageable).map(userMapper::fromEntity);
         return userPage.toList();
     }
 
+    @Override
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUser(@Min(1) Long id) {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("User with id " + id + " not found");
         }
@@ -90,7 +100,8 @@ public class UserService {
             userRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
-                throw new DeletionNotAllowedException("User with id " + id + " cannot be deleted due to existing relations");
+                throw new DeletionNotAllowedException("User with id " + id +
+                        " cannot be deleted due to existing relations");
             }
         }
     }

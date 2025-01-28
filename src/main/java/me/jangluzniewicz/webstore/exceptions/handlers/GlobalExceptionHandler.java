@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.NOT_FOUND.name())
+                .code(HttpStatus.NOT_FOUND.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -31,6 +32,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
+                .code(HttpStatus.CONFLICT.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -43,6 +45,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
+                .code(HttpStatus.CONFLICT.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -55,6 +58,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
+                .code(HttpStatus.CONFLICT.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -73,6 +77,7 @@ public class GlobalExceptionHandler {
                 .toList();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
+                .code(HttpStatus.BAD_REQUEST.value())
                 .detail("Validation failed")
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -86,6 +91,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.NOT_FOUND.name())
+                .code(HttpStatus.NOT_FOUND.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())
@@ -98,6 +104,7 @@ public class GlobalExceptionHandler {
         String url = request.getRequestURL().toString();
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
+                .code(HttpStatus.BAD_REQUEST.value())
                 .detail(ex.getMessage())
                 .path(url)
                 .timestamp(LocalDateTime.now())

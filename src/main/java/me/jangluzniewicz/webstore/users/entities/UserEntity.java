@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @ToString
 @Builder
 @Table(name = "users")
@@ -15,11 +18,15 @@ public class UserEntity {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
-    @NonNull private RoleEntity role;
+    @NonNull
+    private RoleEntity role;
     @Column(nullable = false, unique = true)
-    @NonNull private String email;
+    @NonNull
+    private String email;
     @Column(nullable = false)
-    @NonNull private String password;
+    @NonNull
+    private String password;
     @Column(name = "phone_number", nullable = false, unique = true)
-    @NonNull private String phoneNumber;
+    @NonNull
+    private String phoneNumber;
 }

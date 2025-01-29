@@ -7,8 +7,11 @@ import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 import java.math.BigDecimal;
 
 @Entity
-@AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @ToString
 @Builder
 @Table(name = "products")
@@ -17,13 +20,16 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    @NonNull private String name;
+    @NonNull
+    private String name;
     @Column(length = 5000)
     private String description;
     @Column(nullable = false)
-    @NonNull private BigDecimal price;
+    @NonNull
+    private BigDecimal price;
     private BigDecimal weight;
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @NonNull private CategoryEntity category;
+    @NonNull
+    private CategoryEntity category;
 }

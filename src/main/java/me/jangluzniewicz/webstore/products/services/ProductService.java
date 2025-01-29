@@ -1,7 +1,9 @@
 package me.jangluzniewicz.webstore.products.services;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
@@ -83,9 +85,32 @@ public class ProductService implements IProduct {
     }
 
     @Override
-    public List<Product> getFilteredProducts(Long categoryId, String name, BigDecimal priceFrom, BigDecimal priceTo,
-                                             @NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
-        return List.of();
+    public List<Product> getFilteredProducts(@Min(1) Long categoryId, @Size(min = 1, max = 255) String name,
+                                             @DecimalMin("0.0") BigDecimal priceFrom,
+                                             @DecimalMin("0.0") BigDecimal priceTo, @NotNull @Min(1) Integer page,
+                                             @NotNull @Min(1) Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductEntity> products;
+        if (categoryId == null && name == null && priceFrom == null && priceTo == null) {
+            return getAllProducts(page, size);
+        } else if (categoryId != null && name == null && priceFrom == null && priceTo == null) {
+            products = productRepository.findAllByCategoryId(categoryId, pageable);
+        } else if (categoryId == null && name != null && priceFrom == null && priceTo == null) {
+            products = productRepository.findAllByNameContainingIgnoreCase(name, pageable);
+        } else if (categoryId == null && name == null && priceFrom != null && priceTo != null) {
+            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable);
+        } else if (categoryId != null && name != null && priceFrom == null && priceTo == null) {
+            products = productRepository.findAllByCategoryIdAndNameContainingIgnoreCase(categoryId, name, pageable);
+        } else if (categoryId != null && name == null && priceFrom != null && priceTo != null) {
+            products = productRepository.findAllByCategoryIdAndPriceBetween(categoryId, priceFrom, priceTo, pageable);
+        } else if (categoryId == null && name != null && priceFrom != null && priceTo != null) {
+            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable);
+        } else {
+            products =
+                    productRepository.findAllByCategoryIdAndNameContainingIgnoreCaseAndPriceBetween(categoryId, name,
+                            priceFrom, priceTo, pageable);
+        }
+        return products.map(productMapper::fromEntity).toList();
     }
 
     @Override

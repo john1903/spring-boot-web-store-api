@@ -35,7 +35,7 @@ public class RoleService implements IRole {
     @Override
     @Transactional
     public Long createNewRole(@NotNull RoleRequest roleRequest) {
-        if (roleRepository.existsByNameLike(roleRequest.getName())) {
+        if (roleRepository.existsByNameIgnoreCase(roleRequest.getName())) {
             throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
         }
         Role role = Role.builder()
@@ -45,13 +45,13 @@ public class RoleService implements IRole {
     }
 
     @Override
-    public Optional<Role> getRoleById(@Min(1) Long id) {
+    public Optional<Role> getRoleById(@NotNull @Min(1) Long id) {
         return roleRepository.findById(id)
                 .map(roleMapper::fromEntity);
     }
 
     @Override
-    public List<Role> getAllRoles(@Min(1) Integer page, @Min(1) Integer size) {
+    public List<Role> getAllRoles(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Role> roles = roleRepository.findAll(pageable).map(roleMapper::fromEntity);
         return roles.toList();
@@ -59,10 +59,10 @@ public class RoleService implements IRole {
 
     @Override
     @Transactional
-    public Long updateRole(@Min(1) Long id, @NotNull RoleRequest roleRequest) {
+    public Long updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest) {
         RoleEntity roleEntity = roleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
-        if (roleRepository.existsByNameLike(roleRequest.getName()) &&
+        if (roleRepository.existsByNameIgnoreCase(roleRequest.getName()) &&
                 !roleEntity.getName().equals(roleRequest.getName())) {
             throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
         }
@@ -72,7 +72,7 @@ public class RoleService implements IRole {
 
     @Override
     @Transactional
-    public void deleteRole(@Min(1) Long id) {
+    public void deleteRole(@NotNull @Min(1) Long id) {
         if (!roleRepository.existsById(id)) {
             throw new NotFoundException("Role with id " + id + " not found");
         }

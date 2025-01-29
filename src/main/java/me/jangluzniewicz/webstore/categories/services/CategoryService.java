@@ -35,7 +35,7 @@ public class CategoryService implements ICategory {
     @Override
     @Transactional
     public Long createNewCategory(@NotNull CategoryRequest categoryRequest) {
-        if (categoryRepository.existsByName(categoryRequest.getName())) {
+        if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
             throw new NotUniqueException("Category with name " + categoryRequest.getName() + " already exists");
         }
         Category category = Category.builder()
@@ -45,13 +45,13 @@ public class CategoryService implements ICategory {
     }
 
     @Override
-    public Optional<Category> getCategoryById(@Min(1) Long id) {
+    public Optional<Category> getCategoryById(@NotNull @Min(1) Long id) {
         return categoryRepository.findById(id)
                 .map(categoryMapper::fromEntity);
     }
 
     @Override
-    public List<Category> getAllCategories(@Min(1) Integer page, @Min(1) Integer size) {
+    public List<Category> getAllCategories(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Category> categories = categoryRepository.findAll(pageable).map(categoryMapper::fromEntity);
         return categories.toList();
@@ -59,10 +59,10 @@ public class CategoryService implements ICategory {
 
     @Override
     @Transactional
-    public Long updateCategory(@Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
+    public Long updateCategory(@NotNull @Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
         CategoryEntity categoryEntity = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
-        if (categoryRepository.existsByName(categoryRequest.getName()) &&
+        if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName()) &&
                 !categoryEntity.getName().equals(categoryRequest.getName())) {
             throw new NotUniqueException("Category with name " + categoryRequest.getName() + " already exists");
         }
@@ -71,7 +71,7 @@ public class CategoryService implements ICategory {
     }
 
     @Override
-    public void deleteCategory(@Min(1) Long id) {
+    public void deleteCategory(@NotNull @Min(1) Long id) {
         if (!categoryRepository.existsById(id)) {
             throw new NotFoundException("Category with id " + id + " not found");
         }

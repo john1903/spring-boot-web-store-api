@@ -17,10 +17,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class OrderStatusService implements IOrderStatus {
     private final OrderStatusRepository orderStatusRepository;
     private final OrderStatusMapper orderStatusMapper;
@@ -33,7 +35,7 @@ public class OrderStatusService implements IOrderStatus {
     @Override
     @Transactional
     public Long createNewOrderStatus(@NotNull OrderStatusRequest orderStatusRequest) {
-        if (orderStatusRepository.existsByName(orderStatusRequest.getName())) {
+        if (orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName())) {
             throw new NotUniqueException("Order status with name " + orderStatusRequest.getName() + " already exists");
         }
         OrderStatus orderStatus = OrderStatus.builder()
@@ -43,13 +45,13 @@ public class OrderStatusService implements IOrderStatus {
     }
 
     @Override
-    public Optional<OrderStatus> getOrderStatusById(@Min(1) Long id) {
+    public Optional<OrderStatus> getOrderStatusById(@NotNull @Min(1) Long id) {
         return orderStatusRepository.findById(id)
                 .map(orderStatusMapper::fromEntity);
     }
 
     @Override
-    public List<OrderStatus> getAllOrderStatuses(@Min(1) Integer page, @Min(1) Integer size) {
+    public List<OrderStatus> getAllOrderStatuses(@NotNull @Min(1) Integer page, @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderStatus> orderStatuses = orderStatusRepository.findAll(pageable).map(orderStatusMapper::fromEntity);
         return orderStatuses.toList();
@@ -57,10 +59,10 @@ public class OrderStatusService implements IOrderStatus {
 
     @Override
     @Transactional
-    public Long updateOrderStatus(@Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
+    public Long updateOrderStatus(@NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
         OrderStatusEntity orderStatusEntity = orderStatusRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Order status with id " + id + " not found"));
-        if (orderStatusRepository.existsByName(orderStatusRequest.getName()) &&
+        if (orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName()) &&
                 !orderStatusEntity.getName().equals(orderStatusRequest.getName())) {
             throw new NotUniqueException("Order status with name " + orderStatusRequest.getName() + " already exists");
         }
@@ -70,7 +72,7 @@ public class OrderStatusService implements IOrderStatus {
 
     @Override
     @Transactional
-    public void deleteOrderStatus(@Min(1) Long id) {
+    public void deleteOrderStatus(@NotNull @Min(1) Long id) {
         OrderStatusEntity orderStatusEntity = orderStatusRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Order status with id " + id + " not found"));
         try {

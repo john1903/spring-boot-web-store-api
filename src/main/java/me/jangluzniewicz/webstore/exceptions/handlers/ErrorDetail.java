@@ -2,8 +2,10 @@ package me.jangluzniewicz.webstore.exceptions.handlers;
 
 import lombok.*;
 
-@AllArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 class ErrorDetail {
     private String field;

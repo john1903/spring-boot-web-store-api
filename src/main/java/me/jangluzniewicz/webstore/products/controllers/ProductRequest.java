@@ -16,7 +16,7 @@ public class ProductRequest {
     private String name;
     @Size(max = 5000, message = "description must be at most 5000 characters")
     private String description;
-    @NotNull(message = "Price is required")
+    @NotNull(message = "price is required")
     @DecimalMin(value = "0.0", message = "price cannot be negative")
     private BigDecimal price;
     @DecimalMin(value = "0.0", message = "weight cannot be negative")

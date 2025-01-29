@@ -12,7 +12,7 @@ public class UserRequest {
     @NotNull(message = "roleId is required")
     private Long roleId;
     @NotNull(message = "email is required")
-    @Size(min = 5, max = 255, message = "Email must be between 5 and 255 characters")
+    @Size(min = 5, max = 255, message = "email must be between 5 and 255 characters")
     @Pattern(regexp = "^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Invalid email format")
     private String email;
     @NotNull(message = "password is required")

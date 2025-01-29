@@ -27,19 +27,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(IdViolationException.class)
-    public ResponseEntity<ApiError> handleIdViolationException(IdViolationException ex, HttpServletRequest request) {
-        String url = request.getRequestURL().toString();
-        ApiError apiError = ApiError.builder()
-                .status(HttpStatus.CONFLICT.name())
-                .code(HttpStatus.CONFLICT.value())
-                .detail(ex.getMessage())
-                .path(url)
-                .timestamp(LocalDateTime.now())
-                .build();
-        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(NotUniqueException.class)
     public ResponseEntity<ApiError> handleNotUniqueException(NotUniqueException ex, HttpServletRequest request) {
         String url = request.getRequestURL().toString();

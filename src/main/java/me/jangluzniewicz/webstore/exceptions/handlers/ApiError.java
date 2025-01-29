@@ -5,8 +5,10 @@ import java.util.List;
 
 import lombok.*;
 
-@AllArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ApiError {
     private String status;

@@ -5,8 +5,11 @@ import lombok.*;
 import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 
 @Entity
-@AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @ToString
 @Builder
 @Table(name = "cart_items")
@@ -16,7 +19,9 @@ public class CartItemEntity {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    @NonNull private ProductEntity product;
+    @NonNull
+    private ProductEntity product;
     @Column(nullable = false)
-    @NonNull private Integer quantity;
+    @NonNull
+    private Integer quantity;
 }

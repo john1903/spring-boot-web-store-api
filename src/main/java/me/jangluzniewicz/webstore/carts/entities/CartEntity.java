@@ -7,8 +7,11 @@ import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import java.util.List;
 
 @Entity
-@AllArgsConstructor @RequiredArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @ToString
 @Builder
 @Table(name = "carts")
@@ -18,7 +21,8 @@ public class CartEntity {
     private Long id;
     @OneToOne
     @JoinColumn(name = "customer_id", nullable = false)
-    @NonNull private UserEntity customer;
+    @NonNull
+    private UserEntity customer;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cart_id")
     private List<CartItemEntity> items;

@@ -3,12 +3,13 @@ package me.jangluzniewicz.webstore.users.services;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
-import me.jangluzniewicz.webstore.users.interfaces.IRole;
+import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
@@ -31,13 +32,15 @@ public class UserService implements IUser {
     private final IRole roleService;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final ICart cartService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       UserMapper userMapper, IRole roleService) {
+                       UserMapper userMapper, IRole roleService, ICart cartService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.roleService = roleService;
+        this.cartService = cartService;
     }
 
     @Override
@@ -54,7 +57,9 @@ public class UserService implements IUser {
                         .orElseThrow(() ->
                                 new NotFoundException("Role with id " + userRequest.getRoleId() + " not found")))
                 .build();
-        return userRepository.save(userMapper.toEntity(user)).getId();
+        user.setId(userRepository.save(userMapper.toEntity(user)).getId());
+        cartService.createNewCart(user);
+        return user.getId();
     }
 
     @Override

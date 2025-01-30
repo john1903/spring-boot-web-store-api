@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.users.entities;
+package me.jangluzniewicz.webstore.roles.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

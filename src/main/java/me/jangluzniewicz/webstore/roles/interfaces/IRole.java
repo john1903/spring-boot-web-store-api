@@ -1,7 +1,7 @@
-package me.jangluzniewicz.webstore.users.interfaces;
+package me.jangluzniewicz.webstore.roles.interfaces;
 
-import me.jangluzniewicz.webstore.users.controllers.RoleRequest;
-import me.jangluzniewicz.webstore.users.models.Role;
+import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
+import me.jangluzniewicz.webstore.roles.models.Role;
 
 import java.util.List;
 import java.util.Optional;

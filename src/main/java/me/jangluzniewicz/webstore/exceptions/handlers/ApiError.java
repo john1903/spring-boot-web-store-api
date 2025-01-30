@@ -15,6 +15,6 @@ public class ApiError {
     private Integer code;
     private String detail;
     private String path;
-    private LocalDateTime timestamp;
+    private LocalDateTime dateTime;
     private List<ErrorDetail> errors;
 }

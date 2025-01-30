@@ -1,7 +1,7 @@
-package me.jangluzniewicz.webstore.users.mappers;
+package me.jangluzniewicz.webstore.roles.mappers;
 
-import me.jangluzniewicz.webstore.users.entities.RoleEntity;
-import me.jangluzniewicz.webstore.users.models.Role;
+import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
+import me.jangluzniewicz.webstore.roles.models.Role;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

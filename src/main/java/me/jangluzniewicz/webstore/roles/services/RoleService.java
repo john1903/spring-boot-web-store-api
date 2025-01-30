@@ -1,16 +1,16 @@
-package me.jangluzniewicz.webstore.users.services;
+package me.jangluzniewicz.webstore.roles.services;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
-import me.jangluzniewicz.webstore.users.controllers.RoleRequest;
-import me.jangluzniewicz.webstore.users.entities.RoleEntity;
-import me.jangluzniewicz.webstore.users.interfaces.IRole;
-import me.jangluzniewicz.webstore.users.mappers.RoleMapper;
-import me.jangluzniewicz.webstore.users.models.Role;
-import me.jangluzniewicz.webstore.users.repositories.RoleRepository;
+import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
+import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
+import me.jangluzniewicz.webstore.roles.interfaces.IRole;
+import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
+import me.jangluzniewicz.webstore.roles.models.Role;
+import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

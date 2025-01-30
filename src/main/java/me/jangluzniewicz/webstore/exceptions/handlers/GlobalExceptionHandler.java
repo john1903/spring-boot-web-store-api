@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.NOT_FOUND.value())
                 .detail(ex.getMessage())
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.CONFLICT.value())
                 .detail(ex.getMessage())
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.CONFLICT.value())
                 .detail(ex.getMessage())
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.BAD_REQUEST.value())
                 .detail("Validation failed")
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .errors(errorDetails)
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.NOT_FOUND.value())
                 .detail(ex.getMessage())
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
@@ -94,8 +94,21 @@ public class GlobalExceptionHandler {
                 .code(HttpStatus.BAD_REQUEST.value())
                 .detail(ex.getMessage())
                 .path(url)
-                .timestamp(LocalDateTime.now())
+                .dateTime(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleException(Exception ex, HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .detail(ex.getMessage())
+                .path(url)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

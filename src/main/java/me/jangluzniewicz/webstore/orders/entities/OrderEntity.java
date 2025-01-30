@@ -5,7 +5,7 @@ import lombok.*;
 import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -19,9 +19,9 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "order_date")
-    private Timestamp orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "status_change_date")
-    private Timestamp statusChangeDate;
+    private LocalDateTime statusChangeDate;
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @NonNull private UserEntity customer;

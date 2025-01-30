@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.users.models;
+package me.jangluzniewicz.webstore.roles.models;
 
 import lombok.*;
 

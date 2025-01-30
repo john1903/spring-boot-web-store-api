@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.users.controllers;
+package me.jangluzniewicz.webstore.roles.controllers;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

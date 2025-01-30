@@ -1,6 +1,6 @@
-package me.jangluzniewicz.webstore.users.repositories;
+package me.jangluzniewicz.webstore.roles.repositories;
 
-import me.jangluzniewicz.webstore.users.entities.RoleEntity;
+import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> {

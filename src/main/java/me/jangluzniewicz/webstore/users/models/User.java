@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.users.models;
 
 import lombok.*;
+import me.jangluzniewicz.webstore.roles.models.Role;
 
 @AllArgsConstructor
 @RequiredArgsConstructor

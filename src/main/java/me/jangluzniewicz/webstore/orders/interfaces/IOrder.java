@@ -3,9 +3,9 @@ package me.jangluzniewicz.webstore.orders.interfaces;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface IOrder {
@@ -13,11 +13,11 @@ public interface IOrder {
 
     Optional<Order> getOrderById(Long id);
 
-    List<Order> getOrdersByCustomerId(Long customerId, Integer page, Integer size);
+    PagedResponse<Order> getOrdersByCustomerId(Long customerId, Integer page, Integer size);
 
-    List<Order> getAllOrders(Integer page, Integer size);
+    PagedResponse<Order> getAllOrders(Integer page, Integer size);
 
-    List<Order> getFilteredOrders(Long statusId, LocalDateTime orderDateAfter, LocalDateTime orderDateBefore,
+    PagedResponse<Order> getFilteredOrders(Long statusId, LocalDateTime orderDateAfter, LocalDateTime orderDateBefore,
                                   Integer page, Integer size);
 
     Long updateOrder(Long id, OrderRequest orderRequest);

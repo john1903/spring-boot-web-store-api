@@ -2,8 +2,8 @@ package me.jangluzniewicz.webstore.order_statuses.interfaces;
 
 import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IOrderStatus {
@@ -11,7 +11,7 @@ public interface IOrderStatus {
 
     Optional<OrderStatus> getOrderStatusById(Long id);
 
-    List<OrderStatus> getAllOrderStatuses(Integer page, Integer size);
+    PagedResponse<OrderStatus> getAllOrderStatuses(Integer page, Integer size);
 
     Long updateOrderStatus(Long id, OrderStatusRequest orderStatusRequest);
 

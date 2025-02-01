@@ -8,6 +8,7 @@ import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -78,39 +78,50 @@ public class ProductService implements IProduct {
     }
 
     @Override
-    public List<Product> getAllProducts(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Product> getAllProducts(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> products = productRepository.findAll(pageable).map(productMapper::fromEntity);
-        return products.toList();
+        return new PagedResponse<>(products.getTotalPages(), products.toList());
     }
 
     @Override
-    public List<Product> getFilteredProducts(@Min(1) Long categoryId, @Size(min = 1, max = 255) String name,
-                                             @DecimalMin("0.0") BigDecimal priceFrom,
-                                             @DecimalMin("0.0") BigDecimal priceTo, @NotNull @Min(1) Integer page,
-                                             @NotNull @Min(1) Integer size) {
+    public PagedResponse<Product> getFilteredProducts(@Min(1) Long categoryId, @Size(min = 1, max = 255) String name,
+                                                      @DecimalMin("0.0") BigDecimal priceFrom,
+                                                      @DecimalMin("0.0") BigDecimal priceTo,
+                                                      @NotNull @Min(0) Integer page,
+                                                      @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductEntity> products;
+        Page<Product> products;
         if (categoryId == null && name == null && priceFrom == null && priceTo == null) {
             return getAllProducts(page, size);
         } else if (categoryId != null && name == null && priceFrom == null && priceTo == null) {
-            products = productRepository.findAllByCategoryId(categoryId, pageable);
+            products = productRepository.findAllByCategoryId(categoryId, pageable)
+                    .map(productMapper::fromEntity);
         } else if (categoryId == null && name != null && priceFrom == null && priceTo == null) {
-            products = productRepository.findAllByNameContainingIgnoreCase(name, pageable);
+            products = productRepository
+                    .findAllByNameContainingIgnoreCase(name, pageable)
+                    .map(productMapper::fromEntity);
         } else if (categoryId == null && name == null && priceFrom != null && priceTo != null) {
-            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable);
+            products = productRepository
+                    .findAllByPriceBetween(priceFrom, priceTo, pageable)
+                    .map(productMapper::fromEntity);
         } else if (categoryId != null && name != null && priceFrom == null && priceTo == null) {
-            products = productRepository.findAllByCategoryIdAndNameContainingIgnoreCase(categoryId, name, pageable);
+            products = productRepository
+                    .findAllByCategoryIdAndNameContainingIgnoreCase(categoryId, name, pageable)
+                    .map(productMapper::fromEntity);
         } else if (categoryId != null && name == null && priceFrom != null && priceTo != null) {
-            products = productRepository.findAllByCategoryIdAndPriceBetween(categoryId, priceFrom, priceTo, pageable);
+            products = productRepository
+                    .findAllByCategoryIdAndPriceBetween(categoryId, priceFrom, priceTo, pageable)
+                    .map(productMapper::fromEntity);
         } else if (categoryId == null && name != null && priceFrom != null && priceTo != null) {
-            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable);
+            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable)
+                    .map(productMapper::fromEntity);
         } else {
             products =
                     productRepository.findAllByCategoryIdAndNameContainingIgnoreCaseAndPriceBetween(categoryId, name,
-                            priceFrom, priceTo, pageable);
+                            priceFrom, priceTo, pageable).map(productMapper::fromEntity);
         }
-        return products.map(productMapper::fromEntity).toList();
+        return new PagedResponse<>(products.getTotalPages(), products.toList());
     }
 
     @Override

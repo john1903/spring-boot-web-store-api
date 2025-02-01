@@ -7,6 +7,7 @@ import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
@@ -23,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -90,10 +90,10 @@ public class UserService implements IUser {
     }
 
     @Override
-    public List<User> getAllUsers(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<User> getAllUsers(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> userPage = userRepository.findAll(pageable).map(userMapper::fromEntity);
-        return userPage.toList();
+        Page<User> users = userRepository.findAll(pageable).map(userMapper::fromEntity);
+        return new PagedResponse<>(users.getTotalPages(), users.toList());
     }
 
     @Override

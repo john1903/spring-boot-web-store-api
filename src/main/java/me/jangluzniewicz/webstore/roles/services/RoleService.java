@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,10 +51,10 @@ public class RoleService implements IRole {
     }
 
     @Override
-    public List<Role> getAllRoles(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Role> getAllRoles(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Role> roles = roleRepository.findAll(pageable).map(roleMapper::fromEntity);
-        return roles.toList();
+        return new PagedResponse<>(roles.getTotalPages(), roles.toList());
     }
 
     @Override

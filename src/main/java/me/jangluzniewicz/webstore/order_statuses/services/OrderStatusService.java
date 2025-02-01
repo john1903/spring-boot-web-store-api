@@ -12,6 +12,7 @@ import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,10 +51,10 @@ public class OrderStatusService implements IOrderStatus {
     }
 
     @Override
-    public List<OrderStatus> getAllOrderStatuses(@NotNull @Min(1) Integer page, @Min(1) Integer size) {
+    public PagedResponse<OrderStatus> getAllOrderStatuses(@NotNull @Min(0) Integer page, @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderStatus> orderStatuses = orderStatusRepository.findAll(pageable).map(orderStatusMapper::fromEntity);
-        return orderStatuses.toList();
+        return new PagedResponse<>(orderStatuses.getTotalPages(), orderStatuses.toList());
     }
 
     @Override

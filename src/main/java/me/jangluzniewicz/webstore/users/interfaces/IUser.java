@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.users.interfaces;
 
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.models.User;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IUser {
@@ -13,7 +13,7 @@ public interface IUser {
 
     Optional<User> getUserByEmail(String email);
 
-    List<User> getAllUsers(Integer page, Integer size);
+    PagedResponse<User> getAllUsers(Integer page, Integer size);
 
     Long updateUser(Long id, UserRequest userRequest);
 

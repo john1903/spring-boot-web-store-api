@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.roles.interfaces;
 
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.models.Role;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IRole {
@@ -11,7 +11,7 @@ public interface IRole {
 
     Optional<Role> getRoleById(Long id);
 
-    List<Role> getAllRoles(Integer page, Integer size);
+    PagedResponse<Role> getAllRoles(Integer page, Integer size);
 
     Long updateRole(Long id, RoleRequest roleRequest);
 

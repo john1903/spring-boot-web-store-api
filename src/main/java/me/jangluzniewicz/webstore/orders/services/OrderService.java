@@ -18,6 +18,7 @@ import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.orders.models.OrderItem;
 import me.jangluzniewicz.webstore.orders.models.Rating;
 import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
@@ -29,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -91,25 +91,25 @@ public class OrderService implements IOrder {
     }
 
     @Override
-    public List<Order> getOrdersByCustomerId(@NotNull @Min(1) Long customerId,
-                                             @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Order> getOrdersByCustomerId(@NotNull @Min(1) Long customerId,
+                                                      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> orders = orderRepository.findAllByCustomerIdOrderByOrderDateAscIdAsc(customerId, pageable)
                 .map(orderMapper::fromEntity);
-        return orders.toList();
+        return new PagedResponse<>(orders.getTotalPages(), orders.toList());
     }
 
     @Override
-    public List<Order> getAllOrders(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Order> getAllOrders(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> orders = orderRepository.findAll(pageable).map(orderMapper::fromEntity);
-        return orders.toList();
+        return new PagedResponse<>(orders.getTotalPages(), orders.toList());
     }
 
     @Override
-    public List<Order> getFilteredOrders(@Min(1) Long statusId, LocalDateTime orderDateAfter,
-                                         LocalDateTime orderDateBefore,
-                                         @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Order> getFilteredOrders(@Min(1) Long statusId, LocalDateTime orderDateAfter,
+                                                  LocalDateTime orderDateBefore,
+                                                  @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> orders;
         if (statusId != null && orderDateAfter != null && orderDateBefore != null) {
@@ -126,7 +126,7 @@ public class OrderService implements IOrder {
         } else {
             return getAllOrders(page, size);
         }
-        return orders.toList();
+        return new PagedResponse<>(orders.getTotalPages(), orders.toList());
     }
 
     @Override

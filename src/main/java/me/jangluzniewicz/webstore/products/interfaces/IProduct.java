@@ -1,10 +1,10 @@
 package me.jangluzniewicz.webstore.products.interfaces;
 
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.models.Product;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 public interface IProduct {
@@ -14,9 +14,9 @@ public interface IProduct {
 
     Optional<Product> getProductById(Long id);
 
-    List<Product> getAllProducts(Integer page, Integer size);
+    PagedResponse<Product> getAllProducts(Integer page, Integer size);
 
-    List<Product> getFilteredProducts(Long categoryId, String name,
+    PagedResponse<Product> getFilteredProducts(Long categoryId, String name,
                                       BigDecimal priceFrom, BigDecimal priceTo,
                                       Integer page, Integer size);
 

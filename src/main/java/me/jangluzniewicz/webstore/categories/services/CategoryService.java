@@ -12,6 +12,7 @@ import me.jangluzniewicz.webstore.categories.repositories.CategoryRepository;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,10 +51,10 @@ public class CategoryService implements ICategory {
     }
 
     @Override
-    public List<Category> getAllCategories(@NotNull @Min(1) Integer page, @NotNull @Min(1) Integer size) {
+    public PagedResponse<Category> getAllCategories(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Category> categories = categoryRepository.findAll(pageable).map(categoryMapper::fromEntity);
-        return categories.toList();
+        return new PagedResponse<>(categories.getTotalPages(), categories.toList());
     }
 
     @Override

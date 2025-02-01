@@ -2,6 +2,7 @@ package me.jangluzniewicz.webstore.orders.interfaces;
 
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
+import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
@@ -23,6 +24,8 @@ public interface IOrder {
     Long updateOrder(Long id, OrderRequest orderRequest);
 
     Long changeOrderStatus(Long id, ChangeOrderStatusRequest changeOrderStatusRequest);
+
+    Long addRatingToOrder(Long id, RatingRequest ratingRequest);
 
     void deleteOrder(Long id);
 }

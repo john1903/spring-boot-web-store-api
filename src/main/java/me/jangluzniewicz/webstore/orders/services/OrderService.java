@@ -3,12 +3,14 @@ package me.jangluzniewicz.webstore.orders.services;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
+import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
 import me.jangluzniewicz.webstore.orders.mappers.OrderItemMapper;
@@ -172,6 +174,21 @@ public class OrderService implements IOrder {
                 () -> new NotFoundException("Order status with id "
                         + changeOrderStatusRequest.getOrderStatusId() + " not found"))));
         orderEntity.setStatusChangeDate(LocalDateTime.now());
+        return orderEntity.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest) {
+        OrderEntity orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+        if (orderRepository.existsByRatingIsNotNullAndId(id)) {
+            throw new ConflictException("Rating for order with id " + id + " already exists");
+        }
+        orderEntity.setRating(ratingMapper.toEntity(Rating.builder()
+                .rating(ratingRequest.getRating())
+                .description(ratingRequest.getDescription())
+                .build()));
         return orderEntity.getId();
     }
 

@@ -86,6 +86,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex, HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.CONFLICT.name())
+                .code(HttpStatus.CONFLICT.value())
+                .detail(ex.getMessage())
+                .path(url)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
         String url = request.getRequestURL().toString();

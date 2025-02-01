@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.orders.controllers;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +15,8 @@ public class OrderRequest {
     private LocalDateTime statusChangeDate;
     @NotNull(message = "customerId is required")
     private Long customerId;
-    private OrderStatus status;
+    private Long statusId;
+    @Valid
     private RatingRequest rating;
-    private List<OrderItemRequest> items;
+    private List<@Valid OrderItemRequest> items;
 }

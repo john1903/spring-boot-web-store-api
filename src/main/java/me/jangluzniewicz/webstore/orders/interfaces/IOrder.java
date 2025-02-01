@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface IOrder {
     Long createNewOrder(OrderRequest orderRequest);
 
-    Optional<Order> getOrderById(Long orderId);
+    Optional<Order> getOrderById(Long id);
 
     List<Order> getOrdersByCustomerId(Long customerId, Integer page, Integer size);
 
@@ -20,9 +20,9 @@ public interface IOrder {
     List<Order> getFilteredOrders(Long statusId, LocalDateTime orderDateAfter, LocalDateTime orderDateBefore,
                                   Integer page, Integer size);
 
-    Long updateOrder(Long orderId, OrderRequest orderRequest);
+    Long updateOrder(Long id, OrderRequest orderRequest);
 
-    Long changeOrderStatus(Long orderId, ChangeOrderStatusRequest changeOrderStatusRequest);
+    Long changeOrderStatus(Long id, ChangeOrderStatusRequest changeOrderStatusRequest);
 
-    void deleteOrder(Long orderId);
+    void deleteOrder(Long id);
 }

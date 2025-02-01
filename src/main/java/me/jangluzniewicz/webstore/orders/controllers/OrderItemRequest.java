@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 public class OrderItemRequest {
+    private Long id;
     @NotNull(message = "productId is required")
     private Long productId;
     @NotNull(message = "quantity is required")

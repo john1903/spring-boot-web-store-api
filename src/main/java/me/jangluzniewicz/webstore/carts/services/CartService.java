@@ -63,6 +63,7 @@ public class CartService implements ICart {
                     .orElseThrow(() -> new NotFoundException("Product with id "
                             + cartItemRequest.getProductId() + " not found"));
             return CartItemEntity.builder()
+                    .id(cartItemRequest.getId())
                     .product(productMapper.toEntity(product))
                     .quantity(cartItemRequest.getQuantity())
                     .build();

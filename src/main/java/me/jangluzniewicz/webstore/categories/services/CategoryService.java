@@ -81,6 +81,8 @@ public class CategoryService implements ICategory {
             if (e.getCause() instanceof ConstraintViolationException) {
                 throw new DeletionNotAllowedException("Category with id " + id +
                         " cannot be deleted due to existing relations");
+            } else {
+                throw e;
             }
         }
     }

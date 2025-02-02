@@ -73,14 +73,17 @@ public class OrderStatusService implements IOrderStatus {
     @Override
     @Transactional
     public void deleteOrderStatus(@NotNull @Min(1) Long id) {
-        OrderStatusEntity orderStatusEntity = orderStatusRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Order status with id " + id + " not found"));
+        if (!orderStatusRepository.existsById(id)) {
+            throw new NotFoundException("Order status with id " + id + " not found");
+        }
         try {
-            orderStatusRepository.delete(orderStatusEntity);
+            orderStatusRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 throw new DeletionNotAllowedException("Order status with id " + id +
                         " cannot be deleted due to existing relations");
+            } else {
+                throw e;
             }
         }
     }

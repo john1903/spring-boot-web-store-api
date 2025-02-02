@@ -128,6 +128,33 @@ class CategoryServiceTest {
     }
 
     @Test
+    public void shouldThrowNotFoundExceptionWhenUpdatingNonExistentCategory() {
+        CategoryRequest categoryRequest = new CategoryRequest("Groceries");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(1L, categoryRequest));
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenUpdatingCategoryWithSameName() {
+        CategoryRequest categoryRequest = new CategoryRequest("Clothes");
+        CategoryEntity categoryEntity = new CategoryEntity(1L, "Clothes");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())).thenReturn(true);
+
+        assertDoesNotThrow(() -> categoryService.updateCategory(1L, categoryRequest));
+    }
+
+    @Test
+    public void shouldDeleteCategoryById() {
+        when(categoryRepository.existsById(1L)).thenReturn(true);
+
+        assertDoesNotThrow(() -> categoryService.deleteCategory(1L));
+    }
+
+    @Test
     public void shouldThrowNotFoundExceptionWhenDeletingNonExistentCategory() {
         when(categoryRepository.existsById(1L)).thenReturn(false);
 
@@ -135,11 +162,20 @@ class CategoryServiceTest {
     }
 
     @Test
-    public void shouldThrowDeletionNotAllowedExceptionWhenDeletingCategoryWithProducts() {
+    public void shouldThrowDeletionNotAllowedExceptionWhenDeletingCategoryWithDependencies() {
         when(categoryRepository.existsById(1L)).thenReturn(true);
         doThrow(new DataIntegrityViolationException("", new ConstraintViolationException("", new SQLException(), "")))
                 .when(categoryRepository).deleteById(1L);
 
         assertThrows(DeletionNotAllowedException.class, () -> categoryService.deleteCategory(1L));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+        when(categoryRepository.existsById(1L)).thenReturn(true);
+        doThrow(new DataIntegrityViolationException("", new SQLException()))
+                .when(categoryRepository).deleteById(1L);
+
+        assertThrows(DataIntegrityViolationException.class, () -> categoryService.deleteCategory(1L));
     }
 }

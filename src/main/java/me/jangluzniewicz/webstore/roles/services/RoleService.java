@@ -82,6 +82,8 @@ public class RoleService implements IRole {
             if (e.getCause() instanceof ConstraintViolationException) {
                 throw new DeletionNotAllowedException("Role with id " + id +
                         " cannot be deleted due to existing relations");
+            } else {
+                throw e;
             }
         }
     }

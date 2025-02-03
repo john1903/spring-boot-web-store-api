@@ -582,4 +582,33 @@ class ProductServiceTest {
     assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
+
+  @Test
+  public void
+      shouldThrowExceptionWhenGettingFilteredProductsWithInvalidPriceRangeFiltersPriceToEqualsNull() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            productService.getFilteredProducts(
+                null, null, BigDecimal.valueOf(1000.0), null, 0, 10));
+  }
+
+  @Test
+  public void
+      shouldThrowExceptionWhenGettingFilteredProductsWithInvalidPriceRangeFiltersPriceFromEqualsNull() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            productService.getFilteredProducts(
+                null, null, null, BigDecimal.valueOf(2000.0), 0, 10));
+  }
+
+  @Test
+  public void shouldThrowExceptionWhenGettingFilteredProductsWithPriceFromGreaterThanPriceTo() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            productService.getFilteredProducts(
+                null, null, BigDecimal.valueOf(2000.0), BigDecimal.valueOf(1000.0), 0, 10));
+  }
 }

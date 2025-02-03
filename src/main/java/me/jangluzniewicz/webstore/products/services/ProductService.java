@@ -105,36 +105,42 @@ public class ProductService implements IProduct {
       @DecimalMin("0.0") BigDecimal priceTo,
       @NotNull @Min(0) Integer page,
       @NotNull @Min(1) Integer size) {
+    if ((priceFrom != null && priceTo == null) || (priceFrom == null && priceTo != null)) {
+      throw new IllegalArgumentException("Both priceFrom and priceTo must be provided.");
+    }
+    if (priceFrom != null && priceFrom.compareTo(priceTo) > 0) {
+      throw new IllegalArgumentException("priceFrom must be less than or equal to priceTo.");
+    }
     Pageable pageable = PageRequest.of(page, size);
     Page<Product> products;
-    if (categoryId == null && name == null && priceFrom == null && priceTo == null) {
+    if (categoryId == null && name == null && priceFrom == null) {
       return getAllProducts(page, size);
-    } else if (categoryId != null && name == null && priceFrom == null && priceTo == null) {
+    } else if (categoryId != null && name == null && priceFrom == null) {
       products =
           productRepository
               .findAllByCategoryId(categoryId, pageable)
               .map(productMapper::fromEntity);
-    } else if (categoryId == null && name != null && priceFrom == null && priceTo == null) {
+    } else if (categoryId == null && name != null && priceFrom == null) {
       products =
           productRepository
               .findAllByNameContainingIgnoreCase(name, pageable)
               .map(productMapper::fromEntity);
-    } else if (categoryId == null && name == null && priceFrom != null && priceTo != null) {
+    } else if (categoryId == null && name == null) {
       products =
           productRepository
               .findAllByPriceBetween(priceFrom, priceTo, pageable)
               .map(productMapper::fromEntity);
-    } else if (categoryId != null && name != null && priceFrom == null && priceTo == null) {
+    } else if (categoryId != null && name != null && priceFrom == null) {
       products =
           productRepository
               .findAllByCategoryIdAndNameContainingIgnoreCase(categoryId, name, pageable)
               .map(productMapper::fromEntity);
-    } else if (categoryId != null && name == null && priceFrom != null && priceTo != null) {
+    } else if (categoryId != null && name == null) {
       products =
           productRepository
               .findAllByCategoryIdAndPriceBetween(categoryId, priceFrom, priceTo, pageable)
               .map(productMapper::fromEntity);
-    } else if (categoryId == null && name != null && priceFrom != null && priceTo != null) {
+    } else if (categoryId == null) {
       products =
           productRepository
               .findAllByNameContainingIgnoreCaseAndPriceBetween(name, priceFrom, priceTo, pageable)

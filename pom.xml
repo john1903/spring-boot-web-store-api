@@ -148,6 +148,14 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*MapperImpl.class</exclude>
+                                <exclude>me/jangluzniewicz/webstore/security/config/**</exclude>
+                                <exclude>me/jangluzniewicz/webstore/exceptions/**</exclude>
+                                <exclude>me/jangluzniewicz/webstore/WebStoreApplication.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

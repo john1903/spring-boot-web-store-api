@@ -114,8 +114,8 @@ public class ProductService implements IProduct {
                     .findAllByCategoryIdAndPriceBetween(categoryId, priceFrom, priceTo, pageable)
                     .map(productMapper::fromEntity);
         } else if (categoryId == null && name != null && priceFrom != null && priceTo != null) {
-            products = productRepository.findAllByPriceBetween(priceFrom, priceTo, pageable)
-                    .map(productMapper::fromEntity);
+            products = productRepository.findAllByNameContainingIgnoreCaseAndPriceBetween(name, priceFrom,
+                    priceTo, pageable).map(productMapper::fromEntity);
         } else {
             products =
                     productRepository.findAllByCategoryIdAndNameContainingIgnoreCaseAndPriceBetween(categoryId, name,
@@ -135,6 +135,8 @@ public class ProductService implements IProduct {
             if (e.getCause() instanceof ConstraintViolationException) {
                 throw new DeletionNotAllowedException("Product with id " + id +
                         " cannot be deleted due to existing relations");
+            } else {
+                throw e;
             }
         }
     }

@@ -14,6 +14,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Page<ProductEntity> findAllByPriceBetween(BigDecimal priceFrom, BigDecimal priceTo, Pageable pageable);
     Page<ProductEntity> findAllByCategoryIdAndPriceBetween(Long categoryId, BigDecimal priceFrom,
                                                        BigDecimal priceTo, Pageable pageable);
+    Page<ProductEntity> findAllByNameContainingIgnoreCaseAndPriceBetween(String name, BigDecimal priceFrom,
+                                                                   BigDecimal priceTo, Pageable pageable);
     Page<ProductEntity> findAllByCategoryIdAndNameContainingIgnoreCaseAndPriceBetween(Long categoryId, String name,
                                                                                       BigDecimal priceFrom,
                                                                                       BigDecimal priceTo,

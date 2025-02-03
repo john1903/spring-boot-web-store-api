@@ -14,14 +14,16 @@ import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 @Builder
 @Table(name = "cart_items")
 public class CartItemEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    @NonNull
-    private ProductEntity product;
-    @Column(nullable = false)
-    @NonNull
-    private Integer quantity;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne
+  @JoinColumn(name = "product_id", nullable = false)
+  @NonNull
+  private ProductEntity product;
+
+  @Column(nullable = false)
+  @NonNull
+  private Integer quantity;
 }

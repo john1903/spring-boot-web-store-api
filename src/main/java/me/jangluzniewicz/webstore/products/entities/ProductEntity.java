@@ -1,10 +1,9 @@
 package me.jangluzniewicz.webstore.products.entities;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
-
-import java.math.BigDecimal;
 
 @Entity
 @AllArgsConstructor
@@ -16,20 +15,25 @@ import java.math.BigDecimal;
 @Builder
 @Table(name = "products")
 public class ProductEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false)
-    @NonNull
-    private String name;
-    @Column(length = 5000)
-    private String description;
-    @Column(nullable = false)
-    @NonNull
-    private BigDecimal price;
-    private BigDecimal weight;
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    @NonNull
-    private CategoryEntity category;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false)
+  @NonNull
+  private String name;
+
+  @Column(length = 5000)
+  private String description;
+
+  @Column(nullable = false)
+  @NonNull
+  private BigDecimal price;
+
+  private BigDecimal weight;
+
+  @ManyToOne
+  @JoinColumn(name = "category_id", nullable = false)
+  @NonNull
+  private CategoryEntity category;
 }

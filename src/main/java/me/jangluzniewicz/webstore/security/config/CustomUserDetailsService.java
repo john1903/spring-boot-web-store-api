@@ -9,24 +9,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserService userService;
+  private final UserService userService;
 
-    public CustomUserDetailsService(UserService userService) {
-        this.userService = userService;
-    }
+  public CustomUserDetailsService(UserService userService) {
+    this.userService = userService;
+  }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userService.getUserByEmail(username)
-                .map(this::mapUserToUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + username + " not found"));
-    }
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userService
+        .getUserByEmail(username)
+        .map(this::mapUserToUserDetails)
+        .orElseThrow(
+            () -> new UsernameNotFoundException("User with email " + username + " not found"));
+  }
 
-    private UserDetails mapUserToUserDetails(me.jangluzniewicz.webstore.users.models.User user) {
-        return User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().getName())
-                .build();
-    }
+  private UserDetails mapUserToUserDetails(me.jangluzniewicz.webstore.users.models.User user) {
+    return User.builder()
+        .username(user.getEmail())
+        .password(user.getPassword())
+        .roles(user.getRole().getName())
+        .build();
+  }
 }

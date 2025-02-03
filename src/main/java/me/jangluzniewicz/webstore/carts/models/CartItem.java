@@ -12,9 +12,7 @@ import me.jangluzniewicz.webstore.products.models.Product;
 @EqualsAndHashCode
 @Builder
 public class CartItem {
-    private Long id;
-    @NonNull
-    private Product product;
-    @NonNull
-    private Integer quantity;
+  private Long id;
+  @NonNull private Product product;
+  @NonNull private Integer quantity;
 }

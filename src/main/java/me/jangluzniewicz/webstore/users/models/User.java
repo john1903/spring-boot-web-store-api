@@ -12,13 +12,9 @@ import me.jangluzniewicz.webstore.roles.models.Role;
 @EqualsAndHashCode
 @Builder
 public class User {
-    private Long id;
-    @NonNull
-    private Role role;
-    @NonNull
-    private String email;
-    @NonNull
-    private String password;
-    @NonNull
-    private String phoneNumber;
+  private Long id;
+  @NonNull private Role role;
+  @NonNull private String email;
+  @NonNull private String password;
+  @NonNull private String phoneNumber;
 }

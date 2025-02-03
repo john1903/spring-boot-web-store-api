@@ -11,7 +11,6 @@ import lombok.*;
 @EqualsAndHashCode
 @Builder
 public class Role {
-    private Long id;
-    @NonNull
-    private String name;
+  private Long id;
+  @NonNull private String name;
 }

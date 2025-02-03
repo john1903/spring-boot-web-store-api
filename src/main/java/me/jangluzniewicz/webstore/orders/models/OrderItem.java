@@ -1,9 +1,8 @@
 package me.jangluzniewicz.webstore.orders.models;
 
+import java.math.BigDecimal;
 import lombok.*;
 import me.jangluzniewicz.webstore.products.models.Product;
-
-import java.math.BigDecimal;
 
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -14,12 +13,9 @@ import java.math.BigDecimal;
 @EqualsAndHashCode
 @Builder
 public class OrderItem {
-    private Long id;
-    @NonNull
-    private Product product;
-    @NonNull
-    private Integer quantity;
-    @NonNull
-    private BigDecimal price;
-    private BigDecimal discount;
+  private Long id;
+  @NonNull private Product product;
+  @NonNull private Integer quantity;
+  @NonNull private BigDecimal price;
+  private BigDecimal discount;
 }

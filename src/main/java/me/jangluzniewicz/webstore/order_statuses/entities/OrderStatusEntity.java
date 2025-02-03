@@ -13,10 +13,11 @@ import lombok.*;
 @Builder
 @Table(name = "order_statuses")
 public class OrderStatusEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, unique = true)
-    @NonNull
-    private String name;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, unique = true)
+  @NonNull
+  private String name;
 }

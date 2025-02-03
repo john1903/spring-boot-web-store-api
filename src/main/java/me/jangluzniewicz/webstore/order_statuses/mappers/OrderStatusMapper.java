@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface OrderStatusMapper {
-    OrderStatus fromEntity(OrderStatusEntity entity);
-    OrderStatusEntity toEntity(OrderStatus model);
+  OrderStatus fromEntity(OrderStatusEntity entity);
+
+  OrderStatusEntity toEntity(OrderStatus model);
 }

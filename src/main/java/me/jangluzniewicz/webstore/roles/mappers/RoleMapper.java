@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
-    Role fromEntity(RoleEntity entity);
-    RoleEntity toEntity(Role model);
+  Role fromEntity(RoleEntity entity);
+
+  RoleEntity toEntity(Role model);
 }

@@ -8,6 +8,6 @@ import lombok.*;
 @Setter
 @Builder
 class ErrorDetail {
-    private String field;
-    private String message;
+  private String field;
+  private String message;
 }

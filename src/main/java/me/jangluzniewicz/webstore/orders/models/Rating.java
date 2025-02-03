@@ -11,9 +11,7 @@ import lombok.*;
 @EqualsAndHashCode
 @Builder
 public class Rating {
-    private Long id;
-    @NonNull
-    private Integer rating;
-    @NonNull
-    private String description;
+  private Long id;
+  @NonNull private Integer rating;
+  @NonNull private String description;
 }

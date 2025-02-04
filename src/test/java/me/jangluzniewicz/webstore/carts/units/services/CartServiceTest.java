@@ -82,11 +82,7 @@ class CartServiceTest {
   public void shouldThrowConflictExceptionWhenCartExistsForGivenCustomerId() {
     when(cartRepository.existsByCustomerId(1L)).thenReturn(true);
 
-    assertThrows(
-        ConflictException.class,
-        () -> {
-          cartService.createNewCart(1L);
-        });
+    assertThrows(ConflictException.class, () -> cartService.createNewCart(1L));
   }
 
   @Test

@@ -65,9 +65,9 @@ public class UserService implements IUser {
                             new NotFoundException(
                                 "Role with id " + userRequest.getRoleId() + " not found")))
             .build();
-    user.setId(userRepository.save(userMapper.toEntity(user)).getId());
-    cartService.createNewCart(user);
-    return user.getId();
+    Long userId = userRepository.save(userMapper.toEntity(user)).getId();
+    cartService.createNewCart(userId);
+    return userId;
   }
 
   @Override

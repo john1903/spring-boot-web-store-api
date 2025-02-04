@@ -4,10 +4,9 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.models.Cart;
-import me.jangluzniewicz.webstore.users.models.User;
 
 public interface ICart {
-  Long createNewCart(User customer);
+  Long createNewCart(Long customerId);
 
   Optional<Cart> getCartByCustomerId(Long customerId);
 

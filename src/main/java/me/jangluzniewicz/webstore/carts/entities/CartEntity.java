@@ -3,7 +3,6 @@ package me.jangluzniewicz.webstore.carts.entities;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
-import me.jangluzniewicz.webstore.users.entities.UserEntity;
 
 @Entity
 @AllArgsConstructor
@@ -19,10 +18,9 @@ public class CartEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne
-  @JoinColumn(name = "customer_id", nullable = false)
   @NonNull
-  private UserEntity customer;
+  @Column(name = "customer_id", nullable = false)
+  private Long customerId;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "cart_id")

@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.roles.services;
+package me.jangluzniewicz.webstore.roles.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,6 +17,7 @@ import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
+import me.jangluzniewicz.webstore.roles.services.RoleService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -14,11 +14,11 @@ import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
 import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
+import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
 import me.jangluzniewicz.webstore.products.models.Product;
-import me.jangluzniewicz.webstore.users.models.User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,8 +41,11 @@ public class CartService implements ICart {
 
   @Override
   @Transactional
-  public Long createNewCart(@NotNull User customer) {
-    Cart cart = Cart.builder().customer(customer).items(new ArrayList<>()).build();
+  public Long createNewCart(@NotNull Long customerId) {
+    if (cartRepository.existsByCustomerId(customerId)) {
+      throw new ConflictException("Cart for customer with id " + customerId + " already exists");
+    }
+    Cart cart = Cart.builder().customerId(customerId).items(new ArrayList<>()).build();
     return cartRepository.save(cartMapper.toEntity(cart)).getId();
   }
 

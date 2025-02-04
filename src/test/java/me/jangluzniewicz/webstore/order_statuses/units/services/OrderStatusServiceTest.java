@@ -182,7 +182,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(orderStatusRepository)

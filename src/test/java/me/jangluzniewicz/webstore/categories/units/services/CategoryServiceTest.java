@@ -173,7 +173,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
     when(categoryRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(categoryRepository)

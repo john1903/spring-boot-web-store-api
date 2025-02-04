@@ -170,7 +170,7 @@ class RoleServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
     when(roleRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(roleRepository)

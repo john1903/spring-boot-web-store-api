@@ -117,6 +117,8 @@ public class UserService implements IUser {
       if (e.getCause() instanceof ConstraintViolationException) {
         throw new DeletionNotAllowedException(
             "User with id " + id + " cannot be deleted due to existing relations");
+      } else {
+        throw e;
       }
     }
   }

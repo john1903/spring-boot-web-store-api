@@ -285,6 +285,8 @@ public class OrderService implements IOrder {
       if (e.getCause() instanceof ConstraintViolationException) {
         throw new DeletionNotAllowedException(
             "Product with id " + id + " cannot be deleted due to existing relations");
+      } else {
+        throw e;
       }
     }
   }

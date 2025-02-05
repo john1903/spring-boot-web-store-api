@@ -71,8 +71,6 @@ public class OrderService implements IOrder {
   public Long createNewOrder(@NotNull OrderRequest orderRequest) {
     Order order =
         Order.builder()
-            .orderDate(orderRequest.getOrderDate())
-            .statusChangeDate(orderRequest.getStatusChangeDate())
             .customer(
                 userService
                     .getUserById(orderRequest.getCustomerId())
@@ -80,20 +78,6 @@ public class OrderService implements IOrder {
                         () ->
                             new NotFoundException(
                                 "User with id " + orderRequest.getCustomerId() + " not found")))
-            .status(
-                orderStatusService
-                    .getOrderStatusById(orderRequest.getStatusId())
-                    .orElseThrow(
-                        () ->
-                            new NotFoundException(
-                                "Order status with id "
-                                    + orderRequest.getStatusId()
-                                    + " not found")))
-            .rating(
-                Rating.builder()
-                    .rating(orderRequest.getRating().getRating())
-                    .description(orderRequest.getRating().getDescription())
-                    .build())
             .items(
                 orderRequest.getItems().stream()
                     .map(
@@ -108,6 +92,7 @@ public class OrderService implements IOrder {
                                                     "Product with id "
                                                         + orderItemRequest.getProductId()
                                                         + " not found")))
+                                .price(orderItemRequest.getPrice())
                                 .quantity(orderItemRequest.getQuantity())
                                 .discount(orderItemRequest.getDiscount())
                                 .build())

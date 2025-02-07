@@ -10,22 +10,17 @@ import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
-import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
-import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
-import me.jangluzniewicz.webstore.orders.mappers.OrderItemMapper;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
-import me.jangluzniewicz.webstore.orders.mappers.RatingMapper;
 import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.orders.models.OrderItem;
 import me.jangluzniewicz.webstore.orders.models.Rating;
 import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
-import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -40,30 +35,18 @@ public class OrderService implements IOrder {
   private final IUser userService;
   private final IProduct productService;
   private final OrderMapper orderMapper;
-  private final UserMapper userMapper;
-  private final OrderStatusMapper orderStatusMapper;
-  private final OrderItemMapper orderItemMapper;
-  private final RatingMapper ratingMapper;
 
   public OrderService(
       OrderRepository orderRepository,
       IUser userService,
       IProduct productService,
       IOrderStatus orderStatusService,
-      OrderMapper orderMapper,
-      UserMapper userMapper,
-      OrderStatusMapper orderStatusMapper,
-      OrderItemMapper orderItemMapper,
-      RatingMapper ratingMapper) {
+      OrderMapper orderMapper) {
     this.orderRepository = orderRepository;
     this.userService = userService;
     this.productService = productService;
     this.orderStatusService = orderStatusService;
     this.orderMapper = orderMapper;
-    this.userMapper = userMapper;
-    this.orderStatusMapper = orderStatusMapper;
-    this.orderItemMapper = orderItemMapper;
-    this.ratingMapper = ratingMapper;
   }
 
   @Override
@@ -170,38 +153,36 @@ public class OrderService implements IOrder {
   @Override
   @Transactional
   public Long updateOrder(@NotNull @Min(1) Long id, @NotNull OrderRequest orderRequest) {
-    OrderEntity orderEntity =
-        orderRepository
-            .findById(id)
+    Order order =
+        getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    orderEntity.setOrderDate(orderRequest.getOrderDate());
-    orderEntity.setStatusChangeDate(orderRequest.getStatusChangeDate());
-    orderEntity.setCustomer(
-        userMapper.toEntity(
-            userService
-                .getUserById(orderRequest.getCustomerId())
-                .orElseThrow(
-                    () ->
-                        new NotFoundException(
-                            "User with id " + orderRequest.getCustomerId() + " not found"))));
-    orderEntity.setStatus(
-        orderStatusMapper.toEntity(
-            orderStatusService
+    order.setOrderDate(orderRequest.getOrderDate());
+    order.setStatusChangeDate(orderRequest.getStatusChangeDate());
+    order.setCustomer(
+        userService
+            .getUserById(orderRequest.getCustomerId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "User with id " + orderRequest.getCustomerId() + " not found")));
+    order.setStatus(
+        orderRequest.getStatusId() != null
+            ? orderStatusService
                 .getOrderStatusById(orderRequest.getStatusId())
                 .orElseThrow(
                     () ->
                         new NotFoundException(
-                            "Order status with id " + orderRequest.getStatusId() + " not found"))));
-    orderEntity.setRating(
-        orderRequest.getRating() != null
-            ? ratingMapper.toEntity(
-                Rating.builder()
-                    .id(orderRequest.getRating().getId())
-                    .rating(orderRequest.getRating().getRating())
-                    .description(orderRequest.getRating().getDescription())
-                    .build())
+                            "Order status with id " + orderRequest.getStatusId() + " not found"))
             : null);
-    orderEntity.setItems(
+    order.setRating(
+        orderRequest.getRating() != null
+            ? Rating.builder()
+                .id(orderRequest.getRating().getId())
+                .rating(orderRequest.getRating().getRating())
+                .description(orderRequest.getRating().getDescription())
+                .build()
+            : null);
+    order.setItems(
         orderRequest.getItems().stream()
             .map(
                 orderItemRequest ->
@@ -219,50 +200,44 @@ public class OrderService implements IOrder {
                         .quantity(orderItemRequest.getQuantity())
                         .discount(orderItemRequest.getDiscount())
                         .build())
-            .map(orderItemMapper::toEntity)
             .toList());
-    return orderEntity.getId();
+    return orderRepository.save(orderMapper.toEntity(order)).getId();
   }
 
   @Override
   @Transactional
   public Long changeOrderStatus(
       @NotNull @Min(1) Long id, @NotNull ChangeOrderStatusRequest changeOrderStatusRequest) {
-    OrderEntity orderEntity =
-        orderRepository
-            .findById(id)
+    Order order =
+        getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    orderEntity.setStatus(
-        orderStatusMapper.toEntity(
-            orderStatusService
-                .getOrderStatusById(changeOrderStatusRequest.getOrderStatusId())
-                .orElseThrow(
-                    () ->
-                        new NotFoundException(
-                            "Order status with id "
-                                + changeOrderStatusRequest.getOrderStatusId()
-                                + " not found"))));
-    orderEntity.setStatusChangeDate(LocalDateTime.now());
-    return orderEntity.getId();
+    order.setStatus(
+        orderStatusService
+            .getOrderStatusById(changeOrderStatusRequest.getOrderStatusId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Order status with id "
+                            + changeOrderStatusRequest.getOrderStatusId()
+                            + " not found")));
+    return orderRepository.save(orderMapper.toEntity(order)).getId();
   }
 
   @Override
   @Transactional
   public Long addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest) {
-    OrderEntity orderEntity =
-        orderRepository
-            .findById(id)
+    Order order =
+        getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    if (orderRepository.existsByRatingIsNotNullAndId(id)) {
+    if (order.getRating() != null) {
       throw new ConflictException("Rating for order with id " + id + " already exists");
     }
-    orderEntity.setRating(
-        ratingMapper.toEntity(
-            Rating.builder()
-                .rating(ratingRequest.getRating())
-                .description(ratingRequest.getDescription())
-                .build()));
-    return orderEntity.getId();
+    order.setRating(
+        Rating.builder()
+            .rating(ratingRequest.getRating())
+            .description(ratingRequest.getDescription())
+            .build());
+    return orderRepository.save(orderMapper.toEntity(order)).getId();
   }
 
   @Override

@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.users.services;
+package me.jangluzniewicz.webstore.users.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +21,7 @@ import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
+import me.jangluzniewicz.webstore.users.services.UserService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

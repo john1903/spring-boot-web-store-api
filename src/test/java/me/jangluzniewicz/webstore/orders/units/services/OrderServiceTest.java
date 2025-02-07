@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.orders.services;
+package me.jangluzniewicz.webstore.orders.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,6 +34,7 @@ import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.orders.models.OrderItem;
 import me.jangluzniewicz.webstore.orders.models.Rating;
 import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
+import me.jangluzniewicz.webstore.orders.services.OrderService;
 import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;

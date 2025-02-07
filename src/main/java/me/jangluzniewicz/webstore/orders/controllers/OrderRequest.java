@@ -18,5 +18,7 @@ public class OrderRequest {
 
   private Long statusId;
   @Valid private RatingRequest rating;
+
+  @NotNull(message = "items list can be empty but not null")
   private List<@Valid OrderItemRequest> items;
 }

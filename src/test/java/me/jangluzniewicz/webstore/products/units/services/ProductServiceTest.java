@@ -245,14 +245,14 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderStatusNotFoundOnDelete() {
+  public void shouldThrowNotFoundExceptionWhenProductNotFoundOnDelete() {
     when(productRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> productService.deleteProduct(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingOrderStatusWithDependencies() {
+  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingProductWithDependencies() {
     when(productRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(

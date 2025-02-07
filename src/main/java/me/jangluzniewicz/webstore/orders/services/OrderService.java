@@ -134,9 +134,17 @@ public class OrderService implements IOrder {
       LocalDateTime orderDateBefore,
       @NotNull @Min(0) Integer page,
       @NotNull @Min(1) Integer size) {
+    if ((orderDateAfter != null && orderDateBefore == null)
+        || (orderDateAfter == null && orderDateBefore != null)) {
+      throw new IllegalArgumentException(
+          "Both orderDateAfter and orderDateBefore must be specified");
+    }
+    if (orderDateAfter != null && orderDateAfter.isAfter(orderDateBefore)) {
+      throw new IllegalArgumentException("orderDateAfter must be before orderDateBefore");
+    }
     Pageable pageable = PageRequest.of(page, size);
     Page<Order> orders;
-    if (statusId != null && orderDateAfter != null && orderDateBefore != null) {
+    if (statusId != null && orderDateAfter != null) {
       orders =
           orderRepository
               .findAllByStatusIdAndOrderDateBetweenOrderByOrderDateAscIdAsc(
@@ -147,15 +155,12 @@ public class OrderService implements IOrder {
           orderRepository
               .findAllByStatusIdOrderByOrderDateAscIdAsc(statusId, pageable)
               .map(orderMapper::fromEntity);
-    } else if (orderDateAfter != null && orderDateBefore != null) {
+    } else if (orderDateAfter != null) {
       orders =
           orderRepository
               .findAllByOrderDateBetweenOrderByOrderDateAscIdAsc(
                   orderDateAfter, orderDateBefore, pageable)
               .map(orderMapper::fromEntity);
-    } else if (orderDateAfter != null || orderDateBefore != null) {
-      throw new IllegalArgumentException(
-          "Both orderDateAfter and orderDateBefore must be specified");
     } else {
       return getAllOrders(page, size);
     }
@@ -188,12 +193,14 @@ public class OrderService implements IOrder {
                         new NotFoundException(
                             "Order status with id " + orderRequest.getStatusId() + " not found"))));
     orderEntity.setRating(
-        ratingMapper.toEntity(
-            Rating.builder()
-                .id(orderRequest.getRating().getId())
-                .rating(orderRequest.getRating().getRating())
-                .description(orderRequest.getRating().getDescription())
-                .build()));
+        orderRequest.getRating() != null
+            ? ratingMapper.toEntity(
+                Rating.builder()
+                    .id(orderRequest.getRating().getId())
+                    .rating(orderRequest.getRating().getRating())
+                    .description(orderRequest.getRating().getDescription())
+                    .build())
+            : null);
     orderEntity.setItems(
         orderRequest.getItems().stream()
             .map(

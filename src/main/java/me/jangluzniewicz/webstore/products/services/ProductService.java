@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.products.services;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -7,12 +8,10 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
-import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
-import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
 import me.jangluzniewicz.webstore.products.models.Product;
@@ -29,20 +28,16 @@ public class ProductService implements IProduct {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
   private final ICategory categoryService;
-  private final CategoryMapper categoryMapper;
 
   public ProductService(
-      ProductRepository productRepository,
-      ProductMapper productMapper,
-      ICategory categoryService,
-      CategoryMapper categoryMapper) {
+      ProductRepository productRepository, ProductMapper productMapper, ICategory categoryService) {
     this.productRepository = productRepository;
     this.productMapper = productMapper;
     this.categoryService = categoryService;
-    this.categoryMapper = categoryMapper;
   }
 
   @Override
+  @Transactional
   public Long createNewProduct(@NotNull ProductRequest productRequest) {
     Product product =
         Product.builder()
@@ -64,24 +59,23 @@ public class ProductService implements IProduct {
   }
 
   @Override
+  @Transactional
   public Long updateProduct(@NotNull @Min(1) Long id, @NotNull ProductRequest productRequest) {
-    ProductEntity productEntity =
-        productRepository
-            .findById(id)
+    Product product =
+        getProductById(id)
             .orElseThrow(() -> new NotFoundException("Product with id " + id + " not found"));
-    productEntity.setName(productRequest.getName());
-    productEntity.setDescription(productRequest.getDescription());
-    productEntity.setPrice(productRequest.getPrice());
-    productEntity.setWeight(productRequest.getWeight());
-    productEntity.setCategory(
+    product.setName(productRequest.getName());
+    product.setDescription(productRequest.getDescription());
+    product.setPrice(productRequest.getPrice());
+    product.setWeight(productRequest.getWeight());
+    product.setCategory(
         categoryService
             .getCategoryById(productRequest.getCategoryId())
-            .map(categoryMapper::toEntity)
             .orElseThrow(
                 () ->
                     new NotFoundException(
                         "Category with id " + productRequest.getCategoryId() + " not found")));
-    return productEntity.getId();
+    return productRepository.save(productMapper.toEntity(product)).getId();
   }
 
   @Override
@@ -156,6 +150,7 @@ public class ProductService implements IProduct {
   }
 
   @Override
+  @Transactional
   public void deleteProduct(@NotNull @Min(1) Long id) {
     if (!productRepository.existsById(id)) {
       throw new NotFoundException("Product with id " + id + " not found");

@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
-import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.categories.models.Category;
@@ -59,17 +58,16 @@ public class CategoryService implements ICategory {
   @Override
   @Transactional
   public Long updateCategory(@NotNull @Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
-    CategoryEntity categoryEntity =
-        categoryRepository
-            .findById(id)
+    Category category =
+        getCategoryById(id)
             .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
     if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())
-        && !categoryEntity.getName().equals(categoryRequest.getName())) {
+        && !category.getName().equals(categoryRequest.getName())) {
       throw new NotUniqueException(
           "Category with name " + categoryRequest.getName() + " already exists");
     }
-    categoryEntity.setName(categoryRequest.getName());
-    return categoryEntity.getId();
+    category.setName(categoryRequest.getName());
+    return categoryRepository.save(categoryMapper.toEntity(category)).getId();
   }
 
   @Override

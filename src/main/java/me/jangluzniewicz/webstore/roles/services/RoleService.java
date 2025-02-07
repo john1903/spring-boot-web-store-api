@@ -8,7 +8,6 @@ import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
-import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
@@ -57,16 +56,15 @@ public class RoleService implements IRole {
   @Override
   @Transactional
   public Long updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest) {
-    RoleEntity roleEntity =
-        roleRepository
-            .findById(id)
+    Role role =
+        getRoleById(id)
             .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
     if (roleRepository.existsByNameIgnoreCase(roleRequest.getName())
-        && !roleEntity.getName().equals(roleRequest.getName())) {
+        && !role.getName().equals(roleRequest.getName())) {
       throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
     }
-    roleEntity.setName(roleRequest.getName());
-    return roleEntity.getId();
+    role.setName(roleRequest.getName());
+    return roleRepository.save(roleMapper.toEntity(role)).getId();
   }
 
   @Override

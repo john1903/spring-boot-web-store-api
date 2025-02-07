@@ -9,7 +9,6 @@ import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
-import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
@@ -61,17 +60,16 @@ public class OrderStatusService implements IOrderStatus {
   @Transactional
   public Long updateOrderStatus(
       @NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
-    OrderStatusEntity orderStatusEntity =
-        orderStatusRepository
-            .findById(id)
+    OrderStatus orderStatus =
+        getOrderStatusById(id)
             .orElseThrow(() -> new NotFoundException("Order status with id " + id + " not found"));
     if (orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName())
-        && !orderStatusEntity.getName().equals(orderStatusRequest.getName())) {
+        && !orderStatus.getName().equals(orderStatusRequest.getName())) {
       throw new NotUniqueException(
           "Order status with name " + orderStatusRequest.getName() + " already exists");
     }
-    orderStatusEntity.setName(orderStatusRequest.getName());
-    return orderStatusEntity.getId();
+    orderStatus.setName(orderStatusRequest.getName());
+    return orderStatusRepository.save(orderStatusMapper.toEntity(orderStatus)).getId();
   }
 
   @Override

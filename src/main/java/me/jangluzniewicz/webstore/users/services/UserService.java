@@ -11,7 +11,6 @@ import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
-import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
@@ -73,18 +72,24 @@ public class UserService implements IUser {
   @Override
   @Transactional
   public Long updateUser(@NotNull @Min(1) Long id, @NotNull UserRequest userRequest) {
-    UserEntity userEntity =
-        userRepository
-            .findById(id)
+    User user =
+        getUserById(id)
             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
     if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())
-        && !userEntity.getEmail().equals(userRequest.getEmail())) {
+        && !user.getEmail().equals(userRequest.getEmail())) {
       throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
     }
-    userEntity.setEmail(userRequest.getEmail());
-    userEntity.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-    userEntity.setPhoneNumber(userRequest.getPhoneNumber());
-    return userEntity.getId();
+    user.setRole(
+        roleService
+            .getRoleById(userRequest.getRoleId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Role with id " + userRequest.getRoleId() + " not found")));
+    user.setEmail(userRequest.getEmail());
+    user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+    user.setPhoneNumber(userRequest.getPhoneNumber());
+    return userRepository.save(userMapper.toEntity(user)).getId();
   }
 
   @Override

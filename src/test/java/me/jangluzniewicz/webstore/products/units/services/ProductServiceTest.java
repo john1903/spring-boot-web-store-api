@@ -52,7 +52,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldCreateNewProductAndReturnProductId() {
+  public void createNewProduct_whenCategoryExists_thenReturnProductId() {
     ProductRequest productRequest =
         new ProductRequest(
             "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
@@ -83,7 +83,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenCategoryDoesNotExist() {
+  public void createNewProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     ProductRequest productRequest =
         new ProductRequest(
             "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
@@ -94,7 +94,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnProductWhenGettingProductById() {
+  public void getProductById_whenProductExists_thenReturnProduct() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -127,7 +127,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenProductNotFoundById() {
+  public void getProductById_whenProductDoesNotExist_thenReturnEmpty() {
     when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
     Optional<Product> product = productService.getProductById(1L);
@@ -136,7 +136,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingAllProducts() {
+  public void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -172,7 +172,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldUpdateProductAndReturnProductId() {
+  public void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
     ProductRequest productRequest =
         new ProductRequest(
             "Bicycle XXL",
@@ -199,7 +199,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenProductNotFoundOnUpdate() {
+  public void updateProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
     ProductRequest productRequest =
         new ProductRequest(
             "Bicycle XXL",
@@ -214,7 +214,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenCategoryDoesNotExistOnUpdate() {
+  public void updateProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     ProductRequest productRequest =
         new ProductRequest(
             "Bicycle XXL",
@@ -238,21 +238,21 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldDeleteProductById() {
+  public void deleteProduct_whenProductExists_thenDeleteSuccessfully() {
     when(productRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> productService.deleteProduct(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenProductNotFoundOnDelete() {
+  public void deleteProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
     when(productRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> productService.deleteProduct(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingProductWithDependencies() {
+  public void deleteProduct_whenProductHasDependencies_thenThrowDeletionNotAllowedException() {
     when(productRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -264,7 +264,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void deleteProduct_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(productRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(productRepository)
@@ -274,7 +274,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithoutAnyFilters() {
+  public void getFilteredProducts_whenNoFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -311,7 +311,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithCategoryIdFilter() {
+  public void getFilteredProducts_whenCategoryIdFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -348,7 +348,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithNameFilter() {
+  public void getFilteredProducts_whenNameFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -385,7 +385,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithPriceRangeFilter() {
+  public void getFilteredProducts_whenPriceRangeFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -425,7 +425,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithCategoryIdAndNameFilters() {
+  public void getFilteredProducts_whenCategoryIdAndNameFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -464,7 +464,7 @@ class ProductServiceTest {
 
   @Test
   public void
-      shouldReturnPagedResponseWhenGettingFilteredProductsWithCategoryIdAndPriceRangeFilters() {
+      getFilteredProducts_whenCategoryIdAndPriceRangeFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -504,7 +504,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithNameAndPriceRangeFilters() {
+  public void getFilteredProducts_whenNameAndPriceRangeFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -544,7 +544,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredProductsWithAllFilters() {
+  public void getFilteredProducts_whenAllFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
             1L,
@@ -584,8 +584,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void
-      shouldThrowExceptionWhenGettingFilteredProductsWithInvalidPriceRangeFiltersPriceToEqualsNull() {
+  public void getFilteredProducts_whenPriceToIsNull_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -594,8 +593,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void
-      shouldThrowExceptionWhenGettingFilteredProductsWithInvalidPriceRangeFiltersPriceFromEqualsNull() {
+  public void getFilteredProducts_whenPriceFromIsNull_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -604,7 +602,8 @@ class ProductServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenGettingFilteredProductsWithPriceFromGreaterThanPriceTo() {
+  public void
+      getFilteredProducts_whenPriceFromGreaterThanPriceTo_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->

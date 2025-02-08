@@ -37,7 +37,7 @@ class OrderStatusServiceTest {
   @InjectMocks private OrderStatusService orderStatusService;
 
   @Test
-  public void shouldCreateNewOrderStatusAndReturnOrderStatusId() {
+  public void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("ACCEPTED");
     OrderStatusEntity savedEntity = new OrderStatusEntity(1L, "ACCEPTED");
 
@@ -52,7 +52,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenOrderStatusAlreadyExists() {
+  public void createNewOrderStatus_whenOrderStatusAlreadyExists_thenThrowNotUniqueException() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("ACCEPTED");
 
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName()))
@@ -63,7 +63,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldReturnOrderStatusWhenGettingOrderStatusById() {
+  public void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
     OrderStatusEntity orderStatusEntity = new OrderStatusEntity(1L, "ACCEPTED");
 
     when(orderStatusRepository.findById(1L)).thenReturn(java.util.Optional.of(orderStatusEntity));
@@ -78,7 +78,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenOrderStatusNotFoundById() {
+  public void getOrderStatusById_whenOrderStatusDoesNotExist_thenReturnEmpty() {
     when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
 
     Optional<OrderStatus> orderStatus = orderStatusService.getOrderStatusById(1L);
@@ -87,7 +87,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingAllOrderStatuses() {
+  public void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
     OrderStatusEntity orderStatusEntity = new OrderStatusEntity(1L, "ACCEPTED");
     Pageable pageable = PageRequest.of(0, 10);
     Page<OrderStatusEntity> page = new PageImpl<>(List.of(orderStatusEntity), pageable, 1);
@@ -105,7 +105,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldUpdateOrderStatusAndReturnOrderStatusId() {
+  public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("DELIVERED");
     OrderStatusEntity savedEntity = new OrderStatusEntity(1L, "ACCEPTED");
 
@@ -119,7 +119,8 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenOrderStatusAlreadyExistsOnUpdate() {
+  public void
+      updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("DELIVERED");
     OrderStatusEntity savedEntity = new OrderStatusEntity(1L, "ACCEPTED");
 
@@ -133,7 +134,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderStatusNotFoundOnUpdate() {
+  public void updateOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("DELIVERED");
 
     when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
@@ -144,7 +145,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldNotThrowExceptionWhenUpdatingOrderStatusWithSameName() {
+  public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
     OrderStatusRequest orderStatusRequest = new OrderStatusRequest("ACCEPTED");
     OrderStatusEntity orderStatusEntity = new OrderStatusEntity(1L, "ACCEPTED");
 
@@ -156,21 +157,22 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldDeleteOrderStatusById() {
+  public void deleteOrderStatus_whenOrderStatusExists_thenDeleteSuccessfully() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> orderStatusService.deleteOrderStatus(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderStatusNotFoundOnDelete() {
+  public void deleteOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> orderStatusService.deleteOrderStatus(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingOrderStatusWithDependencies() {
+  public void
+      deleteOrderStatus_whenOrderStatusHasDependencies_thenThrowDeletionNotAllowedException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -182,7 +184,8 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void
+      deleteOrderStatus_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(orderStatusRepository)

@@ -64,7 +64,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldCreateNewCartAndReturnCartId() {
+  public void createNewCart_whenCartDoesNotExist_thenReturnCartId() {
     CartEntity cartEntity =
         CartEntity.builder().id(null).customerId(1L).items(new ArrayList<>()).build();
 
@@ -79,14 +79,14 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldThrowConflictExceptionWhenCartExistsForGivenCustomerId() {
+  public void createNewCart_whenCartExists_thenThrowConflictException() {
     when(cartRepository.existsByCustomerId(1L)).thenReturn(true);
 
     assertThrows(ConflictException.class, () -> cartService.createNewCart(1L));
   }
 
   @Test
-  public void shouldReturnCartByCustomerId() {
+  public void getCartByCustomerId_whenCartExists_thenReturnCart() {
     CartEntity cartEntity =
         CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build();
 
@@ -103,7 +103,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenCartNotFoundByCustomerId() {
+  public void getCartByCustomerId_whenCartDoesNotExist_thenReturnEmpty() {
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
 
     Optional<Cart> cart = cartService.getCartByCustomerId(1L);
@@ -112,7 +112,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldAddProductToCart() {
+  public void addProductToCart_whenCartAndProductExist_thenAddProduct() {
     CartItemRequest cartItemRequest = new CartItemRequest(null, 1L, 1);
 
     when(cartRepository.findByCustomerId(1L))
@@ -126,7 +126,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenCartNotFoundOnAdd() {
+  public void addProductToCart_whenCartDoesNotExist_thenThrowNotFoundException() {
     CartItemRequest cartItemRequest = new CartItemRequest(null, 1L, 1);
 
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
@@ -135,7 +135,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenProductNotFound() {
+  public void addProductToCart_whenProductDoesNotExist_thenThrowNotFoundException() {
     CartItemRequest cartItemRequest = new CartItemRequest(null, 1L, 1);
 
     when(cartRepository.findByCustomerId(1L))
@@ -148,7 +148,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldEmptyCart() {
+  public void emptyCart_whenCartExists_thenEmptyCart() {
     CartEntity cartEntity =
         CartEntity.builder()
             .id(1L)
@@ -163,14 +163,14 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenCartNotFoundOnEmpty() {
+  public void emptyCart_whenCartDoesNotExist_thenThrowNotFoundException() {
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
 
     assertThrows(NotFoundException.class, () -> cartService.emptyCart(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenCartNotFoundOnUpdate() {
+  public void updateCart_whenCartDoesNotExist_thenThrowNotFoundException() {
     CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 1)));
 
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
@@ -179,7 +179,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenProductNotFoundOnUpdate() {
+  public void updateCart_whenProductDoesNotExist_thenThrowNotFoundException() {
     CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(null, 1L, 1)));
 
     when(cartRepository.findByCustomerId(1L))
@@ -192,7 +192,7 @@ class CartServiceTest {
   }
 
   @Test
-  public void shouldUpdateCart() {
+  public void updateCart_whenCartAndProductExist_thenUpdateCart() {
     CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 3)));
 
     when(cartRepository.findByCustomerId(1L))

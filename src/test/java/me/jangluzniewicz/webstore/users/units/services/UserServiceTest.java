@@ -58,7 +58,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldRegisterNewUserAndReturnUserId() {
+  public void registerNewUser_whenEmailIsUniqueAndRoleExists_thenReturnUserId() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123456789");
     UserEntity savedEntity =
@@ -90,7 +90,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenEmailAlreadyExists() {
+  public void registerNewUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123456789");
 
@@ -100,7 +100,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenRoleNotFoundOnRegister() {
+  public void registerNewUser_whenRoleDoesNotExist_thenThrowNotFoundException() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123456789");
 
@@ -112,7 +112,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldUpdateUserAndReturnUserId() {
+  public void updateUser_whenUserExistsAndEmailIsUnique_thenReturnUserId() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123123123");
     UserEntity savedEntity =
@@ -134,7 +134,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenUserNotFoundOnUpdate() {
+  public void updateUser_whenUserDoesNotExist_thenThrowNotFoundException() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123456789");
 
@@ -144,7 +144,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenEmailAlreadyExistsOnUpdate() {
+  public void updateUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123123123");
     UserEntity savedEntity =
@@ -163,7 +163,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldNotThrowNotUniqueExceptionWhenEmailIsTheSameOnUpdate() {
+  public void updateUser_whenEmailIsTheSame_thenDoNotThrowException() {
     UserRequest userRequest =
         new UserRequest(1L, "admin@admin.com", passwordDecoded, "+48123123123");
     UserEntity savedEntity =
@@ -185,7 +185,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldReturnUserWhenGettingUserById() {
+  public void getUserById_whenUserExists_thenReturnUser() {
     UserEntity userEntity =
         UserEntity.builder()
             .id(1L)
@@ -216,7 +216,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenUserNotFoundById() {
+  public void getUserById_whenUserDoesNotExist_thenReturnEmpty() {
     when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
     Optional<User> userOptional = userService.getUserById(1L);
@@ -225,7 +225,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldReturnUserWhenGettingUserByEmail() {
+  public void getUserByEmail_whenUserExists_thenReturnUser() {
     UserEntity userEntity =
         UserEntity.builder()
             .id(1L)
@@ -257,7 +257,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenUserNotFoundByEmail() {
+  public void getUserByEmail_whenUserDoesNotExist_thenReturnEmpty() {
     when(userRepository.findByEmailIgnoreCase("admin@admin.com")).thenReturn(Optional.empty());
 
     Optional<User> userOptional = userService.getUserByEmail("admin@admin.com");
@@ -266,7 +266,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingAllUsers() {
+  public void getAllUsers_whenUsersExist_thenReturnPagedResponse() {
     UserEntity userEntity =
         UserEntity.builder()
             .id(1L)
@@ -301,21 +301,21 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldDeleteUserById() {
+  public void deleteUser_whenUserExists_thenDeleteSuccessfully() {
     when(userRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> userService.deleteUser(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenUserNotFoundOnDelete() {
+  public void deleteUser_whenUserDoesNotExist_thenThrowNotFoundException() {
     when(userRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> userService.deleteUser(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingUserWithDependencies() {
+  public void deleteUser_whenUserHasDependencies_thenThrowDeletionNotAllowedException() {
     when(userRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -327,7 +327,7 @@ class UserServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void deleteUser_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(userRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(userRepository)

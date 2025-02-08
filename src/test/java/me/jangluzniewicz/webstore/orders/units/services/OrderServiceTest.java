@@ -116,7 +116,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldCreateNewOrderAndReturnOrderId() {
+  public void createNewOrder_whenUserAndProductsExist_thenReturnOrderId() {
     OrderRequest orderRequest =
         new OrderRequest(
             null,
@@ -172,7 +172,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenUserNotFoundOnCreate() {
+  public void createNewOrder_whenUserDoesNotExist_thenThrowNotFoundException() {
     OrderRequest orderRequest =
         new OrderRequest(
             null,
@@ -189,7 +189,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenProductNotFoundOnCreate() {
+  public void createNewOrder_whenProductDoesNotExist_thenThrowNotFoundException() {
     OrderRequest orderRequest =
         new OrderRequest(
             null,
@@ -207,7 +207,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnOrderWhenGettingOrderById() {
+  public void getOrderById_whenOrderExists_thenReturnOrder() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -257,7 +257,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenOrderNotFoundById() {
+  public void getOrderById_whenOrderDoesNotExist_thenReturnEmpty() {
     when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
     Optional<Order> order = orderService.getOrderById(1L);
@@ -266,7 +266,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingOrdersByUserId() {
+  public void getOrdersByCustomerId_whenOrdersExist_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -320,7 +320,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingAllOrders() {
+  public void getAllOrders_whenOrdersExist_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -373,7 +373,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredOrdersWithoutAnyFilters() {
+  public void getFilteredOrders_whenNoFiltersApplied_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -426,7 +426,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredOrdersWithCustomerIdFilter() {
+  public void getFilteredOrders_whenCustomerIdFilterApplied_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -480,7 +480,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredOrdersWithDateRangeFilter() {
+  public void getFilteredOrders_whenDateRangeFilterApplied_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -537,7 +537,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenGettingFilteredOrdersWithCustomerIdAndDateRangeFilter() {
+  public void getFilteredOrders_whenCustomerIdAndDateRangeFilterApplied_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
             .id(1L)
@@ -598,16 +598,14 @@ class OrderServiceTest {
   }
 
   @Test
-  public void
-      shouldThrowIllegalArgumentExceptionWhenGettingFilteredOrdersWithoutOrderDateAfterAndOrderDateBefore() {
+  public void getFilteredOrders_whenOrderDateAfterIsNull_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () -> orderService.getFilteredOrders(null, LocalDateTime.now(), null, 0, 10));
   }
 
   @Test
-  public void
-      shouldThrowIllegalArgumentExceptionWhenGettingFilteredOrdersWithoutOrderDateBeforeAndOrderDateAfter() {
+  public void getFilteredOrders_whenOrderDateBeforeIsNull_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () -> orderService.getFilteredOrders(null, null, LocalDateTime.now(), 0, 10));
@@ -615,7 +613,7 @@ class OrderServiceTest {
 
   @Test
   public void
-      shouldThrowIllegalArgumentExceptionWhenGettingFilteredOrdersWithOrderDateAfterBeforeOrderDateBefore() {
+      getFilteredOrders_whenOrderDateAfterIsAfterOrderDateBefore_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -624,21 +622,21 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldDeleteOrderById() {
+  public void deleteOrder_whenOrderExists_thenDeleteSuccessfully() {
     when(orderRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> orderService.deleteOrder(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderNotFoundOnDelete() {
+  public void deleteOrder_whenOrderDoesNotExist_thenThrowNotFoundException() {
     when(orderRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> orderService.deleteOrder(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingOrderWithDependencies() {
+  public void deleteOrder_whenOrderHasDependencies_thenThrowDeletionNotAllowedException() {
     when(orderRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -650,7 +648,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void deleteOrder_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(orderRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(orderRepository)
@@ -660,7 +658,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldChangeOrderStatusAndReturnOrderId() {
+  public void changeOrderStatus_whenOrderExistsAndOrderStatusExists_thenReturnOrderId() {
     ChangeOrderStatusRequest changeOrderStatusRequest = new ChangeOrderStatusRequest(1L);
     OrderEntity orderEntity =
         OrderEntity.builder()
@@ -690,7 +688,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderNotFoundOnChangeOrderStatus() {
+  public void changeOrderStatus_whenOrderDoesNotExist_thenThrowNotFoundException() {
     ChangeOrderStatusRequest changeOrderStatusRequest = new ChangeOrderStatusRequest(1L);
 
     when(orderRepository.findById(1L)).thenReturn(Optional.empty());
@@ -701,7 +699,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderStatusNotFoundOnChangeOrderStatus() {
+  public void changeOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     ChangeOrderStatusRequest changeOrderStatusRequest = new ChangeOrderStatusRequest(1L);
     OrderEntity orderEntity =
         OrderEntity.builder()
@@ -731,7 +729,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldAddRatingToOrderAndReturnOrderId() {
+  public void addRatingToOrder_whenOrderExistsAndNotRated_thenReturnOrderId() {
     RatingRequest ratingRequest = new RatingRequest(null, 5, "Great");
     OrderEntity orderEntity =
         OrderEntity.builder()
@@ -763,7 +761,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenOrderNotFoundOnAddRating() {
+  public void addRatingToOrder_whenOrderDoesNotExist_thenThrowNotFoundException() {
     RatingRequest ratingRequest = new RatingRequest(null, 5, "Great");
 
     when(orderRepository.findById(1L)).thenReturn(Optional.empty());
@@ -772,7 +770,7 @@ class OrderServiceTest {
   }
 
   @Test
-  public void shouldThrowConflictExceptionWhenOrderAlreadyRatedOnAddRating() {
+  public void addRatingToOrder_whenOrderAlreadyRated_thenThrowConflictException() {
     RatingRequest ratingRequest = new RatingRequest(null, 5, "Great");
     OrderEntity orderEntity =
         OrderEntity.builder()

@@ -37,7 +37,7 @@ class CategoryServiceTest {
   @InjectMocks private CategoryService categoryService;
 
   @Test
-  public void shouldCreateNewCategoryAndReturnCategoryId() {
+  public void createNewCategory_whenCategoryDoesNotExist_thenReturnCategoryId() {
     CategoryRequest categoryRequest = new CategoryRequest("Groceries");
     CategoryEntity savedEntity = new CategoryEntity(1L, "Groceries");
 
@@ -51,7 +51,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenCategoryAlreadyExists() {
+  public void createNewCategory_whenCategoryAlreadyExists_thenThrowNotUniqueException() {
     CategoryRequest categoryRequest = new CategoryRequest("Groceries");
 
     when(categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())).thenReturn(true);
@@ -61,7 +61,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldReturnCategoryWhenGettingCategoryById() {
+  public void getCategoryById_whenCategoryExists_thenReturnCategory() {
     CategoryEntity categoryEntity = new CategoryEntity(1L, "Groceries");
 
     when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
@@ -75,7 +75,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyWhenCategoryNotFoundById() {
+  public void getCategoryById_whenCategoryDoesNotExist_thenReturnEmpty() {
     when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
     Optional<Category> category = categoryService.getCategoryById(1L);
@@ -84,7 +84,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldReturnPagedResponseWhenFindingAllCategories() {
+  public void getAllCategories_whenCategoriesExist_thenReturnPagedResponse() {
     CategoryEntity categoryEntity = new CategoryEntity(1L, "Groceries");
     Pageable pageable = PageRequest.of(0, 10);
     Page<CategoryEntity> page = new PageImpl<>(List.of(categoryEntity), pageable, 1);
@@ -101,7 +101,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldUpdateCategoryAndReturnCategoryId() {
+  public void updateCategory_whenCategoryExistsAndNewNameIsUnique_thenReturnCategoryId() {
     CategoryRequest categoryRequest = new CategoryRequest("Groceries");
     CategoryEntity categoryEntity = new CategoryEntity(1L, "Clothes");
 
@@ -114,7 +114,8 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldThrowNotUniqueExceptionWhenUpdatingToExistingCategory() {
+  public void
+      updateCategory_whenCategoryExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     CategoryRequest categoryRequest = new CategoryRequest("Groceries");
     CategoryEntity categoryEntity = new CategoryEntity(1L, "Clothes");
 
@@ -126,7 +127,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenUpdatingNonExistentCategory() {
+  public void updateCategory_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     CategoryRequest categoryRequest = new CategoryRequest("Groceries");
 
     when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
@@ -136,7 +137,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldNotThrowExceptionWhenUpdatingCategoryWithSameName() {
+  public void updateCategory_whenCategoryExistsAndNewNameIsSame_thenDoNotThrowException() {
     CategoryRequest categoryRequest = new CategoryRequest("Clothes");
     CategoryEntity categoryEntity = new CategoryEntity(1L, "Clothes");
 
@@ -147,21 +148,21 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldDeleteCategoryById() {
+  public void deleteCategory_whenCategoryExists_thenDeleteSuccessfully() {
     when(categoryRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> categoryService.deleteCategory(1L));
   }
 
   @Test
-  public void shouldThrowNotFoundExceptionWhenDeletingNonExistentCategory() {
+  public void deleteCategory_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     when(categoryRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> categoryService.deleteCategory(1L));
   }
 
   @Test
-  public void shouldThrowDeletionNotAllowedExceptionWhenDeletingCategoryWithDependencies() {
+  public void deleteCategory_whenCategoryHasDependencies_thenThrowDeletionNotAllowedException() {
     when(categoryRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -173,7 +174,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDataIntegrityViolationIsNotCausedByConstraintViolation() {
+  public void deleteCategory_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(categoryRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(categoryRepository)

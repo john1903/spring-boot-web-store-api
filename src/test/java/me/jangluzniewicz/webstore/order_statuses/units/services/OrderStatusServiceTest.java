@@ -81,7 +81,9 @@ class OrderStatusServiceTest {
   public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
     when(orderStatusRepository.findById(1L))
         .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
     when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(false);
+    when(orderStatusRepository.save(any())).thenReturn(new OrderStatusEntity(1L, "DELIVERED"));
 
     assertEquals(1L, orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("DELIVERED")));
   }
@@ -91,6 +93,7 @@ class OrderStatusServiceTest {
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     when(orderStatusRepository.findById(1L))
         .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
     when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(true);
 
     assertThrows(
@@ -111,7 +114,9 @@ class OrderStatusServiceTest {
   public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
     when(orderStatusRepository.findById(1L))
         .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(false);
+    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
+    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(true);
+    when(orderStatusRepository.save(any())).thenReturn(new OrderStatusEntity(1L, "ACCEPTED"));
 
     assertDoesNotThrow(
         () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("ACCEPTED")));

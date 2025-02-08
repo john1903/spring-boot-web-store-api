@@ -73,7 +73,9 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
     when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
+    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(false);
+    when(roleRepository.save(any())).thenReturn(new RoleEntity(1L, "USER"));
 
     assertEquals(1L, roleService.updateRole(1L, new RoleRequest("USER")));
   }
@@ -81,6 +83,7 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
+    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(true);
 
     assertThrows(
@@ -92,6 +95,16 @@ class RoleServiceTest {
     when(roleRepository.findById(1L)).thenReturn(Optional.empty());
     assertThrows(
         NotFoundException.class, () -> roleService.updateRole(1L, new RoleRequest("USER")));
+  }
+
+  @Test
+  public void updateRole_whenRoleExistsAndNewNameIsSame_thenDoNotThrowException() {
+    when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
+    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
+    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(true);
+    when(roleRepository.save(any())).thenReturn(new RoleEntity(1L, "ADMIN"));
+
+    assertDoesNotThrow(() -> roleService.updateRole(1L, new RoleRequest("ADMIN")));
   }
 
   @Test

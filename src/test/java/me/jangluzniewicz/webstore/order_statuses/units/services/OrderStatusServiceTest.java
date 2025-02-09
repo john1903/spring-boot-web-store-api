@@ -21,6 +21,7 @@ import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
 import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
 import org.hibernate.exception.ConstraintViolationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,119 +37,127 @@ class OrderStatusServiceTest {
   @Mock private OrderStatusMapper orderStatusMapper;
   @InjectMocks private OrderStatusService orderStatusService;
 
-  @Test
-  public void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(false);
-    when(orderStatusRepository.save(any()))
-        .thenReturn(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build());
+  private OrderStatusEntity orderStatusEntity1;
+  private OrderStatus orderStatus1;
+  private OrderStatusRequest orderStatusRequest1;
+  private OrderStatusRequest orderStatusRequest2;
 
-    assertEquals(1L, orderStatusService.createNewOrderStatus(new OrderStatusRequest("ACCEPTED")));
+  @BeforeEach
+  void setUp() {
+    orderStatusEntity1 = OrderStatusEntity.builder().id(1L).name("ACCEPTED").build();
+    orderStatus1 = OrderStatus.builder().id(1L).name("ACCEPTED").build();
+    orderStatusRequest1 = new OrderStatusRequest("ACCEPTED");
+    orderStatusRequest2 = new OrderStatusRequest("DELIVERED");
   }
 
   @Test
-  public void createNewOrderStatus_whenOrderStatusAlreadyExists_thenThrowNotUniqueException() {
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(true);
+  void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
+    when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
+        .thenReturn(false);
+    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity1);
+
+    assertEquals(1L, orderStatusService.createNewOrderStatus(orderStatusRequest1));
+  }
+
+  @Test
+  void createNewOrderStatus_whenOrderStatusAlreadyExists_thenThrowNotUniqueException() {
+    when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
+        .thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> orderStatusService.createNewOrderStatus(new OrderStatusRequest("ACCEPTED")));
+        () -> orderStatusService.createNewOrderStatus(orderStatusRequest1));
   }
 
   @Test
-  public void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
-    when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build()));
-    when(orderStatusMapper.fromEntity(any()))
-        .thenReturn(OrderStatus.builder().id(1L).name("ACCEPTED").build());
+  void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
 
     assertTrue(orderStatusService.getOrderStatusById(1L).isPresent());
   }
 
   @Test
-  public void getOrderStatusById_whenOrderStatusDoesNotExist_thenReturnEmpty() {
+  void getOrderStatusById_whenOrderStatusDoesNotExist_thenReturnEmpty() {
     when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertTrue(orderStatusService.getOrderStatusById(1L).isEmpty());
   }
 
   @Test
-  public void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
+  void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
     when(orderStatusRepository.findAll(any(Pageable.class)))
-        .thenReturn(
-            new PageImpl<>(List.of(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build())));
-    when(orderStatusMapper.fromEntity(any()))
-        .thenReturn(OrderStatus.builder().id(1L).name("ACCEPTED").build());
+        .thenReturn(new PageImpl<>(List.of(orderStatusEntity1)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
 
     assertEquals(1, orderStatusService.getAllOrderStatuses(0, 10).getTotalPages());
   }
 
   @Test
-  public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
-    when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build()));
-    when(orderStatusMapper.fromEntity(any()))
-        .thenReturn(OrderStatus.builder().id(1L).name("ACCEPTED").build());
-    when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(false);
-    when(orderStatusRepository.save(any()))
-        .thenReturn(OrderStatusEntity.builder().id(1L).name("DELIVERED").build());
+  void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
+        .thenReturn(false);
+    OrderStatusEntity updatedEntity =
+        OrderStatusEntity.builder()
+            .id(orderStatusEntity1.getId())
+            .name(orderStatusRequest2.getName())
+            .build();
+    when(orderStatusRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(1L, orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("DELIVERED")));
+    assertEquals(1L, orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
   }
 
   @Test
-  public void
+  void
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build()));
-    when(orderStatusMapper.fromEntity(any()))
-        .thenReturn(OrderStatus.builder().id(1L).name("ACCEPTED").build());
-    when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(true);
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
+        .thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("DELIVERED")));
+        () -> orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
   }
 
   @Test
-  public void updateOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
+  void updateOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
-        () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("DELIVERED")));
+        () -> orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
   }
 
   @Test
-  public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build()));
-    when(orderStatusMapper.fromEntity(any()))
-        .thenReturn(OrderStatus.builder().id(1L).name("ACCEPTED").build());
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(true);
-    when(orderStatusRepository.save(any()))
-        .thenReturn(OrderStatusEntity.builder().id(1L).name("ACCEPTED").build());
+  void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
+        .thenReturn(true);
+    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity1);
 
-    assertDoesNotThrow(
-        () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("ACCEPTED")));
+    assertDoesNotThrow(() -> orderStatusService.updateOrderStatus(1L, orderStatusRequest1));
   }
 
   @Test
-  public void deleteOrderStatus_whenOrderStatusExists_thenDeleteSuccessfully() {
+  void deleteOrderStatus_whenOrderStatusExists_thenDeleteSuccessfully() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> orderStatusService.deleteOrderStatus(1L));
   }
 
   @Test
-  public void deleteOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
+  void deleteOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> orderStatusService.deleteOrderStatus(1L));
   }
 
   @Test
-  public void
-      deleteOrderStatus_whenOrderStatusHasDependencies_thenThrowDeletionNotAllowedException() {
+  void deleteOrderStatus_whenOrderStatusHasDependencies_thenThrowDeletionNotAllowedException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -160,8 +169,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  public void
-      deleteOrderStatus_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
+  void deleteOrderStatus_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(orderStatusRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(orderStatusRepository)

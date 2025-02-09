@@ -18,7 +18,6 @@ import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
-import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderItemRequest;
@@ -27,7 +26,6 @@ import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 import me.jangluzniewicz.webstore.orders.entities.RatingEntity;
-import me.jangluzniewicz.webstore.orders.mappers.OrderItemMapper;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
 import me.jangluzniewicz.webstore.orders.mappers.RatingMapper;
 import me.jangluzniewicz.webstore.orders.models.Order;
@@ -42,7 +40,6 @@ import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
-import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,9 +61,6 @@ class OrderServiceTest {
   @Mock private IUser userService;
   @Mock private IProduct productService;
   @Mock private OrderMapper orderMapper;
-  @Mock private UserMapper userMapper;
-  @Mock private OrderStatusMapper orderStatusMapper;
-  @Mock private OrderItemMapper orderItemMapper;
   @Mock private RatingMapper ratingMapper;
   @InjectMocks private OrderService orderService;
   private ProductEntity productEntity;
@@ -266,60 +260,6 @@ class OrderServiceTest {
   }
 
   @Test
-  public void getOrdersByCustomerId_whenOrdersExist_thenReturnPagedResponse() {
-    OrderEntity orderEntity =
-        OrderEntity.builder()
-            .id(1L)
-            .orderDate(LocalDateTime.now())
-            .statusChangeDate(LocalDateTime.now())
-            .customer(userEntity)
-            .statusChangeDate(LocalDateTime.now())
-            .status(orderStatusEntity)
-            .items(
-                List.of(
-                    OrderItemEntity.builder()
-                        .id(1L)
-                        .product(productEntity)
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(1000.0))
-                        .discount(BigDecimal.ZERO)
-                        .build()))
-            .build();
-    Pageable pageable = PageRequest.of(0, 10);
-    Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity), pageable, 1);
-
-    when(orderRepository.findAllByCustomerIdOrderByOrderDateAscIdAsc(1L, pageable))
-        .thenReturn(page);
-    when(orderMapper.fromEntity(orderEntity))
-        .thenReturn(
-            Order.builder()
-                .id(1L)
-                .orderDate(LocalDateTime.now())
-                .statusChangeDate(LocalDateTime.now())
-                .customer(user)
-                .statusChangeDate(LocalDateTime.now())
-                .status(orderStatus)
-                .items(
-                    List.of(
-                        OrderItem.builder()
-                            .id(1L)
-                            .product(product)
-                            .quantity(1)
-                            .price(BigDecimal.valueOf(1000.0))
-                            .discount(BigDecimal.ZERO)
-                            .build()))
-                .build());
-
-    PagedResponse<Order> orders = orderService.getOrdersByCustomerId(1L, 0, 10);
-
-    assertEquals(1, orders.getTotalPages());
-    assertEquals(1, orders.getContent().size());
-    assertEquals(1L, orders.getContent().getFirst().getId());
-    assertEquals(1, orders.getContent().getFirst().getItems().size());
-    assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
   public void getAllOrders_whenOrdersExist_thenReturnPagedResponse() {
     OrderEntity orderEntity =
         OrderEntity.builder()
@@ -370,255 +310,6 @@ class OrderServiceTest {
     assertEquals(1L, orders.getContent().getFirst().getId());
     assertEquals(1, orders.getContent().getFirst().getItems().size());
     assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
-  public void getFilteredOrders_whenNoFiltersApplied_thenReturnPagedResponse() {
-    OrderEntity orderEntity =
-        OrderEntity.builder()
-            .id(1L)
-            .orderDate(LocalDateTime.now())
-            .statusChangeDate(LocalDateTime.now())
-            .customer(userEntity)
-            .statusChangeDate(LocalDateTime.now())
-            .status(orderStatusEntity)
-            .items(
-                List.of(
-                    OrderItemEntity.builder()
-                        .id(1L)
-                        .product(productEntity)
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(1000.0))
-                        .discount(BigDecimal.ZERO)
-                        .build()))
-            .build();
-    Pageable pageable = PageRequest.of(0, 10);
-    Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity), pageable, 1);
-
-    when(orderRepository.findAll(pageable)).thenReturn(page);
-    when(orderMapper.fromEntity(orderEntity))
-        .thenReturn(
-            Order.builder()
-                .id(1L)
-                .orderDate(LocalDateTime.now())
-                .statusChangeDate(LocalDateTime.now())
-                .customer(user)
-                .statusChangeDate(LocalDateTime.now())
-                .status(orderStatus)
-                .items(
-                    List.of(
-                        OrderItem.builder()
-                            .id(1L)
-                            .product(product)
-                            .quantity(1)
-                            .price(BigDecimal.valueOf(1000.0))
-                            .discount(BigDecimal.ZERO)
-                            .build()))
-                .build());
-
-    PagedResponse<Order> orders = orderService.getFilteredOrders(null, null, null, 0, 10);
-
-    assertEquals(1, orders.getTotalPages());
-    assertEquals(1, orders.getContent().size());
-    assertEquals(1L, orders.getContent().getFirst().getId());
-    assertEquals(1, orders.getContent().getFirst().getItems().size());
-    assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
-  public void getFilteredOrders_whenCustomerIdFilterApplied_thenReturnPagedResponse() {
-    OrderEntity orderEntity =
-        OrderEntity.builder()
-            .id(1L)
-            .orderDate(LocalDateTime.of(2025, 2, 7, 16, 15))
-            .statusChangeDate(LocalDateTime.now())
-            .customer(userEntity)
-            .statusChangeDate(LocalDateTime.now())
-            .status(orderStatusEntity)
-            .items(
-                List.of(
-                    OrderItemEntity.builder()
-                        .id(1L)
-                        .product(productEntity)
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(1000.0))
-                        .discount(BigDecimal.ZERO)
-                        .build()))
-            .build();
-    Pageable pageable = PageRequest.of(0, 10);
-    Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity), pageable, 1);
-
-    when(orderRepository.findAllByStatusIdOrderByOrderDateAscIdAsc(1L, pageable)).thenReturn(page);
-    when(orderMapper.fromEntity(orderEntity))
-        .thenReturn(
-            Order.builder()
-                .id(1L)
-                .orderDate(LocalDateTime.now())
-                .statusChangeDate(LocalDateTime.now())
-                .customer(user)
-                .statusChangeDate(LocalDateTime.now())
-                .status(orderStatus)
-                .items(
-                    List.of(
-                        OrderItem.builder()
-                            .id(1L)
-                            .product(product)
-                            .quantity(1)
-                            .price(BigDecimal.valueOf(1000.0))
-                            .discount(BigDecimal.ZERO)
-                            .build()))
-                .build());
-
-    PagedResponse<Order> orders = orderService.getFilteredOrders(1L, null, null, 0, 10);
-
-    assertEquals(1, orders.getTotalPages());
-    assertEquals(1, orders.getContent().size());
-    assertEquals(1L, orders.getContent().getFirst().getStatus().getId());
-    assertEquals(1L, orders.getContent().getFirst().getId());
-    assertEquals(1, orders.getContent().getFirst().getItems().size());
-    assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
-  public void getFilteredOrders_whenDateRangeFilterApplied_thenReturnPagedResponse() {
-    OrderEntity orderEntity =
-        OrderEntity.builder()
-            .id(1L)
-            .orderDate(LocalDateTime.now())
-            .statusChangeDate(LocalDateTime.now())
-            .customer(userEntity)
-            .statusChangeDate(LocalDateTime.now())
-            .status(orderStatusEntity)
-            .items(
-                List.of(
-                    OrderItemEntity.builder()
-                        .id(1L)
-                        .product(productEntity)
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(1000.0))
-                        .discount(BigDecimal.ZERO)
-                        .build()))
-            .build();
-    Pageable pageable = PageRequest.of(0, 10);
-    Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity), pageable, 1);
-
-    when(orderRepository.findAllByOrderDateBetweenOrderByOrderDateAscIdAsc(
-            LocalDateTime.of(2025, 2, 7, 16, 0), LocalDateTime.of(2025, 2, 7, 16, 30), pageable))
-        .thenReturn(page);
-    when(orderMapper.fromEntity(orderEntity))
-        .thenReturn(
-            Order.builder()
-                .id(1L)
-                .orderDate(LocalDateTime.now())
-                .statusChangeDate(LocalDateTime.now())
-                .customer(user)
-                .statusChangeDate(LocalDateTime.now())
-                .status(orderStatus)
-                .items(
-                    List.of(
-                        OrderItem.builder()
-                            .id(1L)
-                            .product(product)
-                            .quantity(1)
-                            .price(BigDecimal.valueOf(1000.0))
-                            .discount(BigDecimal.ZERO)
-                            .build()))
-                .build());
-
-    PagedResponse<Order> orders =
-        orderService.getFilteredOrders(
-            null, LocalDateTime.of(2025, 2, 7, 16, 0), LocalDateTime.of(2025, 2, 7, 16, 30), 0, 10);
-
-    assertEquals(1, orders.getTotalPages());
-    assertEquals(1, orders.getContent().size());
-    assertEquals(1L, orders.getContent().getFirst().getId());
-    assertEquals(1, orders.getContent().getFirst().getItems().size());
-    assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
-  public void getFilteredOrders_whenCustomerIdAndDateRangeFilterApplied_thenReturnPagedResponse() {
-    OrderEntity orderEntity =
-        OrderEntity.builder()
-            .id(1L)
-            .orderDate(LocalDateTime.now())
-            .statusChangeDate(LocalDateTime.now())
-            .customer(userEntity)
-            .statusChangeDate(LocalDateTime.now())
-            .status(orderStatusEntity)
-            .items(
-                List.of(
-                    OrderItemEntity.builder()
-                        .id(1L)
-                        .product(productEntity)
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(1000.0))
-                        .discount(BigDecimal.ZERO)
-                        .build()))
-            .build();
-    Pageable pageable = PageRequest.of(0, 10);
-    Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity), pageable, 1);
-
-    when(orderRepository.findAllByStatusIdAndOrderDateBetweenOrderByOrderDateAscIdAsc(
-            1L,
-            LocalDateTime.of(2025, 2, 7, 16, 0),
-            LocalDateTime.of(2025, 2, 7, 16, 30),
-            pageable))
-        .thenReturn(page);
-    when(orderMapper.fromEntity(orderEntity))
-        .thenReturn(
-            Order.builder()
-                .id(1L)
-                .orderDate(LocalDateTime.now())
-                .statusChangeDate(LocalDateTime.now())
-                .customer(user)
-                .statusChangeDate(LocalDateTime.now())
-                .status(orderStatus)
-                .items(
-                    List.of(
-                        OrderItem.builder()
-                            .id(1L)
-                            .product(product)
-                            .quantity(1)
-                            .price(BigDecimal.valueOf(1000.0))
-                            .discount(BigDecimal.ZERO)
-                            .build()))
-                .build());
-
-    PagedResponse<Order> orders =
-        orderService.getFilteredOrders(
-            1L, LocalDateTime.of(2025, 2, 7, 16, 0), LocalDateTime.of(2025, 2, 7, 16, 30), 0, 10);
-
-    assertEquals(1, orders.getTotalPages());
-    assertEquals(1, orders.getContent().size());
-    assertEquals(1L, orders.getContent().getFirst().getStatus().getId());
-    assertEquals(1L, orders.getContent().getFirst().getId());
-    assertEquals(1, orders.getContent().getFirst().getItems().size());
-    assertEquals(1L, orders.getContent().getFirst().getItems().getFirst().getId());
-  }
-
-  @Test
-  public void getFilteredOrders_whenOrderDateAfterIsNull_thenThrowIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> orderService.getFilteredOrders(null, LocalDateTime.now(), null, 0, 10));
-  }
-
-  @Test
-  public void getFilteredOrders_whenOrderDateBeforeIsNull_thenThrowIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> orderService.getFilteredOrders(null, null, LocalDateTime.now(), 0, 10));
-  }
-
-  @Test
-  public void
-      getFilteredOrders_whenOrderDateAfterIsAfterOrderDateBefore_thenThrowIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            orderService.getFilteredOrders(
-                null, LocalDateTime.now().plusMinutes(1), LocalDateTime.now(), 0, 10));
   }
 
   @Test

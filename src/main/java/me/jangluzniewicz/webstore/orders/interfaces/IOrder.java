@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.orders.interfaces;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
+import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
@@ -17,12 +17,7 @@ public interface IOrder {
 
   PagedResponse<Order> getAllOrders(Integer page, Integer size);
 
-  PagedResponse<Order> getFilteredOrders(
-      Long statusId,
-      LocalDateTime orderDateAfter,
-      LocalDateTime orderDateBefore,
-      Integer page,
-      Integer size);
+  PagedResponse<Order> getFilteredOrders(OrderFilterRequest filter, Integer page, Integer size);
 
   Long updateOrder(Long id, OrderRequest orderRequest);
 

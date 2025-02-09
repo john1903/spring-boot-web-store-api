@@ -3,7 +3,6 @@ package me.jangluzniewicz.webstore.orders.services;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
@@ -11,14 +10,17 @@ import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
+import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
+import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
 import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.orders.models.OrderItem;
 import me.jangluzniewicz.webstore.orders.models.Rating;
 import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
+import me.jangluzniewicz.webstore.orders.repositories.OrderSpecification;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.hibernate.exception.ConstraintViolationException;
@@ -26,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -112,41 +115,13 @@ public class OrderService implements IOrder {
 
   @Override
   public PagedResponse<Order> getFilteredOrders(
-      @Min(1) Long statusId,
-      LocalDateTime orderDateAfter,
-      LocalDateTime orderDateBefore,
+      @NotNull OrderFilterRequest filter,
       @NotNull @Min(0) Integer page,
       @NotNull @Min(1) Integer size) {
-    if ((orderDateAfter != null && orderDateBefore == null)
-        || (orderDateAfter == null && orderDateBefore != null)) {
-      throw new IllegalArgumentException(
-          "Both orderDateAfter and orderDateBefore must be specified");
-    }
-    if (orderDateAfter != null && orderDateAfter.isAfter(orderDateBefore)) {
-      throw new IllegalArgumentException("orderDateAfter must be before orderDateBefore");
-    }
     Pageable pageable = PageRequest.of(page, size);
-    Page<Order> orders;
-    if (statusId != null && orderDateAfter != null) {
-      orders =
-          orderRepository
-              .findAllByStatusIdAndOrderDateBetweenOrderByOrderDateAscIdAsc(
-                  statusId, orderDateAfter, orderDateBefore, pageable)
-              .map(orderMapper::fromEntity);
-    } else if (statusId != null) {
-      orders =
-          orderRepository
-              .findAllByStatusIdOrderByOrderDateAscIdAsc(statusId, pageable)
-              .map(orderMapper::fromEntity);
-    } else if (orderDateAfter != null) {
-      orders =
-          orderRepository
-              .findAllByOrderDateBetweenOrderByOrderDateAscIdAsc(
-                  orderDateAfter, orderDateBefore, pageable)
-              .map(orderMapper::fromEntity);
-    } else {
-      return getAllOrders(page, size);
-    }
+    Specification<OrderEntity> specification = OrderSpecification.filterBy(filter);
+    Page<Order> orders =
+        orderRepository.findAll(specification, pageable).map(orderMapper::fromEntity);
     return new PagedResponse<>(orders.getTotalPages(), orders.toList());
   }
 

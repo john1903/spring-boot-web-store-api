@@ -1,6 +1,9 @@
 package me.jangluzniewicz.webstore.products.units.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -45,283 +48,157 @@ class ProductServiceTest {
   private CategoryEntity categoryEntity;
   private Category category;
 
+  private ProductEntity productEntity1;
+  private Product product1;
+
+  private ProductRequest productRequest;
+  private ProductRequest productRequest2;
+  private ProductFilterRequest productFilterRequest;
+
   @BeforeEach
   void setUp() {
-    category = new Category(1L, "Bikes");
-    categoryEntity = new CategoryEntity(1L, "Bikes");
+    category = Category.builder().id(1L).name("Bikes").build();
+    categoryEntity = CategoryEntity.builder().id(1L).name("Bikes").build();
+
+    productEntity1 =
+        ProductEntity.builder()
+            .id(1L)
+            .name("Bicycle")
+            .description("Mountain bike")
+            .price(BigDecimal.valueOf(1000.0))
+            .weight(BigDecimal.valueOf(10.0))
+            .category(categoryEntity)
+            .build();
+
+    product1 =
+        Product.builder()
+            .id(1L)
+            .name("Bicycle")
+            .description("Mountain bike")
+            .price(BigDecimal.valueOf(1000.0))
+            .weight(BigDecimal.valueOf(10.0))
+            .category(category)
+            .build();
+
+    productRequest =
+        new ProductRequest(
+            "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
+
+    productRequest2 =
+        new ProductRequest(
+            "Bicycle XXL",
+            "Mountain bike",
+            BigDecimal.valueOf(1200.0),
+            BigDecimal.valueOf(10.0),
+            1L);
+
+    productFilterRequest =
+        new ProductFilterRequest(1L, "Bicycle", BigDecimal.valueOf(0), BigDecimal.valueOf(2000.0));
   }
 
   @Test
-  public void createNewProduct_whenCategoryExists_thenReturnProductId() {
+  void createNewProduct_whenCategoryExists_thenReturnProductId() {
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
-    when(productMapper.toEntity(any()))
-        .thenReturn(
-            ProductEntity.builder()
-                .name("Bicycle")
-                .description("Mountain bike")
-                .price(BigDecimal.valueOf(1000.0))
-                .weight(BigDecimal.valueOf(10.0))
-                .category(categoryEntity)
-                .build());
-    when(productRepository.save(any()))
-        .thenReturn(
-            ProductEntity.builder()
-                .id(1L)
-                .name("Bicycle")
-                .description("Mountain bike")
-                .price(BigDecimal.valueOf(1000.0))
-                .weight(BigDecimal.valueOf(10.0))
-                .category(categoryEntity)
-                .build());
+    when(productMapper.toEntity(any())).thenReturn(productEntity1);
+    when(productRepository.save(any())).thenReturn(productEntity1);
 
-    assertEquals(
-        1L,
-        productService.createNewProduct(
-            new ProductRequest(
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                1L)));
+    assertEquals(1L, productService.createNewProduct(productRequest));
   }
 
   @Test
-  public void createNewProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
+  void createNewProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        NotFoundException.class,
-        () ->
-            productService.createNewProduct(
-                new ProductRequest(
-                    "Bicycle",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1000.0),
-                    BigDecimal.valueOf(10.0),
-                    1L)));
+    assertThrows(NotFoundException.class, () -> productService.createNewProduct(productRequest));
   }
 
   @Test
-  public void getProductById_whenProductExists_thenReturnProduct() {
-    when(productRepository.findById(1L))
-        .thenReturn(
-            Optional.of(
-                new ProductEntity(
-                    1L,
-                    "Bicycle",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1000.0),
-                    BigDecimal.valueOf(10.0),
-                    categoryEntity)));
-    when(productMapper.fromEntity(any()))
-        .thenReturn(
-            new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+  void getProductById_whenProductExists_thenReturnProduct() {
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
+    when(productMapper.fromEntity(any())).thenReturn(product1);
 
     assertTrue(productService.getProductById(1L).isPresent());
   }
 
   @Test
-  public void getProductById_whenProductDoesNotExist_thenReturnEmpty() {
+  void getProductById_whenProductDoesNotExist_thenReturnEmpty() {
     when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertTrue(productService.getProductById(1L).isEmpty());
   }
 
   @Test
-  public void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
+  void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
     Pageable pageable = PageRequest.of(0, 10);
-    Page<ProductEntity> page =
-        new PageImpl<>(
-            List.of(
-                new ProductEntity(
-                    1L,
-                    "Bicycle",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1000.0),
-                    BigDecimal.valueOf(10.0),
-                    categoryEntity)),
-            pageable,
-            1);
-
+    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity1), pageable, 1);
     when(productRepository.findAll(pageable)).thenReturn(page);
-    when(productMapper.fromEntity(any()))
-        .thenReturn(
-            new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+    when(productMapper.fromEntity(any())).thenReturn(product1);
 
     assertEquals(1, productService.getAllProducts(0, 10).getTotalPages());
   }
 
   @Test
-  public void getFilteredProducts_whenProductsExist_thenReturnPagedResponse() {
-    when(productRepository.findAll(any(Specification.class), any(Pageable.class)))
-        .thenReturn(
-            new PageImpl<>(
-                List.of(
-                    new ProductEntity(
-                        1L,
-                        "Bicycle",
-                        "Mountain bike",
-                        BigDecimal.valueOf(1000.0),
-                        BigDecimal.valueOf(10.0),
-                        categoryEntity))));
-
-    when(productMapper.fromEntity(any()))
-        .thenReturn(
-            new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+  void getFilteredProducts_whenProductsExist_thenReturnPagedResponse() {
+    Pageable pageable = PageRequest.of(0, 10);
+    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity1), pageable, 1);
+    when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+    when(productMapper.fromEntity(any())).thenReturn(product1);
 
     assertEquals(
-        1,
-        productService
-            .getFilteredProducts(
-                new ProductFilterRequest(
-                    1L, "Bicycle", BigDecimal.valueOf(0), BigDecimal.valueOf(2000.0)),
-                0,
-                10)
-            .getTotalPages());
+        1, productService.getFilteredProducts(productFilterRequest, 0, 10).getTotalPages());
   }
 
   @Test
-  public void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
-    when(productRepository.findById(1L))
-        .thenReturn(
-            Optional.of(
-                new ProductEntity(
-                    1L,
-                    "Bicycle",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1000.0),
-                    BigDecimal.valueOf(10.0),
-                    categoryEntity)));
-    when(productMapper.fromEntity(any()))
-        .thenReturn(
-            new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+  void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
+    when(productMapper.fromEntity(any())).thenReturn(product1);
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
-    when(productMapper.toEntity(any()))
-        .thenReturn(
-            ProductEntity.builder()
-                .id(1L)
-                .name("Bicycle XXL")
-                .description("Mountain bike")
-                .price(BigDecimal.valueOf(1200.0))
-                .weight(BigDecimal.valueOf(10.0))
-                .category(categoryEntity)
-                .build());
-    when(productRepository.save(any()))
-        .thenReturn(
-            ProductEntity.builder()
-                .id(1L)
-                .name("Bicycle XXL")
-                .description("Mountain bike")
-                .price(BigDecimal.valueOf(1200.0))
-                .weight(BigDecimal.valueOf(10.0))
-                .category(categoryEntity)
-                .build());
+    ProductEntity updatedEntity =
+        ProductEntity.builder()
+            .id(1L)
+            .name(productRequest2.getName())
+            .description(productRequest2.getDescription())
+            .price(productRequest2.getPrice())
+            .weight(productRequest2.getWeight())
+            .category(categoryEntity)
+            .build();
+    when(productRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(
-        1L,
-        productService.updateProduct(
-            1L,
-            new ProductRequest(
-                "Bicycle XXL",
-                "Mountain bike",
-                BigDecimal.valueOf(1200.0),
-                BigDecimal.valueOf(10.0),
-                1L)));
+    assertEquals(1L, productService.updateProduct(1L, productRequest2));
   }
 
   @Test
-  public void updateProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
+  void updateProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
     when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        NotFoundException.class,
-        () ->
-            productService.updateProduct(
-                1L,
-                new ProductRequest(
-                    "Bicycle XXL",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1200.0),
-                    BigDecimal.valueOf(10.0),
-                    1L)));
+    assertThrows(NotFoundException.class, () -> productService.updateProduct(1L, productRequest2));
   }
 
   @Test
-  public void updateProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
-    when(productRepository.findById(1L))
-        .thenReturn(
-            Optional.of(
-                new ProductEntity(
-                    1L,
-                    "Bicycle",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1000.0),
-                    BigDecimal.valueOf(10.0),
-                    categoryEntity)));
-    when(productMapper.fromEntity(any()))
-        .thenReturn(
-            new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+  void updateProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
+    when(productMapper.fromEntity(any())).thenReturn(product1);
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        NotFoundException.class,
-        () ->
-            productService.updateProduct(
-                1L,
-                new ProductRequest(
-                    "Bicycle XXL",
-                    "Mountain bike",
-                    BigDecimal.valueOf(1200.0),
-                    BigDecimal.valueOf(10.0),
-                    1L)));
+    assertThrows(NotFoundException.class, () -> productService.updateProduct(1L, productRequest2));
   }
 
   @Test
-  public void deleteProduct_whenProductExists_thenDeleteSuccessfully() {
+  void deleteProduct_whenProductExists_thenDeleteSuccessfully() {
     when(productRepository.existsById(1L)).thenReturn(true);
 
     assertDoesNotThrow(() -> productService.deleteProduct(1L));
   }
 
   @Test
-  public void deleteProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
+  void deleteProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
     when(productRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> productService.deleteProduct(1L));
   }
 
   @Test
-  public void deleteProduct_whenProductHasDependencies_thenThrowDeletionNotAllowedException() {
+  void deleteProduct_whenProductHasDependencies_thenThrowDeletionNotAllowedException() {
     when(productRepository.existsById(1L)).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
@@ -333,7 +210,7 @@ class ProductServiceTest {
   }
 
   @Test
-  public void deleteProduct_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
+  void deleteProduct_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
     when(productRepository.existsById(1L)).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(productRepository)

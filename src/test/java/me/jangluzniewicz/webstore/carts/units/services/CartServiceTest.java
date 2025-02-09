@@ -46,9 +46,6 @@ class CartServiceTest {
 
   @BeforeEach
   void setUp() {
-    CategoryEntity categoryEntity = new CategoryEntity(1L, "Motorbikes");
-    Category category = new Category(1L, "Motorbikes");
-
     productEntity =
         ProductEntity.builder()
             .id(1L)
@@ -56,9 +53,8 @@ class CartServiceTest {
             .description("Very fast motorbike")
             .price(BigDecimal.valueOf(1400.0))
             .weight(BigDecimal.valueOf(70.0))
-            .category(categoryEntity)
+            .category(new CategoryEntity(1L, "Motorbikes"))
             .build();
-
     product =
         Product.builder()
             .id(1L)
@@ -66,22 +62,15 @@ class CartServiceTest {
             .description("Very fast motorbike")
             .price(BigDecimal.valueOf(1400.0))
             .weight(BigDecimal.valueOf(70.0))
-            .category(category)
+            .category(new Category(1L, "Motorbikes"))
             .build();
-  }
-
-  private CartEntity createCartEntity(Long id, List<CartItemEntity> items) {
-    return CartEntity.builder().id(id).customerId(1L).items(items).build();
-  }
-
-  private Cart createCart(Long id, List<CartItem> items) {
-    return Cart.builder().id(id).customerId(1L).items(items).build();
   }
 
   @Test
   public void createNewCart_whenCartDoesNotExist_thenReturnCartId() {
     when(cartRepository.existsByCustomerId(1L)).thenReturn(false);
-    when(cartRepository.save(any())).thenReturn(createCartEntity(1L, new ArrayList<>()));
+    when(cartRepository.save(any()))
+        .thenReturn(CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
 
     assertEquals(1L, cartService.createNewCart(1L));
   }
@@ -95,11 +84,12 @@ class CartServiceTest {
 
   @Test
   public void getCartByCustomerId_whenCartExists_thenReturnCart() {
-    CartEntity cartEntity = createCartEntity(1L, new ArrayList<>());
-    Cart cart = createCart(1L, new ArrayList<>());
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
-    when(cartMapper.fromEntity(any())).thenReturn(cart);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(Cart.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
 
     assertTrue(cartService.getCartByCustomerId(1L).isPresent());
   }
@@ -108,24 +98,27 @@ class CartServiceTest {
   public void getCartByCustomerId_whenCartDoesNotExist_thenReturnEmpty() {
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
 
-    Optional<Cart> cart = cartService.getCartByCustomerId(1L);
-
-    assertTrue(cart.isEmpty());
+    assertTrue(cartService.getCartByCustomerId(1L).isEmpty());
   }
 
   @Test
   public void addProductToCart_whenCartAndProductExist_thenAddProduct() {
-    CartEntity cartEntity = createCartEntity(1L, new ArrayList<>());
-    Cart cart = createCart(1L, new ArrayList<>());
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
-    when(cartMapper.fromEntity(any())).thenReturn(cart);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(Cart.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
     when(productService.getProductById(1L)).thenReturn(Optional.of(product));
-
-    CartItemEntity item =
-        CartItemEntity.builder().id(1L).product(productEntity).quantity(1).build();
-
-    when(cartRepository.save(any())).thenReturn(createCartEntity(1L, List.of(item)));
+    when(cartRepository.save(any()))
+        .thenReturn(
+            CartEntity.builder()
+                .id(1L)
+                .customerId(1L)
+                .items(
+                    List.of(
+                        CartItemEntity.builder().id(1L).product(productEntity).quantity(1).build()))
+                .build());
 
     assertDoesNotThrow(() -> cartService.addProductToCart(1L, new CartItemRequest(null, 1L, 1)));
   }
@@ -141,11 +134,12 @@ class CartServiceTest {
 
   @Test
   public void addProductToCart_whenProductDoesNotExist_thenThrowNotFoundException() {
-    CartEntity cartEntity = createCartEntity(1L, new ArrayList<>());
-    Cart cart = createCart(1L, new ArrayList<>());
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
-    when(cartMapper.fromEntity(any())).thenReturn(cart);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(Cart.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
     when(productService.getProductById(1L)).thenReturn(Optional.empty());
 
     assertThrows(
@@ -155,16 +149,29 @@ class CartServiceTest {
 
   @Test
   public void emptyCart_whenCartExists_thenEmptyCart() {
-    CartItemEntity item =
-        CartItemEntity.builder().id(1L).product(productEntity).quantity(1).build();
-    CartEntity cartEntityWithItem = createCartEntity(1L, List.of(item));
-    CartItem cartItem = CartItem.builder().id(1L).product(product).quantity(1).build();
-    Cart cartWithItem = createCart(1L, List.of(cartItem));
-    CartEntity emptyCartEntity = createCartEntity(1L, new ArrayList<>());
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntityWithItem));
-    when(cartMapper.fromEntity(any())).thenReturn(cartWithItem);
-    when(cartRepository.save(any())).thenReturn(emptyCartEntity);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder()
+                    .id(1L)
+                    .customerId(1L)
+                    .items(
+                        List.of(
+                            CartItemEntity.builder()
+                                .id(1L)
+                                .product(productEntity)
+                                .quantity(1)
+                                .build()))
+                    .build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(
+            Cart.builder()
+                .id(1L)
+                .customerId(1L)
+                .items(List.of(CartItem.builder().id(1L).product(product).quantity(1).build()))
+                .build());
+    when(cartRepository.save(any()))
+        .thenReturn(CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
 
     assertDoesNotThrow(() -> cartService.emptyCart(1L));
   }
@@ -180,44 +187,67 @@ class CartServiceTest {
   public void updateCart_whenCartDoesNotExist_thenThrowNotFoundException() {
     when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
 
-    CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 1)));
-
-    assertThrows(NotFoundException.class, () -> cartService.updateCart(1L, cartRequest));
+    assertThrows(
+        NotFoundException.class,
+        () ->
+            cartService.updateCart(
+                1L, new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 1)))));
   }
 
   @Test
   public void updateCart_whenProductDoesNotExist_thenThrowNotFoundException() {
-    CartEntity cartEntity = createCartEntity(1L, new ArrayList<>());
-    Cart cart = createCart(1L, new ArrayList<>());
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
-    when(cartMapper.fromEntity(any())).thenReturn(cart);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder().id(1L).customerId(1L).items(new ArrayList<>()).build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(Cart.builder().id(1L).customerId(1L).items(new ArrayList<>()).build());
     when(productService.getProductById(1L)).thenReturn(Optional.empty());
 
-    CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(null, 1L, 1)));
-
-    assertThrows(NotFoundException.class, () -> cartService.updateCart(1L, cartRequest));
+    assertThrows(
+        NotFoundException.class,
+        () ->
+            cartService.updateCart(
+                1L, new CartRequest(1L, List.of(new CartItemRequest(null, 1L, 1)))));
   }
 
   @Test
   public void updateCart_whenCartAndProductExist_thenUpdateCart() {
-    CartItemEntity item =
-        CartItemEntity.builder().id(1L).product(productEntity).quantity(1).build();
-    CartEntity cartEntityWithItem = createCartEntity(1L, List.of(item));
-    CartItem cartItem = CartItem.builder().id(1L).product(product).quantity(1).build();
-    Cart cartWithItem = createCart(1L, List.of(cartItem));
-
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntityWithItem));
-    when(cartMapper.fromEntity(any())).thenReturn(cartWithItem);
+    when(cartRepository.findByCustomerId(1L))
+        .thenReturn(
+            Optional.of(
+                CartEntity.builder()
+                    .id(1L)
+                    .customerId(1L)
+                    .items(
+                        List.of(
+                            CartItemEntity.builder()
+                                .id(1L)
+                                .product(productEntity)
+                                .quantity(1)
+                                .build()))
+                    .build()));
+    when(cartMapper.fromEntity(any()))
+        .thenReturn(
+            Cart.builder()
+                .id(1L)
+                .customerId(1L)
+                .items(List.of(CartItem.builder().id(1L).product(product).quantity(1).build()))
+                .build());
     when(productService.getProductById(1L)).thenReturn(Optional.of(product));
+    when(cartRepository.save(any()))
+        .thenReturn(
+            CartEntity.builder()
+                .id(1L)
+                .customerId(1L)
+                .items(
+                    List.of(
+                        CartItemEntity.builder().id(1L).product(productEntity).quantity(3).build()))
+                .build());
 
-    CartItemEntity updatedItem =
-        CartItemEntity.builder().id(1L).product(productEntity).quantity(3).build();
-
-    when(cartRepository.save(any())).thenReturn(createCartEntity(1L, List.of(updatedItem)));
-
-    CartRequest cartRequest = new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 3)));
-
-    assertDoesNotThrow(() -> cartService.updateCart(1L, cartRequest));
+    assertDoesNotThrow(
+        () ->
+            cartService.updateCart(
+                1L, new CartRequest(1L, List.of(new CartItemRequest(1L, 1L, 3)))));
   }
 }

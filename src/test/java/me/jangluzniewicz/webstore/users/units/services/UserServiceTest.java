@@ -32,7 +32,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,91 +45,100 @@ class UserServiceTest {
   @Mock private ICart cartService;
   @InjectMocks private UserService userService;
 
-  private final String PASSWORD_ENCODED =
-      "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC";
-  private final String PASSWORD_DECODED = "admin";
-  private final String EMAIL = "admin@admin.com";
-  private final String PHONE_NUMBER = "+48123123123";
-
   private RoleEntity roleEntity;
   private Role role;
 
   @BeforeEach
-  void setUp() {
-    roleEntity = new RoleEntity(1L, "ADMIN");
-    role = new Role(1L, "ADMIN");
-  }
-
-  private UserEntity createUserEntity(Long id, String email) {
-    return UserEntity.builder()
-        .id(id)
-        .role(roleEntity)
-        .email(email)
-        .password(PASSWORD_ENCODED)
-        .phoneNumber(PHONE_NUMBER)
-        .build();
-  }
-
-  private User createUser(Long id, String email) {
-    return User.builder()
-        .id(id)
-        .role(role)
-        .email(email)
-        .password(PASSWORD_ENCODED)
-        .phoneNumber(PHONE_NUMBER)
-        .build();
+  public void setUp() {
+    roleEntity = RoleEntity.builder().id(1L).name("ADMIN").build();
+    role = Role.builder().id(1L).name("ADMIN").build();
   }
 
   @Test
   public void registerNewUser_whenEmailIsUniqueAndRoleExists_thenReturnUserId() {
-    when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(false);
-    when(passwordEncoder.encode(PASSWORD_DECODED)).thenReturn(PASSWORD_ENCODED);
+    when(userRepository.existsByEmailIgnoreCase("admin@admin.com")).thenReturn(false);
+    when(passwordEncoder.encode("admin"))
+        .thenReturn("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC");
     when(roleService.getRoleById(any())).thenReturn(Optional.of(role));
-    when(userRepository.save(any())).thenReturn(createUserEntity(1L, EMAIL));
+    when(userRepository.save(any()))
+        .thenReturn(
+            UserEntity.builder()
+                .id(1L)
+                .role(roleEntity)
+                .email("admin@admin.com")
+                .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                .phoneNumber("+48123123123")
+                .build());
     when(cartService.createNewCart(1L)).thenReturn(1L);
 
     assertEquals(
         1L,
-        userService.registerNewUser(new UserRequest(1L, EMAIL, PASSWORD_DECODED, PHONE_NUMBER)));
+        userService.registerNewUser(
+            new UserRequest(1L, "admin@admin.com", "admin", "+48123123123")));
   }
 
   @Test
   public void registerNewUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
-    when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
+    when(userRepository.existsByEmailIgnoreCase("admin@admin.com")).thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
         () ->
             userService.registerNewUser(
-                new UserRequest(1L, EMAIL, PASSWORD_DECODED, PHONE_NUMBER)));
+                new UserRequest(1L, "admin@admin.com", "admin", "+48123123123")));
   }
 
   @Test
   public void registerNewUser_whenRoleDoesNotExist_thenThrowNotFoundException() {
-    when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(false);
-    when(passwordEncoder.encode(PASSWORD_DECODED)).thenReturn(PASSWORD_ENCODED);
+    when(userRepository.existsByEmailIgnoreCase("admin@admin.com")).thenReturn(false);
+    when(passwordEncoder.encode("admin"))
+        .thenReturn("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC");
     when(roleService.getRoleById(any())).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
         () ->
             userService.registerNewUser(
-                new UserRequest(1L, EMAIL, PASSWORD_DECODED, PHONE_NUMBER)));
+                new UserRequest(1L, "admin@admin.com", "admin", "+48123123123")));
   }
 
   @Test
   public void updateUser_whenUserExistsAndEmailIsUnique_thenReturnUserId() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
+    when(userRepository.findById(1L))
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
     when(userRepository.existsByEmailIgnoreCase("new@new.com")).thenReturn(false);
     when(roleService.getRoleById(any())).thenReturn(Optional.of(role));
-    when(passwordEncoder.encode(PASSWORD_DECODED)).thenReturn(PASSWORD_ENCODED);
-    when(userRepository.save(any())).thenReturn(createUserEntity(1L, "new@new.com"));
+    when(passwordEncoder.encode("admin"))
+        .thenReturn("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC");
+    when(userRepository.save(any()))
+        .thenReturn(
+            UserEntity.builder()
+                .id(1L)
+                .role(roleEntity)
+                .email("new@new.com")
+                .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                .phoneNumber("+48123123123")
+                .build());
 
     assertEquals(
         1L,
-        userService.updateUser(
-            1L, new UserRequest(1L, "new@new.com", PASSWORD_DECODED, PHONE_NUMBER)));
+        userService.updateUser(1L, new UserRequest(1L, "new@new.com", "admin", "+48123123123")));
   }
 
   @Test
@@ -141,52 +149,128 @@ class UserServiceTest {
         NotFoundException.class,
         () ->
             userService.updateUser(
-                1L, new UserRequest(1L, "new@new.com", PASSWORD_DECODED, PHONE_NUMBER)));
+                1L, new UserRequest(1L, "new@new.com", "admin", "+48123123123")));
   }
 
   @Test
   public void updateUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
-    when(userRepository.existsByEmailIgnoreCase(any())).thenReturn(true);
+    when(userRepository.findById(1L))
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
+    when(userRepository.existsByEmailIgnoreCase("new@new.com")).thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
         () ->
             userService.updateUser(
-                1L, new UserRequest(1L, "new@new.com", PASSWORD_DECODED, PHONE_NUMBER)));
+                1L, new UserRequest(1L, "new@new.com", "admin", "+48123123123")));
   }
 
   @Test
   public void updateUser_whenEmailIsTheSame_thenDoNotThrowException() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
-    when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
+    when(userRepository.findById(1L))
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
+    when(userRepository.existsByEmailIgnoreCase("admin@admin.com")).thenReturn(true);
     when(roleService.getRoleById(any())).thenReturn(Optional.of(role));
-    when(passwordEncoder.encode(PASSWORD_DECODED)).thenReturn(PASSWORD_ENCODED);
-    when(userRepository.save(any())).thenReturn(createUserEntity(1L, EMAIL));
+    when(passwordEncoder.encode("admin"))
+        .thenReturn("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC");
+    when(userRepository.save(any()))
+        .thenReturn(
+            UserEntity.builder()
+                .id(1L)
+                .role(roleEntity)
+                .email("admin@admin.com")
+                .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                .phoneNumber("+48123123123")
+                .build());
 
     assertEquals(
-        1L, userService.updateUser(1L, new UserRequest(1L, EMAIL, PASSWORD_DECODED, PHONE_NUMBER)));
+        1L,
+        userService.updateUser(
+            1L, new UserRequest(1L, "admin@admin.com", "admin", "+48123123123")));
   }
 
   @Test
   public void updateUser_whenRoleDoesNotExist_thenThrowNotFoundException() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
-    when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(false);
+    when(userRepository.findById(1L))
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
+    when(userRepository.existsByEmailIgnoreCase("admin@admin.com")).thenReturn(false);
     when(roleService.getRoleById(any())).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
         () ->
-            userService.updateUser(1L, new UserRequest(1L, EMAIL, PASSWORD_DECODED, PHONE_NUMBER)));
+            userService.updateUser(
+                1L, new UserRequest(1L, "admin@admin.com", "admin", "+48123123123")));
   }
 
   @Test
   public void getUserById_whenUserExists_thenReturnUser() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
+    when(userRepository.findById(1L))
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
 
     assertTrue(userService.getUserById(1L).isPresent());
   }
@@ -201,25 +285,55 @@ class UserServiceTest {
   @Test
   public void getUserByEmail_whenUserExists_thenReturnUser() {
     when(userRepository.findByEmailIgnoreCase("admin@admin.com"))
-        .thenReturn(Optional.of(createUserEntity(1L, EMAIL)));
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
+        .thenReturn(
+            Optional.of(
+                UserEntity.builder()
+                    .id(1L)
+                    .role(roleEntity)
+                    .email("admin@admin.com")
+                    .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                    .phoneNumber("+48123123123")
+                    .build()));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
 
-    assertTrue(userService.getUserByEmail(EMAIL).isPresent());
+    assertTrue(userService.getUserByEmail("admin@admin.com").isPresent());
   }
 
   @Test
   public void getUserByEmail_whenUserDoesNotExist_thenReturnEmpty() {
-    when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.empty());
+    when(userRepository.findByEmailIgnoreCase("admin@admin.com")).thenReturn(Optional.empty());
 
-    assertTrue(userService.getUserByEmail(EMAIL).isEmpty());
+    assertTrue(userService.getUserByEmail("admin@admin.com").isEmpty());
   }
 
   @Test
   public void getAllUsers_whenUsersExist_thenReturnPagedResponse() {
-    Page<UserEntity> page = new PageImpl<>(List.of(createUserEntity(1L, EMAIL)));
-
-    when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(userMapper.fromEntity(any())).thenReturn(createUser(1L, EMAIL));
+    when(userRepository.findAll(any(Pageable.class)))
+        .thenReturn(
+            new PageImpl<>(
+                List.of(
+                    UserEntity.builder()
+                        .id(1L)
+                        .role(roleEntity)
+                        .email("admin@admin.com")
+                        .password("$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC")
+                        .phoneNumber("+48123123123")
+                        .build())));
+    when(userMapper.fromEntity(any()))
+        .thenReturn(
+            new User(
+                1L,
+                role,
+                "admin@admin.com",
+                "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC",
+                "+48123123123"));
 
     assertEquals(1, userService.getAllUsers(0, 10).getTotalPages());
   }

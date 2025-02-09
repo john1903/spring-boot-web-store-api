@@ -27,7 +27,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -35,38 +38,30 @@ class CategoryServiceTest {
   @Mock private CategoryMapper categoryMapper;
   @InjectMocks private CategoryService categoryService;
 
-  private final String CATEGORY_NAME = "Groceries";
-
-  private CategoryEntity createCategoryEntity(Long id, String name) {
-    return CategoryEntity.builder().id(id).name(name).build();
-  }
-
-  private Category createCategory(Long id, String name) {
-    return Category.builder().id(id).name(name).build();
-  }
-
   @Test
   void createNewCategory_whenNotExists_thenReturnId() {
-    when(categoryRepository.existsByNameIgnoreCase(CATEGORY_NAME)).thenReturn(false);
-    when(categoryRepository.save(any())).thenReturn(createCategoryEntity(1L, CATEGORY_NAME));
+    when(categoryRepository.existsByNameIgnoreCase("Groceries")).thenReturn(false);
+    when(categoryRepository.save(any()))
+        .thenReturn(CategoryEntity.builder().id(1L).name("Groceries").build());
 
-    assertEquals(1L, categoryService.createNewCategory(new CategoryRequest(CATEGORY_NAME)));
+    assertEquals(1L, categoryService.createNewCategory(new CategoryRequest("Groceries")));
   }
 
   @Test
   void createNewCategory_whenExists_thenThrowException() {
-    when(categoryRepository.existsByNameIgnoreCase(CATEGORY_NAME)).thenReturn(true);
+    when(categoryRepository.existsByNameIgnoreCase("Groceries")).thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> categoryService.createNewCategory(new CategoryRequest(CATEGORY_NAME)));
+        () -> categoryService.createNewCategory(new CategoryRequest("Groceries")));
   }
 
   @Test
   void getCategoryById_whenExists_thenReturnCategory() {
     when(categoryRepository.findById(1L))
-        .thenReturn(Optional.of(createCategoryEntity(1L, CATEGORY_NAME)));
-    when(categoryMapper.fromEntity(any())).thenReturn(createCategory(1L, CATEGORY_NAME));
+        .thenReturn(Optional.of(CategoryEntity.builder().id(1L).name("Groceries").build()));
+    when(categoryMapper.fromEntity(any()))
+        .thenReturn(Category.builder().id(1L).name("Groceries").build());
 
     assertTrue(categoryService.getCategoryById(1L).isPresent());
   }
@@ -81,10 +76,13 @@ class CategoryServiceTest {
   @Test
   void getAllCategories_whenExists_thenReturnPagedResponse() {
     Page<CategoryEntity> page =
-        new PageImpl<>(List.of(createCategoryEntity(1L, CATEGORY_NAME)), PageRequest.of(0, 10), 1);
-
+        new PageImpl<>(
+            List.of(CategoryEntity.builder().id(1L).name("Groceries").build()),
+            PageRequest.of(0, 10),
+            1);
     when(categoryRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(categoryMapper.fromEntity(any())).thenReturn(createCategory(1L, CATEGORY_NAME));
+    when(categoryMapper.fromEntity(any()))
+        .thenReturn(Category.builder().id(1L).name("Groceries").build());
 
     assertEquals(1, categoryService.getAllCategories(0, 10).getTotalPages());
   }
@@ -92,24 +90,27 @@ class CategoryServiceTest {
   @Test
   void updateCategory_whenExistsAndUnique_thenReturnId() {
     when(categoryRepository.findById(1L))
-        .thenReturn(Optional.of(createCategoryEntity(1L, "Clothes")));
-    when(categoryMapper.fromEntity(any())).thenReturn(createCategory(1L, "Clothes"));
-    when(categoryRepository.existsByNameIgnoreCase(CATEGORY_NAME)).thenReturn(false);
-    when(categoryRepository.save(any())).thenReturn(createCategoryEntity(1L, CATEGORY_NAME));
+        .thenReturn(Optional.of(CategoryEntity.builder().id(1L).name("Clothes").build()));
+    when(categoryMapper.fromEntity(any()))
+        .thenReturn(Category.builder().id(1L).name("Clothes").build());
+    when(categoryRepository.existsByNameIgnoreCase("Groceries")).thenReturn(false);
+    when(categoryRepository.save(any()))
+        .thenReturn(CategoryEntity.builder().id(1L).name("Groceries").build());
 
-    assertEquals(1L, categoryService.updateCategory(1L, new CategoryRequest(CATEGORY_NAME)));
+    assertEquals(1L, categoryService.updateCategory(1L, new CategoryRequest("Groceries")));
   }
 
   @Test
   void updateCategory_whenExistsAndNotUnique_thenThrowException() {
     when(categoryRepository.findById(1L))
-        .thenReturn(Optional.of(createCategoryEntity(1L, "Clothes")));
-    when(categoryMapper.fromEntity(any())).thenReturn(createCategory(1L, "Clothes"));
-    when(categoryRepository.existsByNameIgnoreCase(CATEGORY_NAME)).thenReturn(true);
+        .thenReturn(Optional.of(CategoryEntity.builder().id(1L).name("Clothes").build()));
+    when(categoryMapper.fromEntity(any()))
+        .thenReturn(Category.builder().id(1L).name("Clothes").build());
+    when(categoryRepository.existsByNameIgnoreCase("Groceries")).thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> categoryService.updateCategory(1L, new CategoryRequest(CATEGORY_NAME)));
+        () -> categoryService.updateCategory(1L, new CategoryRequest("Groceries")));
   }
 
   @Test
@@ -118,16 +119,18 @@ class CategoryServiceTest {
 
     assertThrows(
         NotFoundException.class,
-        () -> categoryService.updateCategory(1L, new CategoryRequest(CATEGORY_NAME)));
+        () -> categoryService.updateCategory(1L, new CategoryRequest("Groceries")));
   }
 
   @Test
   public void updateCategory_whenCategoryExistsAndNewNameIsSame_thenDoNotThrowException() {
     when(categoryRepository.findById(1L))
-        .thenReturn(Optional.of(createCategoryEntity(1L, "Clothes")));
-    when(categoryMapper.fromEntity(any())).thenReturn(createCategory(1L, "Clothes"));
+        .thenReturn(Optional.of(CategoryEntity.builder().id(1L).name("Clothes").build()));
+    when(categoryMapper.fromEntity(any()))
+        .thenReturn(Category.builder().id(1L).name("Clothes").build());
     when(categoryRepository.existsByNameIgnoreCase("Clothes")).thenReturn(true);
-    when(categoryRepository.save(any())).thenReturn(createCategoryEntity(1L, "Clothes"));
+    when(categoryRepository.save(any()))
+        .thenReturn(CategoryEntity.builder().id(1L).name("Clothes").build());
 
     assertDoesNotThrow(() -> categoryService.updateCategory(1L, new CategoryRequest("Clothes")));
   }

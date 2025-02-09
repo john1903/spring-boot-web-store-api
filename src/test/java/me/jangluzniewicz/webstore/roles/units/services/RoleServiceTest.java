@@ -27,7 +27,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,35 +36,27 @@ class RoleServiceTest {
   @Mock private RoleMapper roleMapper;
   @InjectMocks private RoleService roleService;
 
-  private final String ROLE_NAME = "ADMIN";
-
-  private RoleEntity createRoleEntity(Long id, String roleName) {
-    return RoleEntity.builder().id(id).name(roleName).build();
-  }
-
-  private Role createRole(Long id, String roleName) {
-    return Role.builder().id(id).name(roleName).build();
-  }
-
   @Test
   void createNewRole_whenRoleDoesNotExist_thenReturnRoleId() {
-    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(false);
-    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, ROLE_NAME));
+    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(false);
+    when(roleRepository.save(any())).thenReturn(RoleEntity.builder().id(1L).name("ADMIN").build());
 
-    assertEquals(1L, roleService.createNewRole(new RoleRequest(ROLE_NAME)));
+    assertEquals(1L, roleService.createNewRole(new RoleRequest("ADMIN")));
   }
 
   @Test
   void createNewRole_whenRoleAlreadyExists_thenThrowNotUniqueException() {
-    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(true);
+    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(true);
+
     assertThrows(
-        NotUniqueException.class, () -> roleService.createNewRole(new RoleRequest(ROLE_NAME)));
+        NotUniqueException.class, () -> roleService.createNewRole(new RoleRequest("ADMIN")));
   }
 
   @Test
   void getRoleById_whenRoleExists_thenReturnRole() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
-    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
+    when(roleRepository.findById(1L))
+        .thenReturn(Optional.of(RoleEntity.builder().id(1L).name("ADMIN").build()));
+    when(roleMapper.fromEntity(any())).thenReturn(Role.builder().id(1L).name("ADMIN").build());
 
     assertTrue(roleService.getRoleById(1L).isPresent());
   }
@@ -79,28 +70,29 @@ class RoleServiceTest {
 
   @Test
   void getAllRoles_whenRolesExist_thenReturnPagedResponse() {
-    Page<RoleEntity> page = new PageImpl<>(List.of(createRoleEntity(1L, ROLE_NAME)));
-
-    when(roleRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
+    when(roleRepository.findAll(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(RoleEntity.builder().id(1L).name("ADMIN").build())));
+    when(roleMapper.fromEntity(any())).thenReturn(Role.builder().id(1L).name("ADMIN").build());
 
     assertEquals(1, roleService.getAllRoles(0, 10).getTotalPages());
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
-    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
+    when(roleRepository.findById(1L))
+        .thenReturn(Optional.of(RoleEntity.builder().id(1L).name("ADMIN").build()));
+    when(roleMapper.fromEntity(any())).thenReturn(Role.builder().id(1L).name("ADMIN").build());
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(false);
-    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, "USER"));
+    when(roleRepository.save(any())).thenReturn(RoleEntity.builder().id(1L).name("USER").build());
 
     assertEquals(1L, roleService.updateRole(1L, new RoleRequest("USER")));
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
-    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
+    when(roleRepository.findById(1L))
+        .thenReturn(Optional.of(RoleEntity.builder().id(1L).name("ADMIN").build()));
+    when(roleMapper.fromEntity(any())).thenReturn(Role.builder().id(1L).name("ADMIN").build());
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(true);
 
     assertThrows(
@@ -110,29 +102,33 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleDoesNotExist_thenThrowNotFoundException() {
     when(roleRepository.findById(1L)).thenReturn(Optional.empty());
+
     assertThrows(
         NotFoundException.class, () -> roleService.updateRole(1L, new RoleRequest("USER")));
   }
 
   @Test
   public void updateRole_whenRoleExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
-    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
-    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(true);
-    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, ROLE_NAME));
+    when(roleRepository.findById(1L))
+        .thenReturn(Optional.of(RoleEntity.builder().id(1L).name("ADMIN").build()));
+    when(roleMapper.fromEntity(any())).thenReturn(Role.builder().id(1L).name("ADMIN").build());
+    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(true);
+    when(roleRepository.save(any())).thenReturn(RoleEntity.builder().id(1L).name("ADMIN").build());
 
-    assertDoesNotThrow(() -> roleService.updateRole(1L, new RoleRequest(ROLE_NAME)));
+    assertDoesNotThrow(() -> roleService.updateRole(1L, new RoleRequest("ADMIN")));
   }
 
   @Test
   void deleteRole_whenRoleExists_thenDeleteSuccessfully() {
     when(roleRepository.existsById(1L)).thenReturn(true);
+
     assertDoesNotThrow(() -> roleService.deleteRole(1L));
   }
 
   @Test
   void deleteRole_whenRoleDoesNotExist_thenThrowNotFoundException() {
     when(roleRepository.existsById(1L)).thenReturn(false);
+
     assertThrows(NotFoundException.class, () -> roleService.deleteRole(1L));
   }
 

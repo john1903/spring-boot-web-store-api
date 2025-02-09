@@ -1,12 +1,19 @@
 package me.jangluzniewicz.webstore.roles.units.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.exceptions.*;
+import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
@@ -30,25 +37,35 @@ class RoleServiceTest {
   @Mock private RoleMapper roleMapper;
   @InjectMocks private RoleService roleService;
 
+  private final String ROLE_NAME = "ADMIN";
+
+  private RoleEntity createRoleEntity(Long id, String roleName) {
+    return RoleEntity.builder().id(id).name(roleName).build();
+  }
+
+  private Role createRole(Long id, String roleName) {
+    return Role.builder().id(id).name(roleName).build();
+  }
+
   @Test
   void createNewRole_whenRoleDoesNotExist_thenReturnRoleId() {
-    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(false);
-    when(roleRepository.save(any())).thenReturn(new RoleEntity(1L, "ADMIN"));
+    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(false);
+    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, ROLE_NAME));
 
-    assertEquals(1L, roleService.createNewRole(new RoleRequest("ADMIN")));
+    assertEquals(1L, roleService.createNewRole(new RoleRequest(ROLE_NAME)));
   }
 
   @Test
   void createNewRole_whenRoleAlreadyExists_thenThrowNotUniqueException() {
-    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(true);
+    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(true);
     assertThrows(
-        NotUniqueException.class, () -> roleService.createNewRole(new RoleRequest("ADMIN")));
+        NotUniqueException.class, () -> roleService.createNewRole(new RoleRequest(ROLE_NAME)));
   }
 
   @Test
   void getRoleById_whenRoleExists_thenReturnRole() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
-    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
+    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
+    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
 
     assertTrue(roleService.getRoleById(1L).isPresent());
   }
@@ -62,28 +79,28 @@ class RoleServiceTest {
 
   @Test
   void getAllRoles_whenRolesExist_thenReturnPagedResponse() {
-    Page<RoleEntity> page = new PageImpl<>(List.of(new RoleEntity(1L, "ADMIN")));
+    Page<RoleEntity> page = new PageImpl<>(List.of(createRoleEntity(1L, ROLE_NAME)));
 
     when(roleRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
+    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
 
     assertEquals(1, roleService.getAllRoles(0, 10).getTotalPages());
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
-    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
+    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
+    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(false);
-    when(roleRepository.save(any())).thenReturn(new RoleEntity(1L, "USER"));
+    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, "USER"));
 
     assertEquals(1L, roleService.updateRole(1L, new RoleRequest("USER")));
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
-    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
+    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
+    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
     when(roleRepository.existsByNameIgnoreCase("USER")).thenReturn(true);
 
     assertThrows(
@@ -99,12 +116,12 @@ class RoleServiceTest {
 
   @Test
   public void updateRole_whenRoleExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(new RoleEntity(1L, "ADMIN")));
-    when(roleMapper.fromEntity(any())).thenReturn(new Role(1L, "ADMIN"));
-    when(roleRepository.existsByNameIgnoreCase("ADMIN")).thenReturn(true);
-    when(roleRepository.save(any())).thenReturn(new RoleEntity(1L, "ADMIN"));
+    when(roleRepository.findById(1L)).thenReturn(Optional.of(createRoleEntity(1L, ROLE_NAME)));
+    when(roleMapper.fromEntity(any())).thenReturn(createRole(1L, ROLE_NAME));
+    when(roleRepository.existsByNameIgnoreCase(ROLE_NAME)).thenReturn(true);
+    when(roleRepository.save(any())).thenReturn(createRoleEntity(1L, ROLE_NAME));
 
-    assertDoesNotThrow(() -> roleService.updateRole(1L, new RoleRequest("ADMIN")));
+    assertDoesNotThrow(() -> roleService.updateRole(1L, new RoleRequest(ROLE_NAME)));
   }
 
   @Test

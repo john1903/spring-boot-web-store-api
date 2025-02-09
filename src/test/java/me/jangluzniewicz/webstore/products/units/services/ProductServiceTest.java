@@ -42,6 +42,10 @@ class ProductServiceTest {
   @Mock private ICategory categoryService;
   @Mock private CategoryMapper categoryMapper;
   @InjectMocks private ProductService productService;
+  private final String PRODUCT_NAME = "Bicycle";
+  private final String PRODUCT_DESCRIPTION = "Mountain bike";
+  private final BigDecimal PRODUCT_PRICE = BigDecimal.valueOf(1000.0);
+  private final BigDecimal PRODUCT_WEIGHT = BigDecimal.valueOf(10.0);
   private CategoryEntity categoryEntity;
   private Category category;
 
@@ -53,76 +57,66 @@ class ProductServiceTest {
 
   @Test
   public void createNewProduct_whenCategoryExists_thenReturnProductId() {
-    ProductRequest productRequest =
-        new ProductRequest(
-            "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
-    ProductEntity savedEntity =
-        new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
-
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
     when(productMapper.toEntity(any()))
         .thenReturn(
-            new ProductEntity(
-                null,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                categoryEntity));
-    when(productRepository.save(any())).thenReturn(savedEntity);
+            ProductEntity.builder()
+                .name(PRODUCT_NAME)
+                .description(PRODUCT_DESCRIPTION)
+                .price(PRODUCT_PRICE)
+                .weight(PRODUCT_WEIGHT)
+                .category(categoryEntity)
+                .build());
+    when(productRepository.save(any()))
+        .thenReturn(
+            ProductEntity.builder()
+                .id(1L)
+                .name(PRODUCT_NAME)
+                .description(PRODUCT_DESCRIPTION)
+                .price(PRODUCT_PRICE)
+                .weight(PRODUCT_WEIGHT)
+                .category(categoryEntity)
+                .build());
 
-    Long productId = productService.createNewProduct(productRequest);
-
-    assertEquals(1L, productId);
+    assertEquals(
+        1L,
+        productService.createNewProduct(
+            new ProductRequest(
+                PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, 1L)));
   }
 
   @Test
   public void createNewProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
-    ProductRequest productRequest =
-        new ProductRequest(
-            "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
-
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> productService.createNewProduct(productRequest));
+    assertThrows(
+        NotFoundException.class,
+        () ->
+            productService.createNewProduct(
+                new ProductRequest(
+                    PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, 1L)));
   }
 
   @Test
   public void getProductById_whenProductExists_thenReturnProduct() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
 
     when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     Optional<Product> product = productService.getProductById(1L);
 
     assertTrue(product.isPresent());
     assertEquals(1L, product.get().getId());
-    assertEquals("Bicycle", product.get().getName());
-    assertEquals("Mountain bike", product.get().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), product.get().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), product.get().getWeight());
+    assertEquals(PRODUCT_NAME, product.get().getName());
+    assertEquals(PRODUCT_DESCRIPTION, product.get().getDescription());
+    assertEquals(PRODUCT_PRICE, product.get().getPrice());
+    assertEquals(PRODUCT_WEIGHT, product.get().getWeight());
     assertEquals(category, product.get().getCategory());
   }
 
@@ -139,12 +133,7 @@ class ProductServiceTest {
   public void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
@@ -152,22 +141,17 @@ class ProductServiceTest {
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products = productService.getAllProducts(0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -175,19 +159,10 @@ class ProductServiceTest {
   public void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
     ProductRequest productRequest =
         new ProductRequest(
-            "Bicycle XXL",
-            "Mountain bike",
-            BigDecimal.valueOf(1200.0),
-            BigDecimal.valueOf(10.0),
-            1L);
+            "Bicycle XXL", PRODUCT_DESCRIPTION, BigDecimal.valueOf(1200.0), PRODUCT_WEIGHT, 1L);
     ProductEntity savedEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
 
     when(productRepository.findById(1L)).thenReturn(Optional.of(savedEntity));
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
@@ -202,11 +177,7 @@ class ProductServiceTest {
   public void updateProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
     ProductRequest productRequest =
         new ProductRequest(
-            "Bicycle XXL",
-            "Mountain bike",
-            BigDecimal.valueOf(1200.0),
-            BigDecimal.valueOf(10.0),
-            1L);
+            "Bicycle XXL", PRODUCT_DESCRIPTION, BigDecimal.valueOf(1200.0), PRODUCT_WEIGHT, 1L);
 
     when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -217,19 +188,10 @@ class ProductServiceTest {
   public void updateProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
     ProductRequest productRequest =
         new ProductRequest(
-            "Bicycle XXL",
-            "Mountain bike",
-            BigDecimal.valueOf(1200.0),
-            BigDecimal.valueOf(10.0),
-            1L);
+            "Bicycle XXL", PRODUCT_DESCRIPTION, BigDecimal.valueOf(1200.0), PRODUCT_WEIGHT, 1L);
     ProductEntity savedEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
 
     when(productRepository.findById(1L)).thenReturn(Optional.of(savedEntity));
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.empty());
@@ -277,12 +239,7 @@ class ProductServiceTest {
   public void getFilteredProducts_whenNoFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
@@ -290,12 +247,7 @@ class ProductServiceTest {
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(null, null, null, null, 0, 10);
@@ -303,10 +255,10 @@ class ProductServiceTest {
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -314,12 +266,7 @@ class ProductServiceTest {
   public void getFilteredProducts_whenCategoryIdFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
@@ -327,12 +274,7 @@ class ProductServiceTest {
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(1L, null, null, null, 0, 10);
@@ -340,10 +282,10 @@ class ProductServiceTest {
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -351,36 +293,27 @@ class ProductServiceTest {
   public void getFilteredProducts_whenNameFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
-    when(productRepository.findAllByNameContainingIgnoreCase("Bicycle", pageable)).thenReturn(page);
+    when(productRepository.findAllByNameContainingIgnoreCase(PRODUCT_NAME, pageable))
+        .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
-        productService.getFilteredProducts(null, "Bicycle", null, null, 0, 10);
+        productService.getFilteredProducts(null, PRODUCT_NAME, null, null, 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -388,39 +321,29 @@ class ProductServiceTest {
   public void getFilteredProducts_whenPriceRangeFilterApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
     when(productRepository.findAllByPriceBetween(
-            BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), pageable))
+            PRODUCT_PRICE, BigDecimal.valueOf(2000.0), pageable))
         .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(
-            null, null, BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), 0, 10);
+            null, null, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -428,37 +351,28 @@ class ProductServiceTest {
   public void getFilteredProducts_whenCategoryIdAndNameFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
-    when(productRepository.findAllByCategoryIdAndNameContainingIgnoreCase(1L, "Bicycle", pageable))
+    when(productRepository.findAllByCategoryIdAndNameContainingIgnoreCase(
+            1L, PRODUCT_NAME, pageable))
         .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
-        productService.getFilteredProducts(1L, "Bicycle", null, null, 0, 10);
+        productService.getFilteredProducts(1L, PRODUCT_NAME, null, null, 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -467,39 +381,29 @@ class ProductServiceTest {
       getFilteredProducts_whenCategoryIdAndPriceRangeFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
     when(productRepository.findAllByCategoryIdAndPriceBetween(
-            1L, BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), pageable))
+            1L, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), pageable))
         .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(
-            1L, null, BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), 0, 10);
+            1L, null, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -507,39 +411,29 @@ class ProductServiceTest {
   public void getFilteredProducts_whenNameAndPriceRangeFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
     when(productRepository.findAllByNameContainingIgnoreCaseAndPriceBetween(
-            "Bicycle", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), pageable))
+            PRODUCT_NAME, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), pageable))
         .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(
-            null, "Bicycle", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), 0, 10);
+            null, PRODUCT_NAME, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -547,39 +441,29 @@ class ProductServiceTest {
   public void getFilteredProducts_whenAllFiltersApplied_thenReturnPagedResponse() {
     ProductEntity productEntity =
         new ProductEntity(
-            1L,
-            "Bicycle",
-            "Mountain bike",
-            BigDecimal.valueOf(1000.0),
-            BigDecimal.valueOf(10.0),
-            categoryEntity);
+            1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, categoryEntity);
     Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
 
     when(productRepository.findAllByCategoryIdAndNameContainingIgnoreCaseAndPriceBetween(
-            1L, "Bicycle", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), pageable))
+            1L, PRODUCT_NAME, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), pageable))
         .thenReturn(page);
     when(productMapper.fromEntity(productEntity))
         .thenReturn(
             new Product(
-                1L,
-                "Bicycle",
-                "Mountain bike",
-                BigDecimal.valueOf(1000.0),
-                BigDecimal.valueOf(10.0),
-                category));
+                1L, PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE, PRODUCT_WEIGHT, category));
 
     PagedResponse<Product> products =
         productService.getFilteredProducts(
-            1L, "Bicycle", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(2000.0), 0, 10);
+            1L, PRODUCT_NAME, PRODUCT_PRICE, BigDecimal.valueOf(2000.0), 0, 10);
 
     assertEquals(1, products.getTotalPages());
     assertEquals(1, products.getContent().size());
     assertEquals(1L, products.getContent().getFirst().getId());
-    assertEquals("Bicycle", products.getContent().getFirst().getName());
-    assertEquals("Mountain bike", products.getContent().getFirst().getDescription());
-    assertEquals(BigDecimal.valueOf(1000.0), products.getContent().getFirst().getPrice());
-    assertEquals(BigDecimal.valueOf(10.0), products.getContent().getFirst().getWeight());
+    assertEquals(PRODUCT_NAME, products.getContent().getFirst().getName());
+    assertEquals(PRODUCT_DESCRIPTION, products.getContent().getFirst().getDescription());
+    assertEquals(PRODUCT_PRICE, products.getContent().getFirst().getPrice());
+    assertEquals(PRODUCT_WEIGHT, products.getContent().getFirst().getWeight());
     assertEquals(category, products.getContent().getFirst().getCategory());
   }
 
@@ -587,9 +471,7 @@ class ProductServiceTest {
   public void getFilteredProducts_whenPriceToIsNull_thenThrowIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            productService.getFilteredProducts(
-                null, null, BigDecimal.valueOf(1000.0), null, 0, 10));
+        () -> productService.getFilteredProducts(null, null, PRODUCT_PRICE, null, 0, 10));
   }
 
   @Test
@@ -608,6 +490,6 @@ class ProductServiceTest {
         IllegalArgumentException.class,
         () ->
             productService.getFilteredProducts(
-                null, null, BigDecimal.valueOf(2000.0), BigDecimal.valueOf(1000.0), 0, 10));
+                null, null, BigDecimal.valueOf(2000.0), PRODUCT_PRICE, 0, 10));
   }
 }

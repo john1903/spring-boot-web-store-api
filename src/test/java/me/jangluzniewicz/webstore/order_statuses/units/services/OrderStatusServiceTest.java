@@ -1,6 +1,9 @@
 package me.jangluzniewicz.webstore.order_statuses.units.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -34,28 +37,40 @@ class OrderStatusServiceTest {
   @Mock private OrderStatusMapper orderStatusMapper;
   @InjectMocks private OrderStatusService orderStatusService;
 
+  private final String ORDER_STATUS_NAME = "ACCEPTED";
+
+  private OrderStatusEntity createOrderStatusEntity(Long id, String name) {
+    return OrderStatusEntity.builder().id(id).name(name).build();
+  }
+
+  private OrderStatus createOrderStatus(Long id, String name) {
+    return OrderStatus.builder().id(id).name(name).build();
+  }
+
   @Test
   public void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(false);
-    when(orderStatusRepository.save(any())).thenReturn(new OrderStatusEntity(1L, "ACCEPTED"));
+    when(orderStatusRepository.existsByNameIgnoreCase(ORDER_STATUS_NAME)).thenReturn(false);
+    when(orderStatusRepository.save(any()))
+        .thenReturn(createOrderStatusEntity(1L, ORDER_STATUS_NAME));
 
-    assertEquals(1L, orderStatusService.createNewOrderStatus(new OrderStatusRequest("ACCEPTED")));
+    assertEquals(
+        1L, orderStatusService.createNewOrderStatus(new OrderStatusRequest(ORDER_STATUS_NAME)));
   }
 
   @Test
   public void createNewOrderStatus_whenOrderStatusAlreadyExists_thenThrowNotUniqueException() {
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(true);
+    when(orderStatusRepository.existsByNameIgnoreCase(ORDER_STATUS_NAME)).thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> orderStatusService.createNewOrderStatus(new OrderStatusRequest("ACCEPTED")));
+        () -> orderStatusService.createNewOrderStatus(new OrderStatusRequest(ORDER_STATUS_NAME)));
   }
 
   @Test
   public void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
     when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
+        .thenReturn(Optional.of(createOrderStatusEntity(1L, ORDER_STATUS_NAME)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(createOrderStatus(1L, ORDER_STATUS_NAME));
 
     assertTrue(orderStatusService.getOrderStatusById(1L).isPresent());
   }
@@ -69,10 +84,11 @@ class OrderStatusServiceTest {
 
   @Test
   public void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
-    Page<OrderStatusEntity> page = new PageImpl<>(List.of(new OrderStatusEntity(1L, "ACCEPTED")));
+    Page<OrderStatusEntity> page =
+        new PageImpl<>(List.of(createOrderStatusEntity(1L, ORDER_STATUS_NAME)));
 
     when(orderStatusRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(createOrderStatus(1L, ORDER_STATUS_NAME));
 
     assertEquals(1, orderStatusService.getAllOrderStatuses(0, 10).getTotalPages());
   }
@@ -80,10 +96,10 @@ class OrderStatusServiceTest {
   @Test
   public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
     when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
+        .thenReturn(Optional.of(createOrderStatusEntity(1L, ORDER_STATUS_NAME)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(createOrderStatus(1L, ORDER_STATUS_NAME));
     when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(false);
-    when(orderStatusRepository.save(any())).thenReturn(new OrderStatusEntity(1L, "DELIVERED"));
+    when(orderStatusRepository.save(any())).thenReturn(createOrderStatusEntity(1L, "DELIVERED"));
 
     assertEquals(1L, orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("DELIVERED")));
   }
@@ -92,8 +108,8 @@ class OrderStatusServiceTest {
   public void
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
+        .thenReturn(Optional.of(createOrderStatusEntity(1L, ORDER_STATUS_NAME)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(createOrderStatus(1L, ORDER_STATUS_NAME));
     when(orderStatusRepository.existsByNameIgnoreCase("DELIVERED")).thenReturn(true);
 
     assertThrows(
@@ -113,13 +129,14 @@ class OrderStatusServiceTest {
   @Test
   public void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
     when(orderStatusRepository.findById(1L))
-        .thenReturn(Optional.of(new OrderStatusEntity(1L, "ACCEPTED")));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(new OrderStatus(1L, "ACCEPTED"));
-    when(orderStatusRepository.existsByNameIgnoreCase("ACCEPTED")).thenReturn(true);
-    when(orderStatusRepository.save(any())).thenReturn(new OrderStatusEntity(1L, "ACCEPTED"));
+        .thenReturn(Optional.of(createOrderStatusEntity(1L, ORDER_STATUS_NAME)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(createOrderStatus(1L, ORDER_STATUS_NAME));
+    when(orderStatusRepository.existsByNameIgnoreCase(ORDER_STATUS_NAME)).thenReturn(true);
+    when(orderStatusRepository.save(any()))
+        .thenReturn(createOrderStatusEntity(1L, ORDER_STATUS_NAME));
 
     assertDoesNotThrow(
-        () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest("ACCEPTED")));
+        () -> orderStatusService.updateOrderStatus(1L, new OrderStatusRequest(ORDER_STATUS_NAME)));
   }
 
   @Test

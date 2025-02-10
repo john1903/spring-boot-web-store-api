@@ -108,28 +108,28 @@ class CartServiceTest {
             .buildCartEntity();
     when(cartRepository.save(any())).thenReturn(cartWithItemEntity);
 
-    assertDoesNotThrow(() -> cartService.addProductToCart(1L, cartItemRequest));
+    assertDoesNotThrow(() -> cartService.addProductToCart(CUSTOMER_ID, cartItemRequest));
   }
 
   @Test
   void addProductToCart_whenCartDoesNotExist_thenThrowNotFoundException() {
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.empty());
+    when(cartRepository.findByCustomerId(CUSTOMER_ID)).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> cartService.addProductToCart(1L, cartItemRequest));
+    assertThrows(NotFoundException.class, () -> cartService.addProductToCart(CUSTOMER_ID, cartItemRequest));
   }
 
   @Test
   void addProductToCart_whenProductDoesNotExist_thenThrowNotFoundException() {
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
+    when(cartRepository.findByCustomerId(CUSTOMER_ID)).thenReturn(Optional.of(cartEntity));
     when(cartMapper.fromEntity(cartEntity)).thenReturn(cart);
-    when(productService.getProductById(1L)).thenReturn(Optional.empty());
+    when(productService.getProductById(product.getId())).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> cartService.addProductToCart(1L, cartItemRequest));
+    assertThrows(NotFoundException.class, () -> cartService.addProductToCart(CUSTOMER_ID, cartItemRequest));
   }
 
   @Test
   void cart_whenCartExists_thenEmptyCart() {
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
+    when(cartRepository.findByCustomerId(CUSTOMER_ID)).thenReturn(Optional.of(cartEntity));
     when(cartMapper.fromEntity(cartEntity)).thenReturn(cart);
     when(cartRepository.save(any())).thenReturn(cartEntity);
 
@@ -152,9 +152,9 @@ class CartServiceTest {
 
   @Test
   void updateCart_whenProductDoesNotExist_thenThrowNotFoundException() {
-    when(cartRepository.findByCustomerId(1L)).thenReturn(Optional.of(cartEntity));
+    when(cartRepository.findByCustomerId(CUSTOMER_ID)).thenReturn(Optional.of(cartEntity));
     when(cartMapper.fromEntity(cartEntity)).thenReturn(cart);
-    when(productService.getProductById(1L)).thenReturn(Optional.empty());
+    when(productService.getProductById(product.getId())).thenReturn(Optional.empty());
 
     assertThrows(NotFoundException.class, () -> cartService.updateCart(CUSTOMER_ID, cartRequest));
   }

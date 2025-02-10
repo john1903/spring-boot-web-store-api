@@ -12,16 +12,14 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
-import me.jangluzniewicz.webstore.categories.models.Category;
+import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
-import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.products.repositories.ProductRepository;
 import me.jangluzniewicz.webstore.products.services.ProductService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -39,17 +37,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+class ProductServiceTest extends BaseServiceTest {
   @Mock private ProductRepository productRepository;
   @Mock private ProductMapper productMapper;
   @Mock private ICategory categoryService;
   @InjectMocks private ProductService productService;
-
-  private CategoryEntity categoryEntity;
-  private Category category;
-
-  private ProductEntity productEntity1;
-  private Product product1;
 
   private ProductRequest productRequest;
   private ProductRequest productRequest2;
@@ -57,29 +49,6 @@ class ProductServiceTest {
 
   @BeforeEach
   void setUp() {
-    category = Category.builder().id(1L).name("Bikes").build();
-    categoryEntity = CategoryEntity.builder().id(1L).name("Bikes").build();
-
-    productEntity1 =
-        ProductEntity.builder()
-            .id(1L)
-            .name("Bicycle")
-            .description("Mountain bike")
-            .price(BigDecimal.valueOf(1000.0))
-            .weight(BigDecimal.valueOf(10.0))
-            .category(categoryEntity)
-            .build();
-
-    product1 =
-        Product.builder()
-            .id(1L)
-            .name("Bicycle")
-            .description("Mountain bike")
-            .price(BigDecimal.valueOf(1000.0))
-            .weight(BigDecimal.valueOf(10.0))
-            .category(category)
-            .build();
-
     productRequest =
         new ProductRequest(
             "Bicycle", "Mountain bike", BigDecimal.valueOf(1000.0), BigDecimal.valueOf(10.0), 1L);
@@ -99,8 +68,8 @@ class ProductServiceTest {
   @Test
   void createNewProduct_whenCategoryExists_thenReturnProductId() {
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
-    when(productMapper.toEntity(any())).thenReturn(productEntity1);
-    when(productRepository.save(any())).thenReturn(productEntity1);
+    when(productMapper.toEntity(any())).thenReturn(productEntity);
+    when(productRepository.save(any())).thenReturn(productEntity);
 
     assertEquals(1L, productService.createNewProduct(productRequest));
   }
@@ -114,8 +83,8 @@ class ProductServiceTest {
 
   @Test
   void getProductById_whenProductExists_thenReturnProduct() {
-    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
-    when(productMapper.fromEntity(any())).thenReturn(product1);
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+    when(productMapper.fromEntity(any())).thenReturn(product);
 
     assertTrue(productService.getProductById(1L).isPresent());
   }
@@ -130,9 +99,9 @@ class ProductServiceTest {
   @Test
   void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
     Pageable pageable = PageRequest.of(0, 10);
-    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity1), pageable, 1);
+    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
     when(productRepository.findAll(pageable)).thenReturn(page);
-    when(productMapper.fromEntity(any())).thenReturn(product1);
+    when(productMapper.fromEntity(any())).thenReturn(product);
 
     assertEquals(1, productService.getAllProducts(0, 10).getTotalPages());
   }
@@ -140,9 +109,9 @@ class ProductServiceTest {
   @Test
   void getFilteredProducts_whenProductsExist_thenReturnPagedResponse() {
     Pageable pageable = PageRequest.of(0, 10);
-    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity1), pageable, 1);
+    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity), pageable, 1);
     when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
-    when(productMapper.fromEntity(any())).thenReturn(product1);
+    when(productMapper.fromEntity(any())).thenReturn(product);
 
     assertEquals(
         1, productService.getFilteredProducts(productFilterRequest, 0, 10).getTotalPages());
@@ -150,8 +119,8 @@ class ProductServiceTest {
 
   @Test
   void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
-    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
-    when(productMapper.fromEntity(any())).thenReturn(product1);
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+    when(productMapper.fromEntity(any())).thenReturn(product);
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.of(category));
     ProductEntity updatedEntity =
         ProductEntity.builder()
@@ -176,8 +145,8 @@ class ProductServiceTest {
 
   @Test
   void updateProduct_whenCategoryDoesNotExist_thenThrowNotFoundException() {
-    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1));
-    when(productMapper.fromEntity(any())).thenReturn(product1);
+    when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+    when(productMapper.fromEntity(any())).thenReturn(product);
     when(categoryService.getCategoryById(1L)).thenReturn(Optional.empty());
 
     assertThrows(NotFoundException.class, () -> productService.updateProduct(1L, productRequest2));

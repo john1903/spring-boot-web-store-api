@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
-import me.jangluzniewicz.webstore.common.units.BaseServiceUnitTest;
+import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
@@ -35,7 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest extends BaseServiceUnitTest {
+class UserServiceTest extends BaseServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private IRole roleService;
   @Mock private PasswordEncoder passwordEncoder;

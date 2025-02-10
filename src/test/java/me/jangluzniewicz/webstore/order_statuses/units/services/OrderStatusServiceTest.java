@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.units.BaseServiceUnitTest;
+import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
@@ -32,7 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class OrderStatusServiceTest extends BaseServiceUnitTest {
+class OrderStatusServiceTest extends BaseServiceTest {
   @Mock private OrderStatusRepository orderStatusRepository;
   @Mock private OrderStatusMapper orderStatusMapper;
   @InjectMocks private OrderStatusService orderStatusService;

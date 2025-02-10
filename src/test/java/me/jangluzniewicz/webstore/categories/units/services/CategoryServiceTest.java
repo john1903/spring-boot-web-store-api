@@ -16,7 +16,7 @@ import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.categories.repositories.CategoryRepository;
 import me.jangluzniewicz.webstore.categories.services.CategoryService;
-import me.jangluzniewicz.webstore.common.units.BaseServiceUnitTest;
+import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
@@ -32,7 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryServiceTest extends BaseServiceUnitTest {
+class CategoryServiceTest extends BaseServiceTest {
   @Mock private CategoryRepository categoryRepository;
   @Mock private CategoryMapper categoryMapper;
   @InjectMocks private CategoryService categoryService;

@@ -2,8 +2,8 @@ package me.jangluzniewicz.webstore.common.testdata.users;
 
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.common.testdata.roles.RoleEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.users.entities.UserEntity;
 
 @Builder
 public class UserEntityTestDataBuilder {

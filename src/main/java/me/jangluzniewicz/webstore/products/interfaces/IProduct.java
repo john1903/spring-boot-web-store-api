@@ -1,10 +1,10 @@
 package me.jangluzniewicz.webstore.products.interfaces;
 
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.models.Product;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 public interface IProduct {
   Long createNewProduct(ProductRequest productRequest);

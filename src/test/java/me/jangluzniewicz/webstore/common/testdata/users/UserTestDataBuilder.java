@@ -2,8 +2,8 @@ package me.jangluzniewicz.webstore.common.testdata.users;
 
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.common.testdata.roles.RoleTestDataBuilder;
+import me.jangluzniewicz.webstore.users.models.User;
 
 @Builder
 public class UserTestDataBuilder {

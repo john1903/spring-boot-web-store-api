@@ -3,8 +3,8 @@ package me.jangluzniewicz.webstore.common.testdata.orders;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 import me.jangluzniewicz.webstore.common.testdata.products.ProductEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 
 @Builder
 public class OrderItemEntityTestDataBuilder {

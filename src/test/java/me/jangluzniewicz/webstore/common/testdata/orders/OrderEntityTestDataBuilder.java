@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
-import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.common.testdata.users.UserEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
+import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 
 @Builder
 public class OrderEntityTestDataBuilder {

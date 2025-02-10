@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.roles.interfaces;
 
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.models.Role;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 public interface IRole {
   Long createNewRole(RoleRequest roleRequest);

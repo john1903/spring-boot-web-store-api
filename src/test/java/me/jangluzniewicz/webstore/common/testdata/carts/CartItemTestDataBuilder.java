@@ -9,7 +9,7 @@ import me.jangluzniewicz.webstore.common.testdata.products.ProductTestDataBuilde
 public class CartItemTestDataBuilder {
   private Long id;
   @Default private ProductTestDataBuilder productBuilder = ProductTestDataBuilder.builder().build();
-  @Default private int quantity = 1;
+  @Default private Integer quantity = 1;
 
   public CartItem buildCartItem() {
     return CartItem.builder()

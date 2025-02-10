@@ -3,8 +3,8 @@ package me.jangluzniewicz.webstore.common.testdata.products;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.common.testdata.categories.CategoryTestDataBuilder;
+import me.jangluzniewicz.webstore.products.models.Product;
 
 @Builder
 public class ProductTestDataBuilder {

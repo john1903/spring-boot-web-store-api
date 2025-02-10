@@ -49,9 +49,8 @@ class RoleServiceTest {
   void setUp() {
     roleEntity = RoleEntityTestDataBuilder.builder().id(1L).build().buildRoleEntity();
     role = RoleTestDataBuilder.builder().id(1L).build().buildRole();
-    roleRequest1 = RoleRequestTestDataBuilder.builder().build().buildRoleRequestTestData();
-    roleRequest2 =
-        RoleRequestTestDataBuilder.builder().name("USER").build().buildRoleRequestTestData();
+    roleRequest1 = RoleRequestTestDataBuilder.builder().build().buildRoleRequest();
+    roleRequest2 = RoleRequestTestDataBuilder.builder().name("USER").build().buildRoleRequest();
   }
 
   @Test
@@ -59,7 +58,7 @@ class RoleServiceTest {
     when(roleRepository.existsByNameIgnoreCase(roleRequest1.getName())).thenReturn(false);
     when(roleRepository.save(any())).thenReturn(roleEntity);
 
-    assertEquals(1L, roleService.createNewRole(roleRequest1));
+    assertEquals(roleEntity.getId(), roleService.createNewRole(roleRequest1));
   }
 
   @Test
@@ -71,17 +70,17 @@ class RoleServiceTest {
 
   @Test
   void getRoleById_whenRoleExists_thenReturnRole() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(roleEntity));
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
     when(roleMapper.fromEntity(any())).thenReturn(role);
 
-    assertTrue(roleService.getRoleById(1L).isPresent());
+    assertTrue(roleService.getRoleById(roleEntity.getId()).isPresent());
   }
 
   @Test
   void getRoleById_whenRoleDoesNotExist_thenReturnEmpty() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.empty());
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.empty());
 
-    assertTrue(roleService.getRoleById(1L).isEmpty());
+    assertTrue(roleService.getRoleById(roleEntity.getId()).isEmpty());
   }
 
   @Test
@@ -95,7 +94,7 @@ class RoleServiceTest {
 
   @Test
   void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(roleEntity));
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
     when(roleMapper.fromEntity(any())).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(false);
     RoleEntity updatedEntity =
@@ -106,68 +105,72 @@ class RoleServiceTest {
             .buildRoleEntity();
     when(roleRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(1L, roleService.updateRole(1L, roleRequest2));
+    assertEquals(roleEntity.getId(), roleService.updateRole(roleEntity.getId(), roleRequest2));
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(roleEntity));
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
     when(roleMapper.fromEntity(any())).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(true);
 
-    assertThrows(NotUniqueException.class, () -> roleService.updateRole(1L, roleRequest2));
+    assertThrows(
+        NotUniqueException.class, () -> roleService.updateRole(roleEntity.getId(), roleRequest2));
   }
 
   @Test
   void updateRole_whenRoleDoesNotExist_thenThrowNotFoundException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.empty());
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> roleService.updateRole(1L, roleRequest1));
+    assertThrows(
+        NotFoundException.class, () -> roleService.updateRole(roleEntity.getId(), roleRequest1));
   }
 
   @Test
   void updateRole_whenRoleExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(roleRepository.findById(1L)).thenReturn(Optional.of(roleEntity));
+    when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
     when(roleMapper.fromEntity(any())).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest1.getName())).thenReturn(true);
     when(roleRepository.save(any())).thenReturn(roleEntity);
 
-    assertDoesNotThrow(() -> roleService.updateRole(1L, roleRequest1));
+    assertDoesNotThrow(() -> roleService.updateRole(roleEntity.getId(), roleRequest1));
   }
 
   @Test
   void deleteRole_whenRoleExists_thenDeleteSuccessfully() {
-    when(roleRepository.existsById(1L)).thenReturn(true);
+    when(roleRepository.existsById(roleEntity.getId())).thenReturn(true);
 
-    assertDoesNotThrow(() -> roleService.deleteRole(1L));
+    assertDoesNotThrow(() -> roleService.deleteRole(roleEntity.getId()));
   }
 
   @Test
   void deleteRole_whenRoleDoesNotExist_thenThrowNotFoundException() {
-    when(roleRepository.existsById(1L)).thenReturn(false);
+    when(roleRepository.existsById(roleEntity.getId())).thenReturn(false);
 
-    assertThrows(NotFoundException.class, () -> roleService.deleteRole(1L));
+    assertThrows(NotFoundException.class, () -> roleService.deleteRole(roleEntity.getId()));
   }
 
   @Test
   void deleteRole_whenRoleHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(roleRepository.existsById(1L)).thenReturn(true);
+    when(roleRepository.existsById(roleEntity.getId())).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
                 "", new ConstraintViolationException("", new SQLException(), "")))
         .when(roleRepository)
-        .deleteById(1L);
+        .deleteById(roleEntity.getId());
 
-    assertThrows(DeletionNotAllowedException.class, () -> roleService.deleteRole(1L));
+    assertThrows(
+        DeletionNotAllowedException.class, () -> roleService.deleteRole(roleEntity.getId()));
   }
 
   @Test
   void deleteRole_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(roleRepository.existsById(1L)).thenReturn(true);
+    when(roleRepository.existsById(roleEntity.getId())).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(roleRepository)
-        .deleteById(1L);
+        .deleteById(roleEntity.getId());
 
-    assertThrows(DataIntegrityViolationException.class, () -> roleService.deleteRole(1L));
+    assertThrows(
+        DataIntegrityViolationException.class, () -> roleService.deleteRole(roleEntity.getId()));
   }
 }

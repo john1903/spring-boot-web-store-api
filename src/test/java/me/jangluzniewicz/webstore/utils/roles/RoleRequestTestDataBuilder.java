@@ -6,9 +6,9 @@ import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 
 @Builder
 public class RoleRequestTestDataBuilder {
-  @Default private String name = "TEST";
+  @Default private String name = "PENDING";
 
-  public RoleRequest buildRoleRequestTestData() {
+  public RoleRequest buildRoleRequest() {
     return new RoleRequest(name);
   }
 }

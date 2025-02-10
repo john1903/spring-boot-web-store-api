@@ -20,6 +20,9 @@ import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
 import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
+import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusTestDataBuilder;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,8 +47,16 @@ class OrderStatusServiceTest {
 
   @BeforeEach
   void setUp() {
-    orderStatusRequest1 = new OrderStatusRequest("PENDING");
-    orderStatusRequest2 = new OrderStatusRequest("DELIVERED");
+    orderStatusEntity =
+        OrderStatusEntityTestDataBuilder.builder().id(1L).build().buildOrderStatusEntity();
+    orderStatus = OrderStatusTestDataBuilder.builder().id(1L).build().buildOrderStatus();
+    orderStatusRequest1 =
+        OrderStatusRequestTestDataBuilder.builder().build().buildOrderStatusRequest();
+    orderStatusRequest2 =
+        OrderStatusRequestTestDataBuilder.builder()
+            .name("DELIVERED")
+            .build()
+            .buildOrderStatusRequest();
   }
 
   @Test
@@ -54,7 +65,8 @@ class OrderStatusServiceTest {
         .thenReturn(false);
     when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);
 
-    assertEquals(1L, orderStatusService.createNewOrderStatus(orderStatusRequest1));
+    assertEquals(
+        orderStatusEntity.getId(), orderStatusService.createNewOrderStatus(orderStatusRequest1));
   }
 
   @Test
@@ -69,17 +81,18 @@ class OrderStatusServiceTest {
 
   @Test
   void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusRepository.findById(orderStatusEntity.getId()))
+        .thenReturn(Optional.of(orderStatusEntity));
     when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
 
-    assertTrue(orderStatusService.getOrderStatusById(1L).isPresent());
+    assertTrue(orderStatusService.getOrderStatusById(orderStatusEntity.getId()).isPresent());
   }
 
   @Test
   void getOrderStatusById_whenOrderStatusDoesNotExist_thenReturnEmpty() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
+    when(orderStatusRepository.findById(orderStatusEntity.getId())).thenReturn(Optional.empty());
 
-    assertTrue(orderStatusService.getOrderStatusById(1L).isEmpty());
+    assertTrue(orderStatusService.getOrderStatusById(orderStatusEntity.getId()).isEmpty());
   }
 
   @Test
@@ -93,87 +106,99 @@ class OrderStatusServiceTest {
 
   @Test
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusRepository.findById(orderStatusEntity.getId()))
+        .thenReturn(Optional.of(orderStatusEntity));
     when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(false);
     OrderStatusEntity updatedEntity =
-        OrderStatusEntity.builder()
+        OrderStatusEntityTestDataBuilder.builder()
             .id(orderStatusEntity.getId())
             .name(orderStatusRequest2.getName())
-            .build();
+            .build()
+            .buildOrderStatusEntity();
     when(orderStatusRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(1L, orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
+    assertEquals(
+        orderStatusEntity.getId(),
+        orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest2));
   }
 
   @Test
   void
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusRepository.findById(orderStatusEntity.getId()))
+        .thenReturn(Optional.of(orderStatusEntity));
     when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(true);
 
     assertThrows(
         NotUniqueException.class,
-        () -> orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
+        () -> orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest2));
   }
 
   @Test
   void updateOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.empty());
+    when(orderStatusRepository.findById(orderStatusEntity.getId())).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
-        () -> orderStatusService.updateOrderStatus(1L, orderStatusRequest2));
+        () -> orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest2));
   }
 
   @Test
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusRepository.findById(orderStatusEntity.getId()))
+        .thenReturn(Optional.of(orderStatusEntity));
     when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
         .thenReturn(true);
     when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);
 
-    assertDoesNotThrow(() -> orderStatusService.updateOrderStatus(1L, orderStatusRequest1));
+    assertDoesNotThrow(
+        () -> orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest1));
   }
 
   @Test
   void deleteOrderStatus_whenOrderStatusExists_thenDeleteSuccessfully() {
-    when(orderStatusRepository.existsById(1L)).thenReturn(true);
+    when(orderStatusRepository.existsById(orderStatusEntity.getId())).thenReturn(true);
 
-    assertDoesNotThrow(() -> orderStatusService.deleteOrderStatus(1L));
+    assertDoesNotThrow(() -> orderStatusService.deleteOrderStatus(orderStatusEntity.getId()));
   }
 
   @Test
   void deleteOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
-    when(orderStatusRepository.existsById(1L)).thenReturn(false);
+    when(orderStatusRepository.existsById(orderStatusEntity.getId())).thenReturn(false);
 
-    assertThrows(NotFoundException.class, () -> orderStatusService.deleteOrderStatus(1L));
+    assertThrows(
+        NotFoundException.class,
+        () -> orderStatusService.deleteOrderStatus(orderStatusEntity.getId()));
   }
 
   @Test
   void deleteOrderStatus_whenOrderStatusHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(orderStatusRepository.existsById(1L)).thenReturn(true);
+    when(orderStatusRepository.existsById(orderStatusEntity.getId())).thenReturn(true);
     doThrow(
             new DataIntegrityViolationException(
                 "", new ConstraintViolationException("", new SQLException(), "")))
         .when(orderStatusRepository)
-        .deleteById(1L);
+        .deleteById(orderStatusEntity.getId());
 
-    assertThrows(DeletionNotAllowedException.class, () -> orderStatusService.deleteOrderStatus(1L));
+    assertThrows(
+        DeletionNotAllowedException.class,
+        () -> orderStatusService.deleteOrderStatus(orderStatusEntity.getId()));
   }
 
   @Test
   void deleteOrderStatus_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(orderStatusRepository.existsById(1L)).thenReturn(true);
+    when(orderStatusRepository.existsById(orderStatusEntity.getId())).thenReturn(true);
     doThrow(new DataIntegrityViolationException("", new SQLException()))
         .when(orderStatusRepository)
-        .deleteById(1L);
+        .deleteById(orderStatusEntity.getId());
 
     assertThrows(
-        DataIntegrityViolationException.class, () -> orderStatusService.deleteOrderStatus(1L));
+        DataIntegrityViolationException.class,
+        () -> orderStatusService.deleteOrderStatus(orderStatusEntity.getId()));
   }
 }

@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.orders.entities;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
@@ -43,4 +44,21 @@ public class OrderEntity {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "order_id")
   private List<OrderItemEntity> items;
+
+  private BigDecimal total;
+
+  @PrePersist
+  @PreUpdate
+  private void calculateTotal() {
+    total =
+        items.stream()
+            .map(
+                orderItemEntity ->
+                    orderItemEntity
+                        .getPrice()
+                        .multiply(
+                            BigDecimal.valueOf(orderItemEntity.getQuantity())
+                                .multiply(orderItemEntity.getDiscount())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
 }

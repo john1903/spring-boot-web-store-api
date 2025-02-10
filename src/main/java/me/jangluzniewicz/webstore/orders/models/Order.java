@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.orders.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
@@ -22,4 +23,5 @@ public class Order {
   private OrderStatus status;
   private Rating rating;
   private List<OrderItem> items;
+  private BigDecimal total;
 }

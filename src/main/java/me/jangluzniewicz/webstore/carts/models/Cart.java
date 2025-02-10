@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.carts.models;
 
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
 
@@ -15,4 +16,5 @@ public class Cart {
   private Long id;
   @NonNull private Long customerId;
   @NonNull private List<CartItem> items;
+  private BigDecimal total;
 }

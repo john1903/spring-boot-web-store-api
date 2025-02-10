@@ -14,6 +14,9 @@
             <column name="customer_id" type="bigint"/>
             <column name="order_status_id" type="bigint" defaultValue="1"/>
             <column name="rating_id" type="bigint"/>
+            <column name="total" type="decimal(10, 2)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <addForeignKeyConstraint baseTableName="orders" baseColumnNames="customer_id"
                                  constraintName="fk_orders_customer_id" referencedTableName="users"

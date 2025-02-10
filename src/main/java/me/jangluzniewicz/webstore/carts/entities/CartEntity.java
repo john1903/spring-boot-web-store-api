@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.carts.entities;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
 
@@ -25,4 +26,20 @@ public class CartEntity {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "cart_id")
   private List<CartItemEntity> items;
+
+  private BigDecimal total;
+
+  @PrePersist
+  @PreUpdate
+  private void calculateTotal() {
+    total =
+        items.stream()
+            .map(
+                cartItemEntity ->
+                    cartItemEntity
+                        .getProduct()
+                        .getPrice()
+                        .multiply(BigDecimal.valueOf(cartItemEntity.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
 }

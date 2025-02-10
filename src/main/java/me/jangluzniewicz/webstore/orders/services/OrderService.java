@@ -22,7 +22,7 @@ import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
 import me.jangluzniewicz.webstore.orders.repositories.OrderSpecification;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

@@ -14,7 +14,7 @@ import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

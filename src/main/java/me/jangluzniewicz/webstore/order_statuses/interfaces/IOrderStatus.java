@@ -3,7 +3,7 @@ package me.jangluzniewicz.webstore.order_statuses.interfaces;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 public interface IOrderStatus {
   Long createNewOrderStatus(OrderStatusRequest orderStatusRequest);

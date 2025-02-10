@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 public interface IOrder {
   Long createNewOrder(OrderRequest orderRequest);

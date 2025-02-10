@@ -20,9 +20,9 @@ import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
 import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
-import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusEntityTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusRequestTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.order_statuses.OrderStatusTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusTestDataBuilder;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,7 +83,7 @@ class OrderStatusServiceTest {
   void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
     when(orderStatusRepository.findById(orderStatusEntity.getId()))
         .thenReturn(Optional.of(orderStatusEntity));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
+    when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
 
     assertTrue(orderStatusService.getOrderStatusById(orderStatusEntity.getId()).isPresent());
   }
@@ -99,7 +99,7 @@ class OrderStatusServiceTest {
   void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
     when(orderStatusRepository.findAll(any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(orderStatusEntity)));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
+    when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
 
     assertEquals(1, orderStatusService.getAllOrderStatuses(0, 10).getTotalPages());
   }
@@ -108,7 +108,7 @@ class OrderStatusServiceTest {
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
     when(orderStatusRepository.findById(orderStatusEntity.getId()))
         .thenReturn(Optional.of(orderStatusEntity));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
+    when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(false);
     OrderStatusEntity updatedEntity =
@@ -129,7 +129,7 @@ class OrderStatusServiceTest {
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     when(orderStatusRepository.findById(orderStatusEntity.getId()))
         .thenReturn(Optional.of(orderStatusEntity));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
+    when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(true);
 
@@ -151,7 +151,7 @@ class OrderStatusServiceTest {
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
     when(orderStatusRepository.findById(orderStatusEntity.getId()))
         .thenReturn(Optional.of(orderStatusEntity));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
+    when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
         .thenReturn(true);
     when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);

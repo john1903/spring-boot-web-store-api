@@ -11,7 +11,7 @@ import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

@@ -12,7 +12,7 @@ import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

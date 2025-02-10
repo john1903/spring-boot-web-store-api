@@ -3,7 +3,7 @@ package me.jangluzniewicz.webstore.categories.interfaces;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
 import me.jangluzniewicz.webstore.categories.models.Category;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 
 public interface ICategory {
   Long createNewCategory(CategoryRequest categoryRequest);

@@ -15,7 +15,7 @@ import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.products.repositories.ProductRepository;
 import me.jangluzniewicz.webstore.products.repositories.ProductSpecification;
-import me.jangluzniewicz.webstore.utils.models.PagedResponse;
+import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

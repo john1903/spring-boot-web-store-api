@@ -20,9 +20,9 @@ import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
 import me.jangluzniewicz.webstore.roles.services.RoleService;
-import me.jangluzniewicz.webstore.utils.roles.RoleEntityTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.roles.RoleRequestTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.roles.RoleTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.roles.RoleEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.roles.RoleRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.common.testdata.roles.RoleTestDataBuilder;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,7 +87,7 @@ class RoleServiceTest {
   void getAllRoles_whenRolesExist_thenReturnPagedResponse() {
     when(roleRepository.findAll(any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(roleEntity)));
-    when(roleMapper.fromEntity(any())).thenReturn(role);
+    when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
 
     assertEquals(1, roleService.getAllRoles(0, 10).getTotalPages());
   }
@@ -95,7 +95,7 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
     when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
-    when(roleMapper.fromEntity(any())).thenReturn(role);
+    when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(false);
     RoleEntity updatedEntity =
         RoleEntityTestDataBuilder.builder()
@@ -111,7 +111,7 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
     when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
-    when(roleMapper.fromEntity(any())).thenReturn(role);
+    when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(true);
 
     assertThrows(
@@ -129,7 +129,7 @@ class RoleServiceTest {
   @Test
   void updateRole_whenRoleExistsAndNewNameIsSame_thenDoNotThrowException() {
     when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
-    when(roleMapper.fromEntity(any())).thenReturn(role);
+    when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest1.getName())).thenReturn(true);
     when(roleRepository.save(any())).thenReturn(roleEntity);
 

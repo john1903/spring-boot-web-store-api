@@ -11,13 +11,13 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
+import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
 import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -32,11 +32,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class OrderStatusServiceTest extends BaseServiceTest {
+class OrderStatusServiceTest {
   @Mock private OrderStatusRepository orderStatusRepository;
   @Mock private OrderStatusMapper orderStatusMapper;
   @InjectMocks private OrderStatusService orderStatusService;
 
+  private OrderStatusEntity orderStatusEntity;
+  private OrderStatus orderStatus;
   private OrderStatusRequest orderStatusRequest1;
   private OrderStatusRequest orderStatusRequest2;
 

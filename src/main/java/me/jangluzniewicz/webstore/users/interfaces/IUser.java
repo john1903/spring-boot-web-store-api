@@ -1,9 +1,9 @@
 package me.jangluzniewicz.webstore.users.interfaces;
 
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.models.User;
+import me.jangluzniewicz.webstore.utils.models.PagedResponse;
 
 public interface IUser {
   Long registerNewUser(UserRequest userRequest);

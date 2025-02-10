@@ -12,14 +12,16 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
-import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
+import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
+import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
+import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
 import me.jangluzniewicz.webstore.users.services.UserService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -35,7 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest extends BaseServiceTest {
+class UserServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private IRole roleService;
   @Mock private PasswordEncoder passwordEncoder;
@@ -43,6 +45,10 @@ class UserServiceTest extends BaseServiceTest {
   @Mock private ICart cartService;
   @InjectMocks private UserService userService;
 
+  private UserEntity userEntity;
+  private User user;
+  private RoleEntity roleEntity;
+  private Role role;
   private UserRequest userRequest1;
   private UserRequest userRequest2;
 

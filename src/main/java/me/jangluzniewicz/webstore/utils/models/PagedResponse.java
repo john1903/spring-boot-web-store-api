@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.common.models;
+package me.jangluzniewicz.webstore.utils.models;
 
 import java.util.List;
 import lombok.*;

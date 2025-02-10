@@ -14,12 +14,14 @@ import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.entities.CartEntity;
 import me.jangluzniewicz.webstore.carts.entities.CartItemEntity;
 import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
+import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
 import me.jangluzniewicz.webstore.carts.services.CartService;
-import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
+import me.jangluzniewicz.webstore.products.models.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,12 +30,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class CartServiceTest extends BaseServiceTest {
+class CartServiceTest {
   @Mock private CartRepository cartRepository;
   @Mock private CartMapper cartMapper;
   @Mock private IProduct productService;
   @InjectMocks private CartService cartService;
 
+  private CartEntity cartEntity;
+  private Cart cart;
+  private CartEntity cartEmptyEntity;
+  private Cart cartEmpty;
+  private Product product;
+  private ProductEntity productEntity;
   private CartItemRequest addProductRequest;
   private CartRequest defaultCartRequest;
 

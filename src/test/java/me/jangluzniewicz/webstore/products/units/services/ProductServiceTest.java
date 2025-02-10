@@ -12,14 +12,16 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
-import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
+import me.jangluzniewicz.webstore.categories.models.Category;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.entities.ProductEntity;
 import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
+import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.products.repositories.ProductRepository;
 import me.jangluzniewicz.webstore.products.services.ProductService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -37,12 +39,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest extends BaseServiceTest {
+class ProductServiceTest {
   @Mock private ProductRepository productRepository;
   @Mock private ProductMapper productMapper;
   @Mock private ICategory categoryService;
   @InjectMocks private ProductService productService;
 
+  private ProductEntity productEntity;
+  private Product product;
+  private CategoryEntity categoryEntity;
+  private Category category;
   private ProductRequest productRequest;
   private ProductRequest productRequest2;
   private ProductFilterRequest productFilterRequest;

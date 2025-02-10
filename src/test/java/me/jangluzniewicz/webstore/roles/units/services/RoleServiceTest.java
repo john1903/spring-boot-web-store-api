@@ -11,16 +11,18 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.units.BaseServiceTest;
-import me.jangluzniewicz.webstore.common.units.TestDataFactory;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
+import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
 import me.jangluzniewicz.webstore.roles.services.RoleService;
+import me.jangluzniewicz.webstore.utils.roles.RoleEntityTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.roles.RoleRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.roles.RoleTestDataBuilder;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,20 +35,23 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class RoleServiceTest extends BaseServiceTest {
+class RoleServiceTest {
   @Mock private RoleRepository roleRepository;
   @Mock private RoleMapper roleMapper;
   @InjectMocks private RoleService roleService;
 
+  private RoleEntity roleEntity;
+  private Role role;
   private RoleRequest roleRequest1;
   private RoleRequest roleRequest2;
 
   @BeforeEach
   void setUp() {
-    roleEntity = TestDataFactory.createRoleEntity();
-    role = TestDataFactory.createRole();
-    roleRequest1 = new RoleRequest("ADMIN");
-    roleRequest2 = new RoleRequest("USER");
+    roleEntity = RoleEntityTestDataBuilder.builder().id(1L).build().buildRoleEntity();
+    role = RoleTestDataBuilder.builder().id(1L).build().buildRole();
+    roleRequest1 = RoleRequestTestDataBuilder.builder().build().buildRoleRequestTestData();
+    roleRequest2 =
+        RoleRequestTestDataBuilder.builder().name("USER").build().buildRoleRequestTestData();
   }
 
   @Test
@@ -94,7 +99,11 @@ class RoleServiceTest extends BaseServiceTest {
     when(roleMapper.fromEntity(any())).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(false);
     RoleEntity updatedEntity =
-        RoleEntity.builder().id(roleEntity.getId()).name(roleRequest2.getName()).build();
+        RoleEntityTestDataBuilder.builder()
+            .id(roleEntity.getId())
+            .name(roleRequest2.getName())
+            .build()
+            .buildRoleEntity();
     when(roleRepository.save(any())).thenReturn(updatedEntity);
 
     assertEquals(1L, roleService.updateRole(1L, roleRequest2));

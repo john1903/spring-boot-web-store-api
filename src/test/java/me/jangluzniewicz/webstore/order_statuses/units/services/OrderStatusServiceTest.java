@@ -11,13 +11,13 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.units.BaseServiceUnitTest;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
 import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -32,21 +32,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class OrderStatusServiceTest {
+class OrderStatusServiceTest extends BaseServiceUnitTest {
   @Mock private OrderStatusRepository orderStatusRepository;
   @Mock private OrderStatusMapper orderStatusMapper;
   @InjectMocks private OrderStatusService orderStatusService;
 
-  private OrderStatusEntity orderStatusEntity1;
-  private OrderStatus orderStatus1;
   private OrderStatusRequest orderStatusRequest1;
   private OrderStatusRequest orderStatusRequest2;
 
   @BeforeEach
   void setUp() {
-    orderStatusEntity1 = OrderStatusEntity.builder().id(1L).name("ACCEPTED").build();
-    orderStatus1 = OrderStatus.builder().id(1L).name("ACCEPTED").build();
-    orderStatusRequest1 = new OrderStatusRequest("ACCEPTED");
+    orderStatusRequest1 = new OrderStatusRequest("PENDING");
     orderStatusRequest2 = new OrderStatusRequest("DELIVERED");
   }
 
@@ -54,7 +50,7 @@ class OrderStatusServiceTest {
   void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
         .thenReturn(false);
-    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity1);
+    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);
 
     assertEquals(1L, orderStatusService.createNewOrderStatus(orderStatusRequest1));
   }
@@ -71,8 +67,8 @@ class OrderStatusServiceTest {
 
   @Test
   void getOrderStatusById_whenOrderStatusExists_thenReturnOrderStatus() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
 
     assertTrue(orderStatusService.getOrderStatusById(1L).isPresent());
   }
@@ -87,21 +83,21 @@ class OrderStatusServiceTest {
   @Test
   void getAllOrderStatuses_whenOrderStatusesExist_thenReturnPagedResponse() {
     when(orderStatusRepository.findAll(any(Pageable.class)))
-        .thenReturn(new PageImpl<>(List.of(orderStatusEntity1)));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+        .thenReturn(new PageImpl<>(List.of(orderStatusEntity)));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
 
     assertEquals(1, orderStatusService.getAllOrderStatuses(0, 10).getTotalPages());
   }
 
   @Test
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(false);
     OrderStatusEntity updatedEntity =
         OrderStatusEntity.builder()
-            .id(orderStatusEntity1.getId())
+            .id(orderStatusEntity.getId())
             .name(orderStatusRequest2.getName())
             .build();
     when(orderStatusRepository.save(any())).thenReturn(updatedEntity);
@@ -112,8 +108,8 @@ class OrderStatusServiceTest {
   @Test
   void
       updateOrderStatus_whenOrderStatusExistsAndNewNameAlreadyExists_thenThrowNotUniqueException() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest2.getName()))
         .thenReturn(true);
 
@@ -133,11 +129,11 @@ class OrderStatusServiceTest {
 
   @Test
   void updateOrderStatus_whenOrderStatusExistsAndNewNameIsSame_thenDoNotThrowException() {
-    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity1));
-    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus1);
+    when(orderStatusRepository.findById(1L)).thenReturn(Optional.of(orderStatusEntity));
+    when(orderStatusMapper.fromEntity(any())).thenReturn(orderStatus);
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
         .thenReturn(true);
-    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity1);
+    when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);
 
     assertDoesNotThrow(() -> orderStatusService.updateOrderStatus(1L, orderStatusRequest1));
   }

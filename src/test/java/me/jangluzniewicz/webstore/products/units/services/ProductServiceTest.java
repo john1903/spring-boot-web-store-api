@@ -37,7 +37,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -110,9 +109,8 @@ class ProductServiceTest {
 
   @Test
   void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
-    Pageable pageable = PageRequest.of(0, 10);
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity));
-    when(productRepository.findAll(pageable)).thenReturn(page);
+    when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
     when(productMapper.fromEntity(productEntity)).thenReturn(product);
 
     assertEquals(1, productService.getAllProducts(0, 10).getTotalPages());

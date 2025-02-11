@@ -172,6 +172,7 @@ public class OrderService implements IOrder {
                                             "Product with id "
                                                 + orderItemRequest.getProductId()
                                                 + " not found")))
+                        .price(orderItemRequest.getPrice())
                         .quantity(orderItemRequest.getQuantity())
                         .discount(orderItemRequest.getDiscount())
                         .build())

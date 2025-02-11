@@ -47,19 +47,24 @@ class CartServiceTest {
   void setUp() {
     product = ProductTestDataBuilder.builder().id(1L).build().buildProduct();
     cartEntity =
-        CartEntityTestDataBuilder.builder().id(1L).customerId(1L).build().buildCartEntity();
-    cart = CartTestDataBuilder.builder().id(1L).customerId(1L).build().buildCart();
+        CartEntityTestDataBuilder.builder()
+            .id(1L)
+            .customerId(CUSTOMER_ID)
+            .build()
+            .buildCartEntity();
+    cart = CartTestDataBuilder.builder().id(1L).customerId(CUSTOMER_ID).build().buildCart();
+    cartRequest =
+        CartRequestTestDataBuilder.builder()
+            .items(
+                List.of(
+                    CartItemRequestTestDataBuilder.builder().productId(product.getId()).build()))
+            .build()
+            .buildCartRequest();
     cartItemRequest =
         CartItemRequestTestDataBuilder.builder()
-            .id(1L)
             .productId(product.getId())
             .build()
             .buildCartItemRequest();
-    cartRequest =
-        CartRequestTestDataBuilder.builder()
-            .items(List.of(cartItemRequest))
-            .build()
-            .buildCartRequest();
   }
 
   @Test
@@ -101,9 +106,7 @@ class CartServiceTest {
         CartEntityTestDataBuilder.builder()
             .id(cartEntity.getId())
             .customerId(CUSTOMER_ID)
-            .items(
-                List.of(
-                    CartItemEntityTestDataBuilder.builder().id(1L).build().buildCartItemEntity()))
+            .items(List.of(CartItemEntityTestDataBuilder.builder().id(1L).build()))
             .build()
             .buildCartEntity();
     when(cartRepository.save(any())).thenReturn(cartWithItemEntity);
@@ -170,9 +173,7 @@ class CartServiceTest {
         CartEntityTestDataBuilder.builder()
             .id(cartEntity.getId())
             .customerId(CUSTOMER_ID)
-            .items(
-                List.of(
-                    CartItemEntityTestDataBuilder.builder().id(1L).build().buildCartItemEntity()))
+            .items(List.of(CartItemEntityTestDataBuilder.builder().id(1L).build()))
             .build()
             .buildCartEntity();
     when(cartRepository.save(any())).thenReturn(updatedEntity);

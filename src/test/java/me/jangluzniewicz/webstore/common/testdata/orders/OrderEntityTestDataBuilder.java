@@ -7,7 +7,6 @@ import lombok.Builder.Default;
 import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.common.testdata.users.UserEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
-import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 
 @Builder
 public class OrderEntityTestDataBuilder {
@@ -20,14 +19,22 @@ public class OrderEntityTestDataBuilder {
   private OrderStatusEntityTestDataBuilder orderStatusEntityBuilder =
       OrderStatusEntityTestDataBuilder.builder().build();
 
-  @Default private List<OrderItemEntity> items = new ArrayList<>();
+  @Default
+  private List<OrderItemEntityTestDataBuilder> items =
+      List.of(OrderItemEntityTestDataBuilder.builder().build());
+
+  private RatingEntityTestDataBuilder ratingEntityBuilder;
 
   public OrderEntity buildOrderEntity() {
     return OrderEntity.builder()
         .id(id)
         .customer(userEntityBuilder.buildUserEntity())
         .status(orderStatusEntityBuilder.buildOrderStatusEntity())
-        .items(items)
+        .rating(ratingEntityBuilder != null ? ratingEntityBuilder.buildRatingEntity() : null)
+        .items(
+            items.stream()
+                .map(OrderItemEntityTestDataBuilder::buildOrderItemEntity)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll))
         .build();
   }
 }

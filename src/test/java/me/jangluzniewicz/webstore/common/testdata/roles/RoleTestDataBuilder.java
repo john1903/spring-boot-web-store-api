@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.roles.models.Role;
 @Builder
 public class RoleTestDataBuilder {
   private Long id;
-  @Default private String name = "ADMIN";
+  @Default private String name = "EMPLOYEE";
 
   public Role buildRole() {
     return Role.builder().id(id).name(name).build();

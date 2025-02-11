@@ -7,7 +7,6 @@ import lombok.Builder.Default;
 import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusTestDataBuilder;
 import me.jangluzniewicz.webstore.common.testdata.users.UserTestDataBuilder;
 import me.jangluzniewicz.webstore.orders.models.Order;
-import me.jangluzniewicz.webstore.orders.models.OrderItem;
 
 @Builder
 public class OrderTestDataBuilder {
@@ -18,14 +17,22 @@ public class OrderTestDataBuilder {
   private OrderStatusTestDataBuilder orderStatusBuilder =
       OrderStatusTestDataBuilder.builder().build();
 
-  @Default private List<OrderItem> items = new ArrayList<>();
+  @Default
+  private List<OrderItemTestDataBuilder> items =
+      List.of(OrderItemTestDataBuilder.builder().build());
+
+  private RatingTestDataBuilder ratingBuilder;
 
   public Order buildOrder() {
     return Order.builder()
         .id(id)
         .customer(userBuilder.buildUser())
         .status(orderStatusBuilder.buildOrderStatus())
-        .items(items)
+        .rating(ratingBuilder != null ? ratingBuilder.buildRating() : null)
+        .items(
+            items.stream()
+                .map(OrderItemTestDataBuilder::buildOrderItem)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll))
         .build();
   }
 }

@@ -16,15 +16,12 @@
     </changeSet>
     <changeSet id="0001-2" author="jangluzniewicz" context="dev">
         <insert tableName="categories">
-            <column name="id" valueNumeric="1"/>
             <column name="name" value="ELECTRONICS"/>
         </insert>
         <insert tableName="categories">
-            <column name="id" valueNumeric="2"/>
             <column name="name" value="BOOKS"/>
         </insert>
         <insert tableName="categories">
-            <column name="id" valueNumeric="3"/>
             <column name="name" value="CLOTHING"/>
         </insert>
     </changeSet>

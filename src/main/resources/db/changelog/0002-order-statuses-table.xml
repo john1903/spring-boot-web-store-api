@@ -16,19 +16,15 @@
     </changeSet>
     <changeSet id="0002-2" author="jangluzniewicz">
         <insert tableName="order_statuses">
-            <column name="id" valueNumeric="1"/>
             <column name="name" value="NOT APPROVED"/>
         </insert>
         <insert tableName="order_statuses">
-            <column name="id" valueNumeric="2"/>
             <column name="name" value="APPROVED"/>
         </insert>
         <insert tableName="order_statuses">
-            <column name="id" valueNumeric="3"/>
             <column name="name" value="CANCELLED"/>
         </insert>
         <insert tableName="order_statuses">
-            <column name="id" valueNumeric="4"/>
             <column name="name" value="COMPLETED"/>
         </insert>
     </changeSet>

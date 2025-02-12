@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
   private final JwtService jwtService;
 
@@ -27,7 +29,6 @@ public class SecurityConfig {
     AuthenticationManager authenticationManager = authenticationManagerBuilder.getOrBuild();
     JwtFilter jwtFilter = new JwtFilter(authenticationManager, jwtService);
     BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(jwtService);
-    http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     http.sessionManagement(
         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     http.csrf(AbstractHttpConfigurer::disable);

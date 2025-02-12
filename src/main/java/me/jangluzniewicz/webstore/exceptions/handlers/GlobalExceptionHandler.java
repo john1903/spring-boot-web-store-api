@@ -6,9 +6,11 @@ import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -58,7 +60,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiError> handleValidationExceptions(
+  public ResponseEntity<ApiDetailedError> handleValidationExceptions(
       MethodArgumentNotValidException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     List<ErrorDetail> errorDetails =
@@ -70,7 +72,7 @@ public class GlobalExceptionHandler {
                         .message(fieldError.getDefaultMessage())
                         .build())
             .toList();
-    ApiError apiError =
+    ApiDetailedError apiError =
         ApiDetailedError.builder()
             .timestamp(LocalDateTime.now())
             .status(HttpStatus.BAD_REQUEST.value())
@@ -110,6 +112,41 @@ public class GlobalExceptionHandler {
             .path(url)
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ApiError> handleNumberFormatException(
+      MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(
+                e.getName()
+                    + " should be of type "
+                    + (e.getRequiredType() != null
+                        ? e.getRequiredType().getSimpleName()
+                        : "unknown"))
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(AuthorizationDeniedException.class)
+  public ResponseEntity<ApiError> handleAuthorizationDeniedException(
+      AuthorizationDeniedException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.FORBIDDEN.value())
+            .error(HttpStatus.FORBIDDEN.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
   }
 
   @ExceptionHandler(Exception.class)

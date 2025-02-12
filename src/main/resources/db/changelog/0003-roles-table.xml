@@ -16,11 +16,9 @@
     </changeSet>
     <changeSet id="0003-2" author="jangluzniewicz">
         <insert tableName="roles">
-            <column name="id" valueNumeric="1"/>
             <column name="name" value="ADMIN"/>
         </insert>
         <insert tableName="roles">
-            <column name="id" valueNumeric="2"/>
             <column name="name" value="CUSTOMER"/>
         </insert>
     </changeSet>

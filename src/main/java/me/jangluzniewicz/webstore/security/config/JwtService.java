@@ -62,13 +62,13 @@ public class JwtService {
       JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
       LocalDateTime expirationTime =
           claims.getExpirationTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-      if (expirationTime.isAfter(LocalDateTime.now())) {
-        return false;
+      if (expirationTime.isBefore(LocalDateTime.now())) {
+        return true;
       }
     } catch (ParseException e) {
       throw new JwtException("JWT does not contain expiration date");
     }
-    return true;
+    return false;
   }
 
   public void verifyJwt(@NotNull SignedJWT signedJWT) {
@@ -76,7 +76,7 @@ public class JwtService {
       if (!signedJWT.verify(jwsVerifier)) {
         throw new JwtException("JWT signature is not valid");
       }
-      if (!isJwtExpired(signedJWT)) {
+      if (isJwtExpired(signedJWT)) {
         throw new JwtException("JWT is expired");
       }
     } catch (JOSEException e) {

@@ -26,11 +26,13 @@ public class SecurityConfig {
       throws Exception {
     AuthenticationManager authenticationManager = authenticationManagerBuilder.getOrBuild();
     JwtFilter jwtFilter = new JwtFilter(authenticationManager, jwtService);
+    BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(jwtService);
     http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     http.sessionManagement(
         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     http.csrf(AbstractHttpConfigurer::disable);
     http.addFilterBefore(jwtFilter, AuthorizationFilter.class);
+    http.addFilterBefore(bearerTokenFilter, AuthorizationFilter.class);
     return http.build();
   }
 

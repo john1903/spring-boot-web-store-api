@@ -21,14 +21,12 @@ public class JwtFilter extends HttpFilter {
   private final RequestMatcher pathRequestMatcher =
       AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/auth/login");
   private final AuthenticationManager authenticationManager;
-  private final JwtService jwtService;
   private final AuthenticationFailureHandler failureHandler =
       new SimpleUrlAuthenticationFailureHandler();
   private final JwtSuccessHandler successHandler;
 
   public JwtFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
     this.authenticationManager = authenticationManager;
-    this.jwtService = jwtService;
     this.successHandler = new JwtSuccessHandler(jwtService);
   }
 
@@ -44,7 +42,8 @@ public class JwtFilter extends HttpFilter {
   }
 
   @Override
-  public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+  protected void doFilter(
+      HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws IOException, ServletException {
     if (pathRequestMatcher.matches(request)) {
       try {

@@ -12,58 +12,57 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ApiError> handleNotFoundException(
-      NotFoundException ex, HttpServletRequest request) {
+      NotFoundException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.NOT_FOUND.name())
-            .code(HttpStatus.NOT_FOUND.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.NOT_FOUND.value())
+            .error(HttpStatus.NOT_FOUND.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(NotUniqueException.class)
   public ResponseEntity<ApiError> handleNotUniqueException(
-      NotUniqueException ex, HttpServletRequest request) {
+      NotUniqueException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.CONFLICT.name())
-            .code(HttpStatus.CONFLICT.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(DeletionNotAllowedException.class)
   public ResponseEntity<ApiError> handleDeletionNotAllowedException(
-      DeletionNotAllowedException ex, HttpServletRequest request) {
+      DeletionNotAllowedException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.CONFLICT.name())
-            .code(HttpStatus.CONFLICT.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiError> handleValidationExceptions(
-      MethodArgumentNotValidException ex, HttpServletRequest request) {
+      MethodArgumentNotValidException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     List<ErrorDetail> errorDetails =
-        ex.getBindingResult().getFieldErrors().stream()
+        e.getBindingResult().getFieldErrors().stream()
             .map(
                 fieldError ->
                     ErrorDetail.builder()
@@ -72,72 +71,57 @@ public class GlobalExceptionHandler {
                         .build())
             .toList();
     ApiError apiError =
-        ApiError.builder()
-            .status(HttpStatus.BAD_REQUEST.name())
-            .code(HttpStatus.BAD_REQUEST.value())
-            .detail("Validation failed")
+        ApiDetailedError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
-            .errors(errorDetails)
+            .details(errorDetails)
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(UsernameNotFoundException.class)
-  public ResponseEntity<ApiError> handleUsernameNotFoundException(
-      UsernameNotFoundException ex, HttpServletRequest request) {
-    String url = request.getRequestURL().toString();
-    ApiError apiError =
-        ApiError.builder()
-            .status(HttpStatus.NOT_FOUND.name())
-            .code(HttpStatus.NOT_FOUND.value())
-            .detail(ex.getMessage())
-            .path(url)
-            .dateTime(LocalDateTime.now())
-            .build();
-    return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
-  }
-
   @ExceptionHandler(ConflictException.class)
   public ResponseEntity<ApiError> handleConflictException(
-      ConflictException ex, HttpServletRequest request) {
+      ConflictException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.CONFLICT.name())
-            .code(HttpStatus.CONFLICT.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ApiError> handleIllegalArgumentException(
-      IllegalArgumentException ex, HttpServletRequest request) {
+      IllegalArgumentException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.BAD_REQUEST.name())
-            .code(HttpStatus.BAD_REQUEST.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiError> handleException(Exception ex, HttpServletRequest request) {
+  public ResponseEntity<ApiError> handleException(Exception e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .detail(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
+            .message(e.getMessage())
             .path(url)
-            .dateTime(LocalDateTime.now())
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
   }

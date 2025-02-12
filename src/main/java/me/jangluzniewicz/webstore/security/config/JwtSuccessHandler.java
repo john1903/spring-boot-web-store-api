@@ -20,6 +20,8 @@ public class JwtSuccessHandler implements AuthenticationSuccessHandler {
   public void onAuthenticationSuccess(
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
     List<String> roles =
         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     String signedJwt = jwtService.createSignedJwt(authentication.getName(), roles);

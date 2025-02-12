@@ -1,19 +1,18 @@
 package me.jangluzniewicz.webstore.exceptions.handlers;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 public class ApiError {
-  private String status;
-  private Integer code;
-  private String detail;
+  private LocalDateTime timestamp;
+  private Integer status;
+  private String error;
+  private String message;
   private String path;
-  private LocalDateTime dateTime;
-  private List<ErrorDetail> errors;
 }

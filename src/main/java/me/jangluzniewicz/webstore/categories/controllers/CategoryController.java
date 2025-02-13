@@ -1,8 +1,9 @@
 package me.jangluzniewicz.webstore.categories.controllers;
 
 import jakarta.validation.Valid;
+import java.net.URI;
+import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.models.Category;
-import me.jangluzniewicz.webstore.categories.services.CategoryService;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/categories")
 public class CategoryController {
-  private final CategoryService categoryService;
+  private final ICategory categoryService;
 
-  public CategoryController(CategoryService categoryService) {
+  public CategoryController(ICategory categoryService) {
     this.categoryService = categoryService;
   }
 
@@ -35,15 +36,17 @@ public class CategoryController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<Long> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
-    return ResponseEntity.ok(categoryService.createNewCategory(categoryRequest));
+  public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+    Long categoryId = categoryService.createNewCategory(categoryRequest);
+    return ResponseEntity.created(URI.create("/categories/" + categoryId)).build();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{id}")
-  public ResponseEntity<Long> updateCategory(
+  public ResponseEntity<Void> updateCategory(
       @PathVariable Long id, @Valid @RequestBody CategoryRequest categoryRequest) {
-    return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequest));
+    categoryService.updateCategory(id, categoryRequest);
+    return ResponseEntity.noContent().build();
   }
 
   @PreAuthorize("hasRole('ADMIN')")

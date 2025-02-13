@@ -6,11 +6,14 @@ import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -115,7 +118,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  public ResponseEntity<ApiError> handleNumberFormatException(
+  public ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(
       MethodArgumentTypeMismatchException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
@@ -134,8 +137,8 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(AuthorizationDeniedException.class)
-  public ResponseEntity<ApiError> handleAuthorizationDeniedException(
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ApiError> handleAccessDeniedException(
       AuthorizationDeniedException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
@@ -147,6 +150,36 @@ public class GlobalExceptionHandler {
             .path(url)
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  public ResponseEntity<ApiError> handleNoResourceFoundException(
+      NoResourceFoundException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.NOT_FOUND.value())
+            .error(HttpStatus.NOT_FOUND.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ApiError> handleHttpRequestMethodNotSupportedException(
+      HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+            .error(HttpStatus.METHOD_NOT_ALLOWED.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.METHOD_NOT_ALLOWED);
   }
 
   @ExceptionHandler(Exception.class)

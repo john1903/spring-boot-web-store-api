@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.security.config;
 
+import me.jangluzniewicz.webstore.security.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

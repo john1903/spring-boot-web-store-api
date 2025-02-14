@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -35,21 +37,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(NotUniqueException.class)
   public ResponseEntity<ApiError> handleNotUniqueException(
       NotUniqueException e, HttpServletRequest request) {
-    String url = request.getRequestURL().toString();
-    ApiError apiError =
-        ApiError.builder()
-            .timestamp(LocalDateTime.now())
-            .status(HttpStatus.CONFLICT.value())
-            .error(HttpStatus.CONFLICT.name())
-            .message(e.getMessage())
-            .path(url)
-            .build();
-    return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
-  }
-
-  @ExceptionHandler(DeletionNotAllowedException.class)
-  public ResponseEntity<ApiError> handleDeletionNotAllowedException(
-      DeletionNotAllowedException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()
@@ -180,6 +167,36 @@ public class GlobalExceptionHandler {
             .path(url)
             .build();
     return new ResponseEntity<>(apiError, HttpStatus.METHOD_NOT_ALLOWED);
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ApiError> handleDataIntegrityViolationException(
+      DataIntegrityViolationException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ApiError> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(Exception.class)

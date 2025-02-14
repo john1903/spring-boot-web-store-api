@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.security.config;
+package me.jangluzniewicz.webstore.security.services;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;

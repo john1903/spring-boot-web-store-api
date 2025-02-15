@@ -1,8 +1,7 @@
 package me.jangluzniewicz.webstore.security.services;
 
-import java.util.List;
-
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.users.services.UserService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,8 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             () -> new UsernameNotFoundException("User with email " + username + " not found"));
   }
 
-  private CustomUser mapUserToUserDetails(
-      me.jangluzniewicz.webstore.users.models.User user) {
+  private CustomUser mapUserToUserDetails(me.jangluzniewicz.webstore.users.models.User user) {
     return CustomUser.customBuilder()
         .id(user.getId())
         .username(user.getEmail())

@@ -102,11 +102,7 @@ public class JwtService {
     List<SimpleGrantedAuthority> authorities =
         roles.stream().map(SimpleGrantedAuthority::new).toList();
     CustomUser principal =
-        CustomUser.customBuilder()
-            .id(id)
-            .username(username)
-            .authorities(authorities)
-            .build();
+        CustomUser.customBuilder().id(id).username(username).authorities(authorities).build();
     return new UsernamePasswordAuthenticationToken(principal, null, authorities);
   }
 }

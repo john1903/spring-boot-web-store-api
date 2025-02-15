@@ -27,9 +27,7 @@ public class JwtSuccessHandler implements AuthenticationSuccessHandler {
     List<String> roles =
         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     Long id =
-        (authentication.getPrincipal() instanceof CustomUser principal)
-            ? principal.getId()
-            : null;
+        (authentication.getPrincipal() instanceof CustomUser principal) ? principal.getId() : null;
     String signedJwt = jwtService.createSignedJwt(id, authentication.getName(), roles);
     new ObjectMapper().writeValue(response.getWriter(), new JwtSuccessResponse(signedJwt));
   }

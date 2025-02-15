@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import me.jangluzniewicz.webstore.security.models.CustomUserPrincipal;
+import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.security.services.JwtService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +27,7 @@ public class JwtSuccessHandler implements AuthenticationSuccessHandler {
     List<String> roles =
         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     Long id =
-        (authentication.getPrincipal() instanceof CustomUserPrincipal principal)
+        (authentication.getPrincipal() instanceof CustomUser principal)
             ? principal.getId()
             : null;
     String signedJwt = jwtService.createSignedJwt(id, authentication.getName(), roles);

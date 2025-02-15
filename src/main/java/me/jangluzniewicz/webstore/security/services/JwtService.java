@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.JwtException;
-import me.jangluzniewicz.webstore.security.models.CustomUserPrincipal;
+import me.jangluzniewicz.webstore.security.models.CustomUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -101,8 +101,8 @@ public class JwtService {
     }
     List<SimpleGrantedAuthority> authorities =
         roles.stream().map(SimpleGrantedAuthority::new).toList();
-    CustomUserPrincipal principal =
-        CustomUserPrincipal.customBuilder()
+    CustomUser principal =
+        CustomUser.customBuilder()
             .id(id)
             .username(username)
             .authorities(authorities)

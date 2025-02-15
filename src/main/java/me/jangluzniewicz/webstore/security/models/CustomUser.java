@@ -9,11 +9,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 @Getter
-public class CustomUserPrincipal extends User {
+public class CustomUser extends User {
   private final Long id;
 
   @Builder(builderMethodName = "customBuilder")
-  public CustomUserPrincipal(
+  public CustomUser(
       Long id,
       String username,
       String password,

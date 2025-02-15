@@ -3,7 +3,7 @@ package me.jangluzniewicz.webstore.security.services;
 import java.util.List;
 
 import jakarta.validation.constraints.NotNull;
-import me.jangluzniewicz.webstore.security.models.CustomUserPrincipal;
+import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.users.services.UserService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public CustomUserPrincipal loadUserByUsername(@NotNull String username) throws UsernameNotFoundException {
+  public CustomUser loadUserByUsername(@NotNull String username) throws UsernameNotFoundException {
     return userService
         .getUserByEmail(username)
         .map(this::mapUserToUserDetails)
@@ -26,9 +26,9 @@ public class CustomUserDetailsService implements UserDetailsService {
             () -> new UsernameNotFoundException("User with email " + username + " not found"));
   }
 
-  private CustomUserPrincipal mapUserToUserDetails(
+  private CustomUser mapUserToUserDetails(
       me.jangluzniewicz.webstore.users.models.User user) {
-    return CustomUserPrincipal.customBuilder()
+    return CustomUser.customBuilder()
         .id(user.getId())
         .username(user.getEmail())
         .password(user.getPassword())

@@ -26,6 +26,7 @@ public class UserController {
     return ResponseEntity.ok(userService.getAllUsers(page, size));
   }
 
+  @PreAuthorize("hasRole('ADMIN') || #id == authentication.principal.id")
   @GetMapping("/{id}")
   public ResponseEntity<User> getUser(@PathVariable Long id) {
     return userService
@@ -34,6 +35,7 @@ public class UserController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @PreAuthorize("hasRole('ADMIN') || #id == authentication.principal.id")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateUser(
       @PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
@@ -41,6 +43,7 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
     userService.deleteUser(id);

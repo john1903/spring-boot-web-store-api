@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.JwtException;
+import me.jangluzniewicz.webstore.security.models.CustomUserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +35,8 @@ public class JwtService {
     }
   }
 
-  public String createSignedJwt(@NotNull String username, @NotNull List<String> roles) {
+  public String createSignedJwt(
+      @NotNull Long id, @NotNull String username, @NotNull List<String> roles) {
     JWSHeader header = new JWSHeader(jwsAlgorithm);
     Date exp =
         Date.from(
@@ -44,6 +46,7 @@ public class JwtService {
                 .toInstant());
     JWTClaimsSet claims =
         new JWTClaimsSet.Builder()
+            .claim("id", id)
             .subject(username)
             .claim("roles", roles)
             .expirationTime(exp)
@@ -87,14 +90,23 @@ public class JwtService {
   public Authentication getAuthentication(@NotNull SignedJWT signedJWT) {
     String username;
     List<String> roles;
+    Long id;
     try {
       JWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
       username = jwtClaimsSet.getSubject();
       roles = jwtClaimsSet.getStringListClaim("roles");
+      id = jwtClaimsSet.getLongClaim("id");
     } catch (ParseException e) {
       throw new JwtException("JWT is not valid");
     }
-    return new UsernamePasswordAuthenticationToken(
-        username, null, roles.stream().map(SimpleGrantedAuthority::new).toList());
+    List<SimpleGrantedAuthority> authorities =
+        roles.stream().map(SimpleGrantedAuthority::new).toList();
+    CustomUserPrincipal principal =
+        CustomUserPrincipal.customBuilder()
+            .id(id)
+            .username(username)
+            .authorities(authorities)
+            .build();
+    return new UsernamePasswordAuthenticationToken(principal, null, authorities);
   }
 }

@@ -1,8 +1,8 @@
-package me.jangluzniewicz.webstore.security.config;
+package me.jangluzniewicz.webstore.security.services;
 
+import java.util.List;
+import me.jangluzniewicz.webstore.security.models.CustomUserPrincipal;
 import me.jangluzniewicz.webstore.users.services.UserService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  public CustomUserPrincipal loadUserByUsername(String username) throws UsernameNotFoundException {
     return userService
         .getUserByEmail(username)
         .map(this::mapUserToUserDetails)
@@ -24,11 +24,13 @@ public class CustomUserDetailsService implements UserDetailsService {
             () -> new UsernameNotFoundException("User with email " + username + " not found"));
   }
 
-  private UserDetails mapUserToUserDetails(me.jangluzniewicz.webstore.users.models.User user) {
-    return User.builder()
+  private CustomUserPrincipal mapUserToUserDetails(
+      me.jangluzniewicz.webstore.users.models.User user) {
+    return CustomUserPrincipal.customBuilder()
+        .id(user.getId())
         .username(user.getEmail())
         .password(user.getPassword())
-        .roles(user.getRole().getName())
+        .roles(List.of(user.getRole().getName()))
         .build();
   }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.User;
 @Getter
 public class CustomUser extends User {
   private final Long id;
+  private final List<String> roles;
 
   @Builder(builderMethodName = "customBuilder")
   public CustomUser(
@@ -20,13 +21,13 @@ public class CustomUser extends User {
       List<SimpleGrantedAuthority> authorities,
       List<String> roles) {
     super(username, password != null ? password : "", processAuthorities(authorities, roles));
+    this.roles = roles != null ? roles : new ArrayList<>();
     this.id = id;
   }
 
   private static List<SimpleGrantedAuthority> processAuthorities(
       List<SimpleGrantedAuthority> authorities, List<String> roles) {
-    List<SimpleGrantedAuthority> result =
-        authorities != null ? new ArrayList<>(authorities) : new ArrayList<>();
+    List<SimpleGrantedAuthority> result = authorities != null ? authorities : new ArrayList<>();
     if (roles != null) {
       roles.stream()
           .map(

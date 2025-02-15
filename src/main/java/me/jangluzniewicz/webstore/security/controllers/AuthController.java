@@ -29,7 +29,7 @@ public class AuthController {
     CustomUser principal =
         (CustomUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (userRequest.getRoleId() == ADMIN_ROLE_ID
-        && (principal == null || !principal.getRoles().contains("ADMIN"))) {
+        && (principal == null || !principal.hasRole("ADMIN"))) {
       throw new AccessDeniedException("Cannot create user with ADMIN role");
     }
     Long userId = userService.registerNewUser(userRequest);

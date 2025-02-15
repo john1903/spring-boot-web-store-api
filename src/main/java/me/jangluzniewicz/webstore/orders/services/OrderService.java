@@ -233,4 +233,9 @@ public class OrderService implements IOrder {
       }
     }
   }
+
+  @Override
+  public boolean orderExists(Long id) {
+    return orderRepository.existsById(id);
+  }
 }

@@ -42,4 +42,8 @@ public class CustomUser extends User {
     }
     return result;
   }
+
+  public boolean hasRole(String role) {
+    return roles.contains(role);
+  }
 }

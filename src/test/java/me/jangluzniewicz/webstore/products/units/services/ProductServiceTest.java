@@ -78,11 +78,11 @@ class ProductServiceTest {
   }
 
   @Test
-  void createNewProduct_whenCategoryExists_thenReturnProductId() {
+  void createNewProduct_whenCategoryExists_thenReturnIdResponse() {
     when(categoryService.getCategoryById(category.getId())).thenReturn(Optional.of(category));
     when(productRepository.save(any())).thenReturn(productEntity);
 
-    assertEquals(productEntity.getId(), productService.createNewProduct(productRequest));
+    assertEquals(productEntity.getId(), productService.createNewProduct(productRequest).getId());
   }
 
   @Test
@@ -127,7 +127,7 @@ class ProductServiceTest {
   }
 
   @Test
-  void updateProduct_whenProductExistsAndCategoryExists_thenReturnProductId() {
+  void updateProduct_whenProductExistsAndCategoryExists_thenUpdateProduct() {
     when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
     when(productMapper.fromEntity(productEntity)).thenReturn(product);
     when(categoryService.getCategoryById(category.getId())).thenReturn(Optional.of(category));
@@ -139,9 +139,7 @@ class ProductServiceTest {
             .buildProductEntity();
     when(productRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(
-        productEntity.getId(),
-        productService.updateProduct(productEntity.getId(), productRequest2));
+    assertDoesNotThrow(() -> productService.updateProduct(productEntity.getId(), productRequest2));
   }
 
   @Test

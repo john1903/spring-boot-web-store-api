@@ -106,12 +106,12 @@ class OrderServiceTest {
   }
 
   @Test
-  void createNewOrder_whenUserExistsAndProductExists_thenReturnOrderId() {
+  void createNewOrder_whenUserExistsAndProductExists_thenReturnIdResponse() {
     when(userService.getUserById(orderRequest1.getCustomerId())).thenReturn(Optional.of(user));
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
-    assertEquals(orderEntity.getId(), orderService.createNewOrder(orderRequest1));
+    assertEquals(orderEntity.getId(), orderService.createNewOrder(orderRequest1).getId());
   }
 
   @Test
@@ -174,16 +174,15 @@ class OrderServiceTest {
   }
 
   @Test
-  void changeOrderStatus_whenOrderExistsAndOrderStatusExists_thenReturnOrderId() {
+  void changeOrderStatus_whenOrderExistsAndOrderStatusExists_thenUpdateOrderStatus() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(orderStatusService.getOrderStatusById(changeOrderStatusRequest.getOrderStatusId()))
         .thenReturn(Optional.of(orderStatus));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
-    assertEquals(
-        orderEntity.getId(),
-        orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
+    assertDoesNotThrow(
+        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test
@@ -208,7 +207,7 @@ class OrderServiceTest {
   }
 
   @Test
-  void addRatingToOrder_whenOrderExistsAndRatingIsNull_thenReturnOrderId() {
+  void addRatingToOrder_whenOrderExistsAndRatingIsNull_thenAddRating() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     OrderEntity orderWithRating =
@@ -219,8 +218,7 @@ class OrderServiceTest {
             .buildOrderEntity();
     when(orderRepository.save(any())).thenReturn(orderWithRating);
 
-    assertEquals(
-        orderEntity.getId(), orderService.addRatingToOrder(orderEntity.getId(), ratingRequest));
+    assertDoesNotThrow(() -> orderService.addRatingToOrder(orderEntity.getId(), ratingRequest));
   }
 
   @Test
@@ -286,7 +284,7 @@ class OrderServiceTest {
   }
 
   @Test
-  void updateOrder_WhenOrderExistsAndRequestIsValid_thenReturnOrderId() {
+  void updateOrder_WhenOrderExistsAndRequestIsValid_thenUpdateOrder() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
@@ -301,19 +299,18 @@ class OrderServiceTest {
             .buildOrderEntity();
     when(orderRepository.save(any())).thenReturn(updatedOrderEntity);
 
-    assertEquals(
-        updatedOrderEntity.getId(), orderService.updateOrder(orderEntity.getId(), orderRequest2));
+    assertDoesNotThrow(() -> orderService.updateOrder(orderEntity.getId(), orderRequest2));
   }
 
   @Test
-  void updateOrder_WhenOrderExistsAndMinimumRequestValuesAreProvided_thenReturnOrderId() {
+  void updateOrder_WhenOrderExistsAndMinimumRequestValuesAreProvided_thenUpdateOrder() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
-    assertEquals(orderEntity.getId(), orderService.updateOrder(orderEntity.getId(), orderRequest1));
+    assertDoesNotThrow(() -> orderService.updateOrder(orderEntity.getId(), orderRequest1));
   }
 
   @Test

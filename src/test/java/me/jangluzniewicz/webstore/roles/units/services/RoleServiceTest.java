@@ -54,11 +54,11 @@ class RoleServiceTest {
   }
 
   @Test
-  void createNewRole_whenRoleDoesNotExist_thenReturnRoleId() {
+  void createNewRole_whenRoleDoesNotExist_thenReturnIdResponse() {
     when(roleRepository.existsByNameIgnoreCase(roleRequest1.getName())).thenReturn(false);
     when(roleRepository.save(any())).thenReturn(roleEntity);
 
-    assertEquals(roleEntity.getId(), roleService.createNewRole(roleRequest1));
+    assertEquals(roleEntity.getId(), roleService.createNewRole(roleRequest1).getId());
   }
 
   @Test
@@ -93,7 +93,7 @@ class RoleServiceTest {
   }
 
   @Test
-  void updateRole_whenRoleExistsAndNewNameIsUnique_thenReturnRoleId() {
+  void updateRole_whenRoleExistsAndNewNameIsUnique_thenUpdateRole() {
     when(roleRepository.findById(roleEntity.getId())).thenReturn(Optional.of(roleEntity));
     when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(false);
@@ -105,7 +105,7 @@ class RoleServiceTest {
             .buildRoleEntity();
     when(roleRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(roleEntity.getId(), roleService.updateRole(roleEntity.getId(), roleRequest2));
+    assertDoesNotThrow(() -> roleService.updateRole(roleEntity.getId(), roleRequest2));
   }
 
   @Test

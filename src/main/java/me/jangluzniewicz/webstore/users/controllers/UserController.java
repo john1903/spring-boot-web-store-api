@@ -6,10 +6,9 @@ import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/users")
 public class UserController {
   private final IUser userService;
@@ -26,7 +25,7 @@ public class UserController {
     return ResponseEntity.ok(userService.getAllUsers(page, size));
   }
 
-  @PreAuthorize("hasRole('ADMIN') || #id == authentication.principal.id")
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   @GetMapping("/{id}")
   public ResponseEntity<User> getUser(@PathVariable Long id) {
     return userService
@@ -35,7 +34,7 @@ public class UserController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  @PreAuthorize("hasRole('ADMIN') || #id == authentication.principal.id")
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateUser(
       @PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {

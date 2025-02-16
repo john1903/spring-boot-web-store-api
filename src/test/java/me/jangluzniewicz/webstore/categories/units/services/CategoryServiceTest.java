@@ -55,11 +55,12 @@ class CategoryServiceTest {
   }
 
   @Test
-  void createNewCategory_whenNotExists_thenReturnId() {
+  void createNewCategory_whenNotExists_thenReturnIdResponse() {
     when(categoryRepository.existsByNameIgnoreCase(categoryRequest1.getName())).thenReturn(false);
     when(categoryRepository.save(any())).thenReturn(categoryEntity);
 
-    assertEquals(categoryEntity.getId(), categoryService.createNewCategory(categoryRequest1));
+    assertEquals(
+        categoryEntity.getId(), categoryService.createNewCategory(categoryRequest1).getId());
   }
 
   @Test
@@ -96,7 +97,7 @@ class CategoryServiceTest {
   }
 
   @Test
-  void updateCategory_whenExistsAndUnique_thenReturnId() {
+  void updateCategory_whenExistsAndUnique_thenUpdateCategory() {
     when(categoryRepository.findById(categoryEntity.getId()))
         .thenReturn(Optional.of(categoryEntity));
     when(categoryMapper.fromEntity(categoryEntity)).thenReturn(category);
@@ -109,9 +110,8 @@ class CategoryServiceTest {
             .buildCategoryEntity();
     when(categoryRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(
-        categoryEntity.getId(),
-        categoryService.updateCategory(categoryEntity.getId(), categoryRequest2));
+    assertDoesNotThrow(
+        () -> categoryService.updateCategory(categoryEntity.getId(), categoryRequest2));
   }
 
   @Test

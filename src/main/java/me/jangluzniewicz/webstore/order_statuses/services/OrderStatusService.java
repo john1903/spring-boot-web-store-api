@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
@@ -33,13 +34,14 @@ public class OrderStatusService implements IOrderStatus {
 
   @Override
   @Transactional
-  public Long createNewOrderStatus(@NotNull OrderStatusRequest orderStatusRequest) {
+  public IdResponse createNewOrderStatus(@NotNull OrderStatusRequest orderStatusRequest) {
     if (orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName())) {
       throw new NotUniqueException(
           "Order status with name " + orderStatusRequest.getName() + " already exists");
     }
     OrderStatus orderStatus = OrderStatus.builder().name(orderStatusRequest.getName()).build();
-    return orderStatusRepository.save(orderStatusMapper.toEntity(orderStatus)).getId();
+    return new IdResponse(
+        orderStatusRepository.save(orderStatusMapper.toEntity(orderStatus)).getId());
   }
 
   @Override
@@ -58,7 +60,7 @@ public class OrderStatusService implements IOrderStatus {
 
   @Override
   @Transactional
-  public Long updateOrderStatus(
+  public void updateOrderStatus(
       @NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
     OrderStatus orderStatus =
         getOrderStatusById(id)
@@ -69,7 +71,7 @@ public class OrderStatusService implements IOrderStatus {
           "Order status with name " + orderStatusRequest.getName() + " already exists");
     }
     orderStatus.setName(orderStatusRequest.getName());
-    return orderStatusRepository.save(orderStatusMapper.toEntity(orderStatus)).getId();
+    orderStatusRepository.save(orderStatusMapper.toEntity(orderStatus));
   }
 
   @Override

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
@@ -47,7 +48,7 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public Long registerNewUser(@NotNull UserRequest userRequest) {
+  public IdResponse registerNewUser(@NotNull UserRequest userRequest) {
     if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())) {
       throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
     }
@@ -66,12 +67,12 @@ public class UserService implements IUser {
             .build();
     Long userId = userRepository.save(userMapper.toEntity(user)).getId();
     cartService.createNewCart(userId);
-    return userId;
+    return new IdResponse(userId);
   }
 
   @Override
   @Transactional
-  public Long updateUser(@NotNull @Min(1) Long id, @NotNull UserRequest userRequest) {
+  public void updateUser(@NotNull @Min(1) Long id, @NotNull UserRequest userRequest) {
     User user =
         getUserById(id)
             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
@@ -89,7 +90,7 @@ public class UserService implements IUser {
     user.setEmail(userRequest.getEmail());
     user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
     user.setPhoneNumber(userRequest.getPhoneNumber());
-    return userRepository.save(userMapper.toEntity(user)).getId();
+    userRepository.save(userMapper.toEntity(user));
   }
 
   @Override

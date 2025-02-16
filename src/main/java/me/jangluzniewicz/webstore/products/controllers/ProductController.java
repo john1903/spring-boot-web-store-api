@@ -2,15 +2,15 @@ package me.jangluzniewicz.webstore.products.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/products")
 public class ProductController {
   private final IProduct productService;
@@ -37,9 +37,10 @@ public class ProductController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductRequest productRequest) {
-    Long productId = productService.createNewProduct(productRequest);
-    return ResponseEntity.created(URI.create("/products/" + productId)).build();
+  public ResponseEntity<IdResponse> createProduct(
+      @Valid @RequestBody ProductRequest productRequest) {
+    IdResponse response = productService.createNewProduct(productRequest);
+    return ResponseEntity.created(URI.create("/products/" + response.getId())).body(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

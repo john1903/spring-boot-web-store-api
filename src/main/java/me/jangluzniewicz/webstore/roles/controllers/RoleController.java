@@ -2,15 +2,15 @@ package me.jangluzniewicz.webstore.roles.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/roles")
 public class RoleController {
   private final IRole roleService;
@@ -36,9 +36,9 @@ public class RoleController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<Void> createRole(@Valid @RequestBody RoleRequest roleRequest) {
-    Long roleId = roleService.createNewRole(roleRequest);
-    return ResponseEntity.created(URI.create("/roles/" + roleId)).build();
+  public ResponseEntity<IdResponse> createRole(@Valid @RequestBody RoleRequest roleRequest) {
+    IdResponse response = roleService.createNewRole(roleRequest);
+    return ResponseEntity.created(URI.create("/roles/" + response.getId())).body(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

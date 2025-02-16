@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.orders.interfaces;
 
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
@@ -9,7 +10,7 @@ import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
 
 public interface IOrder {
-  Long createNewOrder(OrderRequest orderRequest);
+  IdResponse createNewOrder(OrderRequest orderRequest);
 
   Optional<Order> getOrderById(Long id);
 
@@ -19,15 +20,13 @@ public interface IOrder {
 
   PagedResponse<Order> getFilteredOrders(OrderFilterRequest filter, Integer page, Integer size);
 
-  Long updateOrder(Long id, OrderRequest orderRequest);
+  void updateOrder(Long id, OrderRequest orderRequest);
 
-  Long changeOrderStatus(Long id, ChangeOrderStatusRequest changeOrderStatusRequest);
+  void changeOrderStatus(Long id, ChangeOrderStatusRequest changeOrderStatusRequest);
 
-  Long addRatingToOrder(Long id, RatingRequest ratingRequest);
+  void addRatingToOrder(Long id, RatingRequest ratingRequest);
 
   Long getOrderOwnerId(Long id);
-
-  boolean orderExists(Long id);
 
   void deleteOrder(Long id);
 }

@@ -3,17 +3,15 @@ package me.jangluzniewicz.webstore.security.controllers;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.nio.file.AccessDeniedException;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
   private final IUser userService;
@@ -23,7 +21,7 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<Void> createUser(@Valid @RequestBody UserRequest userRequest)
+  public ResponseEntity<IdResponse> createUser(@Valid @RequestBody UserRequest userRequest)
       throws AccessDeniedException {
     final long ADMIN_ROLE_ID = 1L;
     CustomUser principal =
@@ -32,7 +30,7 @@ public class AuthController {
         && (principal == null || !principal.hasRole("ADMIN"))) {
       throw new AccessDeniedException("Cannot create user with ADMIN role");
     }
-    Long userId = userService.registerNewUser(userRequest);
-    return ResponseEntity.created(URI.create("/users/" + userId)).build();
+    IdResponse response = userService.registerNewUser(userRequest);
+    return ResponseEntity.created(URI.create("/users/" + response.getId())).body(response);
   }
 }

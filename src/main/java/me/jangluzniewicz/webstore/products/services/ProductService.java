@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
@@ -39,7 +40,7 @@ public class ProductService implements IProduct {
 
   @Override
   @Transactional
-  public Long createNewProduct(@NotNull ProductRequest productRequest) {
+  public IdResponse createNewProduct(@NotNull ProductRequest productRequest) {
     Product product =
         Product.builder()
             .name(productRequest.getName())
@@ -56,12 +57,12 @@ public class ProductService implements IProduct {
                                     + productRequest.getCategoryId()
                                     + " not found")))
             .build();
-    return productRepository.save(productMapper.toEntity(product)).getId();
+    return new IdResponse(productRepository.save(productMapper.toEntity(product)).getId());
   }
 
   @Override
   @Transactional
-  public Long updateProduct(@NotNull @Min(1) Long id, @NotNull ProductRequest productRequest) {
+  public void updateProduct(@NotNull @Min(1) Long id, @NotNull ProductRequest productRequest) {
     Product product =
         getProductById(id)
             .orElseThrow(() -> new NotFoundException("Product with id " + id + " not found"));
@@ -76,7 +77,7 @@ public class ProductService implements IProduct {
                 () ->
                     new NotFoundException(
                         "Category with id " + productRequest.getCategoryId() + " not found")));
-    return productRepository.save(productMapper.toEntity(product)).getId();
+    productRepository.save(productMapper.toEntity(product));
   }
 
   @Override

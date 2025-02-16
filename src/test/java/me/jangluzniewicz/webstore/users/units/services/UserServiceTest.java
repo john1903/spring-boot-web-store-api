@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.testdata.roles.RoleTestDataBuilder;
 import me.jangluzniewicz.webstore.common.testdata.users.UserEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.common.testdata.users.UserRequestTestDataBuilder;
@@ -65,14 +66,14 @@ class UserServiceTest {
   }
 
   @Test
-  void registerNewUser_whenEmailIsUniqueAndRoleExists_thenReturnUserId() {
+  void registerNewUser_whenEmailIsUniqueAndRoleExists_thenReturnIdResponse() {
     when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
     when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
     when(roleService.getRoleById(userRequest1.getRoleId())).thenReturn(Optional.of(role));
     when(userRepository.save(any())).thenReturn(userEntity);
-    when(cartService.createNewCart(userEntity.getId())).thenReturn(1L);
+    when(cartService.createNewCart(userEntity.getId())).thenReturn(new IdResponse(1L));
 
-    assertEquals(userEntity.getId(), userService.registerNewUser(userRequest1));
+    assertEquals(userEntity.getId(), userService.registerNewUser(userRequest1).getId());
   }
 
   @Test
@@ -92,7 +93,7 @@ class UserServiceTest {
   }
 
   @Test
-  void updateUser_whenUserExistsAndEmailIsUnique_thenReturnUserId() {
+  void updateUser_whenUserExistsAndEmailIsUnique_thenUpdateUser() {
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
     when(userRepository.existsByEmailIgnoreCase(userRequest2.getEmail())).thenReturn(false);
@@ -106,7 +107,7 @@ class UserServiceTest {
             .buildUserEntity();
     when(userRepository.save(any())).thenReturn(entityUpdated);
 
-    assertEquals(userEntity.getId(), userService.updateUser(userEntity.getId(), userRequest2));
+    assertDoesNotThrow(() -> userService.updateUser(userEntity.getId(), userRequest2));
   }
 
   @Test
@@ -136,7 +137,7 @@ class UserServiceTest {
     when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
     when(userRepository.save(any())).thenReturn(userEntity);
 
-    assertEquals(userEntity.getId(), userService.updateUser(userEntity.getId(), userRequest1));
+    assertDoesNotThrow(() -> userService.updateUser(userEntity.getId(), userRequest1));
   }
 
   @Test

@@ -4,13 +4,13 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.models.Category;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/categories")
 public class CategoryController {
   private final ICategory categoryService;
@@ -36,9 +36,10 @@ public class CategoryController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
-    Long categoryId = categoryService.createNewCategory(categoryRequest);
-    return ResponseEntity.created(URI.create("/categories/" + categoryId)).build();
+  public ResponseEntity<IdResponse> createCategory(
+      @Valid @RequestBody CategoryRequest categoryRequest) {
+    IdResponse response = categoryService.createNewCategory(categoryRequest);
+    return ResponseEntity.created(URI.create("/categories/" + response.getId())).body(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

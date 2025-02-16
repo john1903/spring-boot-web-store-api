@@ -6,10 +6,9 @@ import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.security.interfaces.ISecurity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("/carts")
 public class CartController {

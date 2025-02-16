@@ -1,6 +1,8 @@
 package me.jangluzniewicz.webstore.orders.controllers;
 
 import jakarta.validation.Valid;
+import java.net.URI;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
@@ -9,10 +11,9 @@ import me.jangluzniewicz.webstore.security.interfaces.ISecurity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("/orders")
 public class OrderController {
@@ -49,6 +50,12 @@ public class OrderController {
       @RequestParam(defaultValue = "20") Integer size) {
     return ResponseEntity.ok(
         orderService.getOrdersByCustomerId(authService.getCurrentUser().getId(), page, size));
+  }
+
+  @PostMapping
+  public ResponseEntity<IdResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+    IdResponse response = orderService.createNewOrder(orderRequest);
+    return ResponseEntity.created(URI.create("/orders/" + response.getId())).body(response);
   }
 
   @PreAuthorize(

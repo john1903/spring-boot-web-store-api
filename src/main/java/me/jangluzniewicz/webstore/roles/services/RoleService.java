@@ -3,6 +3,7 @@ package me.jangluzniewicz.webstore.roles.services;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
@@ -32,12 +33,12 @@ public class RoleService implements IRole {
 
   @Override
   @Transactional
-  public Long createNewRole(@NotNull RoleRequest roleRequest) {
+  public IdResponse createNewRole(@NotNull RoleRequest roleRequest) {
     if (roleRepository.existsByNameIgnoreCase(roleRequest.getName())) {
       throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
     }
     Role role = Role.builder().name(roleRequest.getName()).build();
-    return roleRepository.save(roleMapper.toEntity(role)).getId();
+    return new IdResponse(roleRepository.save(roleMapper.toEntity(role)).getId());
   }
 
   @Override
@@ -55,7 +56,7 @@ public class RoleService implements IRole {
 
   @Override
   @Transactional
-  public Long updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest) {
+  public void updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest) {
     Role role =
         getRoleById(id)
             .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
@@ -64,7 +65,7 @@ public class RoleService implements IRole {
       throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
     }
     role.setName(roleRequest.getName());
-    return roleRepository.save(roleMapper.toEntity(role)).getId();
+    roleRepository.save(roleMapper.toEntity(role));
   }
 
   @Override

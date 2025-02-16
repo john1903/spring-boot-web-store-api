@@ -60,13 +60,14 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnOrderStatusId() {
+  void createNewOrderStatus_whenOrderStatusDoesNotExist_thenReturnIdResponse() {
     when(orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest1.getName()))
         .thenReturn(false);
     when(orderStatusRepository.save(any())).thenReturn(orderStatusEntity);
 
     assertEquals(
-        orderStatusEntity.getId(), orderStatusService.createNewOrderStatus(orderStatusRequest1));
+        orderStatusEntity.getId(),
+        orderStatusService.createNewOrderStatus(orderStatusRequest1).getId());
   }
 
   @Test
@@ -105,7 +106,7 @@ class OrderStatusServiceTest {
   }
 
   @Test
-  void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenReturnOrderStatusId() {
+  void updateOrderStatus_whenOrderStatusExistsAndNewNameIsUnique_thenUpdateOrderStatus() {
     when(orderStatusRepository.findById(orderStatusEntity.getId()))
         .thenReturn(Optional.of(orderStatusEntity));
     when(orderStatusMapper.fromEntity(orderStatusEntity)).thenReturn(orderStatus);
@@ -119,9 +120,8 @@ class OrderStatusServiceTest {
             .buildOrderStatusEntity();
     when(orderStatusRepository.save(any())).thenReturn(updatedEntity);
 
-    assertEquals(
-        orderStatusEntity.getId(),
-        orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest2));
+    assertDoesNotThrow(
+        () -> orderStatusService.updateOrderStatus(orderStatusEntity.getId(), orderStatusRequest2));
   }
 
   @Test

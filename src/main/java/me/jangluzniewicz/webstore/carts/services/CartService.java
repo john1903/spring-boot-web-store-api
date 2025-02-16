@@ -12,6 +12,7 @@ import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
 import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.models.CartItem;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
@@ -32,12 +33,12 @@ public class CartService implements ICart {
 
   @Override
   @Transactional
-  public Long createNewCart(@NotNull Long customerId) {
+  public IdResponse createNewCart(@NotNull Long customerId) {
     if (cartRepository.existsByCustomerId(customerId)) {
       throw new ConflictException("Cart for customer with id " + customerId + " already exists");
     }
     Cart cart = Cart.builder().customerId(customerId).items(new ArrayList<>()).build();
-    return cartRepository.save(cartMapper.toEntity(cart)).getId();
+    return new IdResponse(cartRepository.save(cartMapper.toEntity(cart)).getId());
   }
 
   @Override
@@ -47,7 +48,7 @@ public class CartService implements ICart {
 
   @Override
   @Transactional
-  public Long updateCart(@NotNull @Min(1) Long customerId, @NotNull CartRequest cartRequest) {
+  public void updateCart(@NotNull @Min(1) Long customerId, @NotNull CartRequest cartRequest) {
     Cart cart =
         getCartByCustomerId(customerId)
             .orElseThrow(
@@ -72,7 +73,7 @@ public class CartService implements ICart {
                         .quantity(cartItemRequest.getQuantity())
                         .build())
             .toList());
-    return cartRepository.save(cartMapper.toEntity(cart)).getId();
+    cartRepository.save(cartMapper.toEntity(cart));
   }
 
   @Override

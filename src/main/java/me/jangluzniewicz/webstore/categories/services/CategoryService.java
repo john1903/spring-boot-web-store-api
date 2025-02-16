@@ -9,6 +9,7 @@ import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
 import me.jangluzniewicz.webstore.categories.models.Category;
 import me.jangluzniewicz.webstore.categories.repositories.CategoryRepository;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
@@ -32,13 +33,13 @@ public class CategoryService implements ICategory {
 
   @Override
   @Transactional
-  public Long createNewCategory(@NotNull CategoryRequest categoryRequest) {
+  public IdResponse createNewCategory(@NotNull CategoryRequest categoryRequest) {
     if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
       throw new NotUniqueException(
           "Category with name " + categoryRequest.getName() + " already exists");
     }
     Category category = Category.builder().name(categoryRequest.getName()).build();
-    return categoryRepository.save(categoryMapper.toEntity(category)).getId();
+    return new IdResponse(categoryRepository.save(categoryMapper.toEntity(category)).getId());
   }
 
   @Override
@@ -57,7 +58,7 @@ public class CategoryService implements ICategory {
 
   @Override
   @Transactional
-  public Long updateCategory(@NotNull @Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
+  public void updateCategory(@NotNull @Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
     Category category =
         getCategoryById(id)
             .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
@@ -67,7 +68,7 @@ public class CategoryService implements ICategory {
           "Category with name " + categoryRequest.getName() + " already exists");
     }
     category.setName(categoryRequest.getName());
-    return categoryRepository.save(categoryMapper.toEntity(category)).getId();
+    categoryRepository.save(categoryMapper.toEntity(category));
   }
 
   @Override

@@ -68,11 +68,11 @@ class CartServiceTest {
   }
 
   @Test
-  void createNewCart_whenCartDoesNotExist_thenReturnCartId() {
+  void createNewCart_whenCartDoesNotExist_thenReturnIdResponse() {
     when(cartRepository.existsByCustomerId(CUSTOMER_ID)).thenReturn(false);
     when(cartRepository.save(any())).thenReturn(cartEntity);
 
-    assertEquals(cartEntity.getId(), cartService.createNewCart(CUSTOMER_ID));
+    assertEquals(cartEntity.getId(), cartService.createNewCart(CUSTOMER_ID).getId());
   }
 
   @Test

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
@@ -54,7 +55,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public Long createNewOrder(@NotNull OrderRequest orderRequest) {
+  public IdResponse createNewOrder(@NotNull OrderRequest orderRequest) {
     Order order =
         Order.builder()
             .customer(
@@ -84,7 +85,7 @@ public class OrderService implements IOrder {
                                 .build())
                     .toList())
             .build();
-    return orderRepository.save(orderMapper.toEntity(order)).getId();
+    return new IdResponse(orderRepository.save(orderMapper.toEntity(order)).getId());
   }
 
   @Override
@@ -127,7 +128,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public Long updateOrder(@NotNull @Min(1) Long id, @NotNull OrderRequest orderRequest) {
+  public void updateOrder(@NotNull @Min(1) Long id, @NotNull OrderRequest orderRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -177,12 +178,12 @@ public class OrderService implements IOrder {
                         .discount(orderItemRequest.getDiscount())
                         .build())
             .toList());
-    return orderRepository.save(orderMapper.toEntity(order)).getId();
+    orderRepository.save(orderMapper.toEntity(order));
   }
 
   @Override
   @Transactional
-  public Long changeOrderStatus(
+  public void changeOrderStatus(
       @NotNull @Min(1) Long id, @NotNull ChangeOrderStatusRequest changeOrderStatusRequest) {
     Order order =
         getOrderById(id)
@@ -196,12 +197,12 @@ public class OrderService implements IOrder {
                         "Order status with id "
                             + changeOrderStatusRequest.getOrderStatusId()
                             + " not found")));
-    return orderRepository.save(orderMapper.toEntity(order)).getId();
+    orderRepository.save(orderMapper.toEntity(order));
   }
 
   @Override
   @Transactional
-  public Long addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest) {
+  public void addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -213,7 +214,7 @@ public class OrderService implements IOrder {
             .rating(ratingRequest.getRating())
             .description(ratingRequest.getDescription())
             .build());
-    return orderRepository.save(orderMapper.toEntity(order)).getId();
+    orderRepository.save(orderMapper.toEntity(order));
   }
 
   @Override
@@ -234,15 +235,11 @@ public class OrderService implements IOrder {
     }
   }
 
-  @Override
-  public boolean orderExists(Long id) {
-    return orderRepository.existsById(id);
-  }
-
   public Long getOrderOwnerId(Long id) {
-    Order order =
-        getOrderById(id)
-            .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    return order.getCustomer().getId();
+    return orderRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"))
+        .getCustomer()
+        .getId();
   }
 }

@@ -1,15 +1,16 @@
 package me.jangluzniewicz.webstore.products.interfaces;
 
 import java.util.Optional;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.models.Product;
 
 public interface IProduct {
-  Long createNewProduct(ProductRequest productRequest);
+  IdResponse createNewProduct(ProductRequest productRequest);
 
-  Long updateProduct(Long id, ProductRequest productRequest);
+  void updateProduct(Long id, ProductRequest productRequest);
 
   Optional<Product> getProductById(Long id);
 

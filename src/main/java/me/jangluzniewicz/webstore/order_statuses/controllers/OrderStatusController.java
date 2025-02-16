@@ -2,15 +2,15 @@ package me.jangluzniewicz.webstore.order_statuses.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/order-statuses")
 public class OrderStatusController {
   private final IOrderStatus orderStatusService;
@@ -36,10 +36,10 @@ public class OrderStatusController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<Void> createOrderStatus(
+  public ResponseEntity<IdResponse> createOrderStatus(
       @Valid @RequestBody OrderStatusRequest orderStatusRequest) {
-    Long orderStatusId = orderStatusService.createNewOrderStatus(orderStatusRequest);
-    return ResponseEntity.created(URI.create("/order-statuses/" + orderStatusId)).build();
+    IdResponse response = orderStatusService.createNewOrderStatus(orderStatusRequest);
+    return ResponseEntity.created(URI.create("/order-statuses/" + response.getId())).body(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

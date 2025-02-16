@@ -1,13 +1,13 @@
 package me.jangluzniewicz.webstore.orders.controllers;
 
 import jakarta.validation.Valid;
-import java.nio.file.AccessDeniedException;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
 import me.jangluzniewicz.webstore.orders.models.Order;
 import me.jangluzniewicz.webstore.security.interfaces.ISecurity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -34,17 +34,13 @@ public class OrderController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Order> getOrder(@PathVariable Long id) throws AccessDeniedException {
+  @PostAuthorize("hasRole('ADMIN') or returnObject.body.customer.id == authentication.principal.id")
+  public ResponseEntity<Order> getOrder(@PathVariable Long id) {
     Order order =
         orderService
             .getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    if (authService.getCurrentUser().hasRole("ADMIN")
-        || order.getCustomer().getId().equals(authService.getCurrentUser().getId())) {
-      return ResponseEntity.ok(order);
-    } else {
-      throw new AccessDeniedException("Access denied");
-    }
+    return ResponseEntity.ok(order);
   }
 
   @GetMapping("/current")
@@ -55,21 +51,13 @@ public class OrderController {
         orderService.getOrdersByCustomerId(authService.getCurrentUser().getId(), page, size));
   }
 
+  @PreAuthorize(
+      "hasRole('ADMIN') or @orderService.getOrderOwnerId(#id) == authentication.principal.id")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateOrder(
-      @PathVariable Long id, @Valid @RequestBody OrderRequest orderRequest)
-      throws AccessDeniedException {
-    if (orderService.orderExists(id)) {
-      if (authService.getCurrentUser().hasRole("ADMIN")
-          || orderRequest.getCustomerId().equals(authService.getCurrentUser().getId())) {
-        orderService.updateOrder(id, orderRequest);
-        return ResponseEntity.noContent().build();
-      } else {
-        throw new AccessDeniedException("Access denied");
-      }
-    } else {
-      throw new NotFoundException("Order with id " + id + " not found");
-    }
+      @PathVariable Long id, @Valid @RequestBody OrderRequest orderRequest) {
+    orderService.updateOrder(id, orderRequest);
+    return ResponseEntity.noContent().build();
   }
 
   @PreAuthorize("hasRole('ADMIN')")

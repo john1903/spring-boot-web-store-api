@@ -25,6 +25,8 @@ public interface IOrder {
 
   Long addRatingToOrder(Long id, RatingRequest ratingRequest);
 
+  Long getOrderOwnerId(Long id);
+
   boolean orderExists(Long id);
 
   void deleteOrder(Long id);

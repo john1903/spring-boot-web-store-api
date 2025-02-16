@@ -238,4 +238,11 @@ public class OrderService implements IOrder {
   public boolean orderExists(Long id) {
     return orderRepository.existsById(id);
   }
+
+  public Long getOrderOwnerId(Long id) {
+    Order order =
+        getOrderById(id)
+            .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+    return order.getCustomer().getId();
+  }
 }

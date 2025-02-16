@@ -68,6 +68,23 @@ public class OrderController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/{id}/status")
+  public ResponseEntity<Void> updateOrderStatus(
+      @PathVariable Long id, @Valid @RequestBody OrderStatusRequest orderStatusRequest) {
+    orderService.changeOrderStatus(id, orderStatusRequest);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PreAuthorize(
+      "hasRole('ADMIN') or @orderService.getOrderOwnerId(#id) == authentication.principal.id")
+  @PostMapping("/{id}/rating")
+  public ResponseEntity<Void> rateOrder(
+      @PathVariable Long id, @Valid @RequestBody RatingRequest ratingRequest) {
+    orderService.addRatingToOrder(id, ratingRequest);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
     orderService.deleteOrder(id);

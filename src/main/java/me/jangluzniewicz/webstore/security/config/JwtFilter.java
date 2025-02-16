@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import me.jangluzniewicz.webstore.exceptions.JwtException;
 import me.jangluzniewicz.webstore.security.services.JwtService;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +35,15 @@ public class JwtFilter extends HttpFilter {
   private record JwtAuthenticationRequest(String username, String password) {}
 
   private Authentication attemptAuthentication(HttpServletRequest request) throws IOException {
+    if (request.getContentLength() == 0) {
+      throw new JwtException("Request body cannot be empty");
+    }
     JwtAuthenticationRequest jwtAuthenticationRequest =
         new ObjectMapper().readValue(request.getInputStream(), JwtAuthenticationRequest.class);
+    if (jwtAuthenticationRequest.username() == null
+        || jwtAuthenticationRequest.password() == null) {
+      throw new JwtException("Username and password are required");
+    }
     UsernamePasswordAuthenticationToken authenticationToken =
         new UsernamePasswordAuthenticationToken(
             jwtAuthenticationRequest.username(), jwtAuthenticationRequest.password());

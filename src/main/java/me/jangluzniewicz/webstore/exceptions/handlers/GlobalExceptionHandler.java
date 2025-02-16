@@ -199,6 +199,21 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(OrderStatusNotAllowedException.class)
+  public ResponseEntity<ApiError> handleOrderStatusNotAllowedException(
+      OrderStatusNotAllowedException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiError> handleException(Exception e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();

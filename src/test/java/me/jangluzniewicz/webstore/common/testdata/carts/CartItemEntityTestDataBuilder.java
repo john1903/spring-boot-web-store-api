@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.common.testdata.products.ProductEntityTestData
 
 @Builder
 public class CartItemEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
 
   @Default
   private ProductEntityTestDataBuilder productBuilder =

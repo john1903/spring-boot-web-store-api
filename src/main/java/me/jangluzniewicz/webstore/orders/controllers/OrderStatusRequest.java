@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ChangeOrderStatusRequest {
+public class OrderStatusRequest {
   @NotNull(message = "orderStatusId is required")
   private Long orderStatusId;
 }

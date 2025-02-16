@@ -45,26 +45,15 @@ class CartServiceTest {
 
   @BeforeEach
   void setUp() {
-    product = ProductTestDataBuilder.builder().id(1L).build().buildProduct();
-    cartEntity =
-        CartEntityTestDataBuilder.builder()
-            .id(1L)
-            .customerId(CUSTOMER_ID)
-            .build()
-            .buildCartEntity();
-    cart = CartTestDataBuilder.builder().id(1L).customerId(CUSTOMER_ID).build().buildCart();
+    product = ProductTestDataBuilder.builder().build().buildProduct();
+    cartEntity = CartEntityTestDataBuilder.builder().build().buildCartEntity();
+    cart = CartTestDataBuilder.builder().build().buildCart();
     cartRequest =
         CartRequestTestDataBuilder.builder()
-            .items(
-                List.of(
-                    CartItemRequestTestDataBuilder.builder().productId(product.getId()).build()))
+            .items(List.of(CartItemRequestTestDataBuilder.builder().build()))
             .build()
             .buildCartRequest();
-    cartItemRequest =
-        CartItemRequestTestDataBuilder.builder()
-            .productId(product.getId())
-            .build()
-            .buildCartItemRequest();
+    cartItemRequest = CartItemRequestTestDataBuilder.builder().build().buildCartItemRequest();
   }
 
   @Test
@@ -104,9 +93,7 @@ class CartServiceTest {
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     CartEntity cartWithItemEntity =
         CartEntityTestDataBuilder.builder()
-            .id(cartEntity.getId())
-            .customerId(CUSTOMER_ID)
-            .items(List.of(CartItemEntityTestDataBuilder.builder().id(1L).build()))
+            .items(List.of(CartItemEntityTestDataBuilder.builder().build()))
             .build()
             .buildCartEntity();
     when(cartRepository.save(any())).thenReturn(cartWithItemEntity);
@@ -171,9 +158,7 @@ class CartServiceTest {
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     CartEntity updatedEntity =
         CartEntityTestDataBuilder.builder()
-            .id(cartEntity.getId())
-            .customerId(CUSTOMER_ID)
-            .items(List.of(CartItemEntityTestDataBuilder.builder().id(1L).build()))
+            .items(List.of(CartItemEntityTestDataBuilder.builder().build()))
             .build()
             .buildCartEntity();
     when(cartRepository.save(any())).thenReturn(updatedEntity);

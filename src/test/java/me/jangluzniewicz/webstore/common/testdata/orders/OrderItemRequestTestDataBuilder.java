@@ -7,8 +7,8 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderItemRequest;
 
 @Builder
 public class OrderItemRequestTestDataBuilder {
-  private Long id;
-  private Long productId;
+  @Default private Long id = 1L;
+  @Default private Long productId = 1L;
   @Default Integer quantity = 1;
   @Default private BigDecimal price = BigDecimal.valueOf(1000.0);
   @Default private BigDecimal discount = BigDecimal.ONE;

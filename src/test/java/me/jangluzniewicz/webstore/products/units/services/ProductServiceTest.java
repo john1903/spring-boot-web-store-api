@@ -56,25 +56,14 @@ class ProductServiceTest {
 
   @BeforeEach
   void setUp() {
-    productEntity = ProductEntityTestDataBuilder.builder().id(1L).build().buildProductEntity();
-    product = ProductTestDataBuilder.builder().id(1L).build().buildProduct();
-    category = CategoryTestDataBuilder.builder().id(1L).build().buildCategory();
-    productRequest =
-        ProductRequestTestDataBuilder.builder()
-            .categoryId(category.getId())
-            .build()
-            .buildProductRequest();
+    productEntity = ProductEntityTestDataBuilder.builder().build().buildProductEntity();
+    product = ProductTestDataBuilder.builder().build().buildProduct();
+    category = CategoryTestDataBuilder.builder().build().buildCategory();
+    productRequest = ProductRequestTestDataBuilder.builder().build().buildProductRequest();
     productRequest2 =
-        ProductRequestTestDataBuilder.builder()
-            .categoryId(category.getId())
-            .name("Bicycle XXL")
-            .build()
-            .buildProductRequest();
+        ProductRequestTestDataBuilder.builder().name("Bicycle XXL").build().buildProductRequest();
     productFilterRequest =
-        ProductFilterRequestTestDataBuilder.builder()
-            .categoryId(category.getId())
-            .build()
-            .buildProductFilterRequest();
+        ProductFilterRequestTestDataBuilder.builder().build().buildProductFilterRequest();
   }
 
   @Test
@@ -97,14 +86,14 @@ class ProductServiceTest {
     when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
     when(productMapper.fromEntity(productEntity)).thenReturn(product);
 
-    assertTrue(productService.getProductById(1L).isPresent());
+    assertTrue(productService.getProductById(productEntity.getId()).isPresent());
   }
 
   @Test
   void getProductById_whenProductDoesNotExist_thenReturnEmpty() {
     when(productRepository.findById(productEntity.getId())).thenReturn(Optional.empty());
 
-    assertTrue(productService.getProductById(1L).isEmpty());
+    assertTrue(productService.getProductById(productEntity.getId()).isEmpty());
   }
 
   @Test
@@ -133,7 +122,6 @@ class ProductServiceTest {
     when(categoryService.getCategoryById(category.getId())).thenReturn(Optional.of(category));
     ProductEntity updatedEntity =
         ProductEntityTestDataBuilder.builder()
-            .id(productEntity.getId())
             .name(productRequest2.getName())
             .build()
             .buildProductEntity();

@@ -9,8 +9,8 @@ import me.jangluzniewicz.webstore.carts.entities.CartEntity;
 
 @Builder
 public class CartEntityTestDataBuilder {
-  private Long id;
-  private Long customerId;
+  @Default private Long id = 1L;
+  @Default private Long customerId = 1L;
   @Default private BigDecimal total = BigDecimal.ZERO;
 
   @Default private List<CartItemEntityTestDataBuilder> items = new ArrayList<>();

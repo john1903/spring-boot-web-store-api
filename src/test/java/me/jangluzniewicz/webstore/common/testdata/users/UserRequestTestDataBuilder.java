@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 
 @Builder
 public class UserRequestTestDataBuilder {
-  private Long roleId;
+  @Default private Long roleId = 1L;
   @Default private String email = "admin@admin.com";
   @Default private String password = "admin";
   @Default private String phoneNumber = "+48123456789";

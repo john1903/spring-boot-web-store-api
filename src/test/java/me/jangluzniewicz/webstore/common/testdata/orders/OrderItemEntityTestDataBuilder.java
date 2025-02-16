@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.orders.entities.OrderItemEntity;
 
 @Builder
 public class OrderItemEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private BigDecimal discount = BigDecimal.ONE;
   @Default private int quantity = 1;
 

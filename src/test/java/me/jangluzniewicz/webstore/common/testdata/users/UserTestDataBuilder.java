@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.users.models.User;
 
 @Builder
 public class UserTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private RoleTestDataBuilder roleBuilder = RoleTestDataBuilder.builder().build();
   @Default private String email = "admin@admin.com";
   @Default private String password = "$2a$12$YMHq03Ob7Jq9LWg.rnQPv.fy/21taNY4dmenw5HOkZJ7YI.4ryMOC";

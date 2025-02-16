@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.categories.models.Category;
 
 @Builder
 public class CategoryTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private String name = "Bicycles";
 
   public Category buildCategory() {

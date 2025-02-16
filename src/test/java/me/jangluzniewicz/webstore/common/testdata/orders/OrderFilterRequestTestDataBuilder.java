@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 
 @Builder
 public class OrderFilterRequestTestDataBuilder {
-  private Long statusId;
+  @Default private Long statusId = 1L;
   @Default private LocalDateTime orderDateAfter = LocalDateTime.now().minusDays(1);
   @Default private LocalDateTime orderDateBefore = LocalDateTime.now().plusDays(1);
 

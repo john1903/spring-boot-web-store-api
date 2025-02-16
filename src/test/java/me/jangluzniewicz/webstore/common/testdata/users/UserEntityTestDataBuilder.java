@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.users.entities.UserEntity;
 
 @Builder
 public class UserEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
 
   @Default
   private RoleEntityTestDataBuilder roleBuilder = RoleEntityTestDataBuilder.builder().build();

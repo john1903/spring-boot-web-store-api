@@ -11,8 +11,8 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 public class OrderRequestTestDataBuilder {
   @Default private LocalDateTime orderDate = LocalDateTime.now();
   @Default private LocalDateTime statusChangeDate = LocalDateTime.now();
-  private Long customerId;
-  private Long statusId;
+  @Default private Long customerId = 1L;
+  @Default private Long statusId = 1L;
 
   private RatingRequestTestDataBuilder ratingBuilder;
 

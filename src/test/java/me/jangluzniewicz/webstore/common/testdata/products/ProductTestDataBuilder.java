@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.products.models.Product;
 
 @Builder
 public class ProductTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private String name = "Bicycle";
   @Default private String description = "Mountain bike";
   @Default private BigDecimal price = BigDecimal.valueOf(1000.0);

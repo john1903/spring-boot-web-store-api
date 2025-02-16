@@ -47,9 +47,8 @@ class OrderStatusServiceTest {
 
   @BeforeEach
   void setUp() {
-    orderStatusEntity =
-        OrderStatusEntityTestDataBuilder.builder().id(1L).build().buildOrderStatusEntity();
-    orderStatus = OrderStatusTestDataBuilder.builder().id(1L).build().buildOrderStatus();
+    orderStatusEntity = OrderStatusEntityTestDataBuilder.builder().build().buildOrderStatusEntity();
+    orderStatus = OrderStatusTestDataBuilder.builder().build().buildOrderStatus();
     orderStatusRequest1 =
         OrderStatusRequestTestDataBuilder.builder().build().buildOrderStatusRequest();
     orderStatusRequest2 =
@@ -114,7 +113,6 @@ class OrderStatusServiceTest {
         .thenReturn(false);
     OrderStatusEntity updatedEntity =
         OrderStatusEntityTestDataBuilder.builder()
-            .id(orderStatusEntity.getId())
             .name(orderStatusRequest2.getName())
             .build()
             .buildOrderStatusEntity();

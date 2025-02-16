@@ -6,8 +6,8 @@ import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 
 @Builder
 public class CartItemRequestTestDataBuilder {
-  private Long id;
-  private Long productId;
+  @Default private Long id = 1L;
+  @Default private Long productId = 1L;
   @Default private Integer quantity = 1;
 
   public CartItemRequest buildCartItemRequest() {

@@ -10,7 +10,7 @@ import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 
 @Builder
 public class OrderEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
 
   @Default
   private UserEntityTestDataBuilder userEntityBuilder = UserEntityTestDataBuilder.builder().build();

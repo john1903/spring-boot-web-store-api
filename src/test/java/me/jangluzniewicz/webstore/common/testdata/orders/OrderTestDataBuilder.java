@@ -10,7 +10,7 @@ import me.jangluzniewicz.webstore.orders.models.Order;
 
 @Builder
 public class OrderTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private UserTestDataBuilder userBuilder = UserTestDataBuilder.builder().build();
 
   @Default

@@ -57,9 +57,9 @@ class UserServiceTest {
 
   @BeforeEach
   public void setUp() {
-    userEntity = UserEntityTestDataBuilder.builder().id(1L).build().buildUserEntity();
-    user = UserTestDataBuilder.builder().id(1L).build().buildUser();
-    role = RoleTestDataBuilder.builder().id(1L).build().buildRole();
+    userEntity = UserEntityTestDataBuilder.builder().build().buildUserEntity();
+    user = UserTestDataBuilder.builder().build().buildUser();
+    role = RoleTestDataBuilder.builder().build().buildRole();
     userRequest1 = UserRequestTestDataBuilder.builder().build().buildUserRequest();
     userRequest2 =
         UserRequestTestDataBuilder.builder().email("new@new.com").build().buildUserRequest();
@@ -101,7 +101,6 @@ class UserServiceTest {
     when(passwordEncoder.encode(userRequest2.getPassword())).thenReturn(userEntity.getPassword());
     UserEntity entityUpdated =
         UserEntityTestDataBuilder.builder()
-            .id(userEntity.getId())
             .email(userRequest2.getEmail())
             .build()
             .buildUserEntity();

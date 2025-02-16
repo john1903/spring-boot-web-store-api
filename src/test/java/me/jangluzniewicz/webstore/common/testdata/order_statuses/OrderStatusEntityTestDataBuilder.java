@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
 
 @Builder
 public class OrderStatusEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private String name = "PENDING";
 
   public OrderStatusEntity buildOrderStatusEntity() {

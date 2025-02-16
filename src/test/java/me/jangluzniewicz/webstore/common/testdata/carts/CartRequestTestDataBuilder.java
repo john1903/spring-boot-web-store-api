@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 
 @Builder
 public class CartRequestTestDataBuilder {
-  private Long userId;
+  @Default private Long userId = 1L;
   @Default private List<CartItemRequestTestDataBuilder> items = new ArrayList<>();
 
   public CartRequest buildCartRequest() {

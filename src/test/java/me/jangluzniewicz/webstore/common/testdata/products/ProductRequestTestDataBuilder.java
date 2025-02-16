@@ -11,7 +11,7 @@ public class ProductRequestTestDataBuilder {
   @Default private String description = "Mountain bike";
   @Default private BigDecimal price = BigDecimal.valueOf(1000.0);
   @Default private BigDecimal weight = BigDecimal.valueOf(10.0);
-  private Long categoryId;
+  @Default private Long categoryId = 1L;
 
   public ProductRequest buildProductRequest() {
     return new ProductRequest(name, description, price, weight, categoryId);

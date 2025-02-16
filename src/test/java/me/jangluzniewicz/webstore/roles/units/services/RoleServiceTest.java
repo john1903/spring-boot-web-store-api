@@ -47,8 +47,8 @@ class RoleServiceTest {
 
   @BeforeEach
   void setUp() {
-    roleEntity = RoleEntityTestDataBuilder.builder().id(1L).build().buildRoleEntity();
-    role = RoleTestDataBuilder.builder().id(1L).build().buildRole();
+    roleEntity = RoleEntityTestDataBuilder.builder().build().buildRoleEntity();
+    role = RoleTestDataBuilder.builder().build().buildRole();
     roleRequest1 = RoleRequestTestDataBuilder.builder().build().buildRoleRequest();
     roleRequest2 = RoleRequestTestDataBuilder.builder().name("USER").build().buildRoleRequest();
   }
@@ -98,11 +98,7 @@ class RoleServiceTest {
     when(roleMapper.fromEntity(roleEntity)).thenReturn(role);
     when(roleRepository.existsByNameIgnoreCase(roleRequest2.getName())).thenReturn(false);
     RoleEntity updatedEntity =
-        RoleEntityTestDataBuilder.builder()
-            .id(roleEntity.getId())
-            .name(roleRequest2.getName())
-            .build()
-            .buildRoleEntity();
+        RoleEntityTestDataBuilder.builder().name(roleRequest2.getName()).build().buildRoleEntity();
     when(roleRepository.save(any())).thenReturn(updatedEntity);
 
     assertDoesNotThrow(() -> roleService.updateRole(roleEntity.getId(), roleRequest2));

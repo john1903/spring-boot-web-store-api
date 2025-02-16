@@ -18,9 +18,9 @@ import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
-import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
+import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
@@ -60,48 +60,28 @@ class OrderServiceTest {
   private Order order;
   private OrderRequest orderRequest1;
   private OrderRequest orderRequest2;
-  private ChangeOrderStatusRequest changeOrderStatusRequest;
+  private OrderStatusRequest orderStatusRequest;
   private OrderFilterRequest orderFilterRequest;
   private RatingRequest ratingRequest;
 
   @BeforeEach
   void setUp() {
-    user = UserTestDataBuilder.builder().id(1L).build().buildUser();
-    orderStatus = OrderStatusTestDataBuilder.builder().id(1L).build().buildOrderStatus();
-    product = ProductTestDataBuilder.builder().id(1L).build().buildProduct();
-    orderEntity = OrderEntityTestDataBuilder.builder().id(1L).build().buildOrderEntity();
-    order = OrderTestDataBuilder.builder().id(1L).build().buildOrder();
-    orderRequest1 =
-        OrderRequestTestDataBuilder.builder()
-            .customerId(user.getId())
-            .items(
-                List.of(
-                    OrderItemRequestTestDataBuilder.builder().productId(product.getId()).build()))
-            .build()
-            .buildOrderRequest();
+    user = UserTestDataBuilder.builder().build().buildUser();
+    orderStatus = OrderStatusTestDataBuilder.builder().build().buildOrderStatus();
+    product = ProductTestDataBuilder.builder().build().buildProduct();
+    orderEntity = OrderEntityTestDataBuilder.builder().build().buildOrderEntity();
+    order = OrderTestDataBuilder.builder().build().buildOrder();
+    orderRequest1 = OrderRequestTestDataBuilder.builder().build().buildOrderRequest();
     orderRequest2 =
         OrderRequestTestDataBuilder.builder()
-            .statusId(orderStatus.getId())
-            .customerId(user.getId())
             .ratingBuilder(RatingRequestTestDataBuilder.builder().build())
-            .items(
-                List.of(
-                    OrderItemRequestTestDataBuilder.builder()
-                        .productId(product.getId())
-                        .quantity(3)
-                        .build()))
+            .items(List.of(OrderItemRequestTestDataBuilder.builder().quantity(3).build()))
             .build()
             .buildOrderRequest();
     orderFilterRequest =
-        OrderFilterRequestTestDataBuilder.builder()
-            .statusId(orderStatus.getId())
-            .build()
-            .buildOrderFilterRequest();
-    changeOrderStatusRequest =
-        ChangeOrderStatusRequestTestDataBuilder.builder()
-            .orderStatusId(orderStatus.getId())
-            .build()
-            .buildChangeOrderStatusRequest();
+        OrderFilterRequestTestDataBuilder.builder().build().buildOrderFilterRequest();
+    orderStatusRequest =
+        OrderStatusRequestTestDataBuilder.builder().build().buildChangeOrderStatusRequest();
     ratingRequest = RatingRequestTestDataBuilder.builder().build().buildRatingRequest();
   }
 
@@ -177,12 +157,12 @@ class OrderServiceTest {
   void changeOrderStatus_whenOrderExistsAndOrderStatusExists_thenUpdateOrderStatus() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
-    when(orderStatusService.getOrderStatusById(changeOrderStatusRequest.getOrderStatusId()))
+    when(orderStatusService.getOrderStatusById(orderStatusRequest.getOrderStatusId()))
         .thenReturn(Optional.of(orderStatus));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
     assertDoesNotThrow(
-        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
   }
 
   @Test
@@ -191,19 +171,19 @@ class OrderServiceTest {
 
     assertThrows(
         NotFoundException.class,
-        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
   }
 
   @Test
   void changeOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
-    when(orderStatusService.getOrderStatusById(changeOrderStatusRequest.getOrderStatusId()))
+    when(orderStatusService.getOrderStatusById(orderStatusRequest.getOrderStatusId()))
         .thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
-        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
   }
 
   @Test
@@ -212,8 +192,7 @@ class OrderServiceTest {
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     OrderEntity orderWithRating =
         OrderEntityTestDataBuilder.builder()
-            .id(orderEntity.getId())
-            .ratingEntityBuilder(RatingEntityTestDataBuilder.builder().id(1L).build())
+            .ratingEntityBuilder(RatingEntityTestDataBuilder.builder().build())
             .build()
             .buildOrderEntity();
     when(orderRepository.save(any())).thenReturn(orderWithRating);
@@ -288,13 +267,12 @@ class OrderServiceTest {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
+    when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
         .thenReturn(Optional.of(orderStatus));
-    when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     OrderEntity updatedOrderEntity =
         OrderEntityTestDataBuilder.builder()
-            .id(orderEntity.getId())
-            .items(List.of(OrderItemEntityTestDataBuilder.builder().id(1L).quantity(3).build()))
+            .items(List.of(OrderItemEntityTestDataBuilder.builder().quantity(3).build()))
             .build()
             .buildOrderEntity();
     when(orderRepository.save(any())).thenReturn(updatedOrderEntity);
@@ -308,6 +286,8 @@ class OrderServiceTest {
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
+    when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
+        .thenReturn(Optional.of(orderStatus));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
     assertDoesNotThrow(() -> orderService.updateOrder(orderEntity.getId(), orderRequest1));
@@ -338,6 +318,7 @@ class OrderServiceTest {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
+    when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
     when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
         .thenReturn(Optional.empty());
 
@@ -351,8 +332,6 @@ class OrderServiceTest {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
-    when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
-        .thenReturn(Optional.of(orderStatus));
     when(productService.getProductById(product.getId())).thenReturn(Optional.empty());
 
     assertThrows(

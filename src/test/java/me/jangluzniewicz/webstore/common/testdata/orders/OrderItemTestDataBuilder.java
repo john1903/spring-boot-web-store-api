@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.orders.models.OrderItem;
 
 @Builder
 public class OrderItemTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private BigDecimal discount = BigDecimal.ONE;
   @Default private int quantity = 1;
   @Default private ProductTestDataBuilder productBuilder = ProductTestDataBuilder.builder().build();

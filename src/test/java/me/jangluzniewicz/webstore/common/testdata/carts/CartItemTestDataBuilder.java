@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.common.testdata.products.ProductTestDataBuilde
 
 @Builder
 public class CartItemTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private ProductTestDataBuilder productBuilder = ProductTestDataBuilder.builder().build();
   @Default private Integer quantity = 1;
 

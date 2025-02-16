@@ -9,10 +9,11 @@ import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.exceptions.OrderStatusNotAllowedException;
 import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
-import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
+import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
@@ -39,6 +40,8 @@ public class OrderService implements IOrder {
   private final IUser userService;
   private final IProduct productService;
   private final OrderMapper orderMapper;
+  private static final Long ORDER_STATUS_COMPLETED_ID = 4L;
+  private static final Long ORDER_STATUS_CANCELLED_ID = 3L;
 
   public OrderService(
       OrderRepository orderRepository,
@@ -141,15 +144,6 @@ public class OrderService implements IOrder {
                 () ->
                     new NotFoundException(
                         "User with id " + orderRequest.getCustomerId() + " not found")));
-    order.setStatus(
-        orderRequest.getStatusId() != null
-            ? orderStatusService
-                .getOrderStatusById(orderRequest.getStatusId())
-                .orElseThrow(
-                    () ->
-                        new NotFoundException(
-                            "Order status with id " + orderRequest.getStatusId() + " not found"))
-            : null);
     order.setRating(
         orderRequest.getRating() != null
             ? Rating.builder()
@@ -178,24 +172,39 @@ public class OrderService implements IOrder {
                         .discount(orderItemRequest.getDiscount())
                         .build())
             .toList());
+    if (orderStatusCannotBeChanged(order)) {
+      throw new OrderStatusNotAllowedException(
+          "Order status for order with id " + id + " cannot be changed");
+    }
+    order.setStatus(
+        orderStatusService
+            .getOrderStatusById(orderRequest.getStatusId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Order status with id " + orderRequest.getStatusId() + " not found")));
     orderRepository.save(orderMapper.toEntity(order));
   }
 
   @Override
   @Transactional
   public void changeOrderStatus(
-      @NotNull @Min(1) Long id, @NotNull ChangeOrderStatusRequest changeOrderStatusRequest) {
+      @NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+    if (orderStatusCannotBeChanged(order)) {
+      throw new OrderStatusNotAllowedException(
+          "Order status for order with id " + id + " cannot be changed");
+    }
     order.setStatus(
         orderStatusService
-            .getOrderStatusById(changeOrderStatusRequest.getOrderStatusId())
+            .getOrderStatusById(orderStatusRequest.getOrderStatusId())
             .orElseThrow(
                 () ->
                     new NotFoundException(
                         "Order status with id "
-                            + changeOrderStatusRequest.getOrderStatusId()
+                            + orderStatusRequest.getOrderStatusId()
                             + " not found")));
     orderRepository.save(orderMapper.toEntity(order));
   }
@@ -235,11 +244,17 @@ public class OrderService implements IOrder {
     }
   }
 
-  public Long getOrderOwnerId(Long id) {
+  public Long getOrderOwnerId(@NotNull Long id) {
     return orderRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"))
         .getCustomer()
         .getId();
+  }
+
+  private boolean orderStatusCannotBeChanged(@NotNull Order order) {
+    Long currentStatusId = order.getStatus().getId();
+    return currentStatusId.equals(ORDER_STATUS_COMPLETED_ID)
+        || currentStatusId.equals(ORDER_STATUS_CANCELLED_ID);
   }
 }

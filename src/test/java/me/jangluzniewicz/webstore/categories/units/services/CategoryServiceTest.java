@@ -47,8 +47,8 @@ class CategoryServiceTest {
 
   @BeforeEach
   void setUp() {
-    categoryEntity = CategoryEntityTestDataBuilder.builder().id(1L).build().buildCategoryEntity();
-    category = CategoryTestDataBuilder.builder().id(1L).build().buildCategory();
+    categoryEntity = CategoryEntityTestDataBuilder.builder().build().buildCategoryEntity();
+    category = CategoryTestDataBuilder.builder().build().buildCategory();
     categoryRequest1 = CategoryRequestTestDataBuilder.builder().build().buildCategoryRequest();
     categoryRequest2 =
         CategoryRequestTestDataBuilder.builder().name("Clothes").build().buildCategoryRequest();
@@ -104,7 +104,6 @@ class CategoryServiceTest {
     when(categoryRepository.existsByNameIgnoreCase(categoryRequest2.getName())).thenReturn(false);
     CategoryEntity updatedEntity =
         CategoryEntityTestDataBuilder.builder()
-            .id(categoryEntity.getId())
             .name(categoryRequest2.getName())
             .build()
             .buildCategoryEntity();

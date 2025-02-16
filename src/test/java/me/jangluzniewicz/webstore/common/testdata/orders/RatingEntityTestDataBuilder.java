@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.orders.entities.RatingEntity;
 
 @Builder
 public class RatingEntityTestDataBuilder {
-  private Long id;
+  @Default private Long id = 1L;
   @Default private Integer rating = 5;
   @Default private String description = "Great product!";
 

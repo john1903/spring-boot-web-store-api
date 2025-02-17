@@ -1,6 +1,5 @@
 package me.jangluzniewicz.webstore.common.testdata.orders;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -9,12 +8,7 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 
 @Builder
 public class OrderRequestTestDataBuilder {
-  @Default private LocalDateTime orderDate = LocalDateTime.now();
-  @Default private LocalDateTime statusChangeDate = LocalDateTime.now();
   @Default private Long customerId = 1L;
-  @Default private Long statusId = 1L;
-
-  private RatingRequestTestDataBuilder ratingBuilder;
 
   @Default
   private List<OrderItemRequestTestDataBuilder> items =
@@ -22,11 +16,7 @@ public class OrderRequestTestDataBuilder {
 
   public OrderRequest buildOrderRequest() {
     return new OrderRequest(
-        orderDate,
-        statusChangeDate,
         customerId,
-        statusId,
-        ratingBuilder != null ? ratingBuilder.buildRatingRequest() : null,
         items.stream()
             .map(OrderItemRequestTestDataBuilder::buildOrderItemRequest)
             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll));

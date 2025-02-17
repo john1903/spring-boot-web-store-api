@@ -81,13 +81,12 @@ public class UserService implements IUser {
         && !user.getEmail().equals(userRequest.getEmail())) {
       throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
     }
+    final Long USER_ROLE_ID = 2L;
+    Long roleId = Optional.ofNullable(userRequest.getRoleId()).orElse(USER_ROLE_ID);
     user.setRole(
         roleService
-            .getRoleById(userRequest.getRoleId())
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        "Role with id " + userRequest.getRoleId() + " not found")));
+            .getRoleById(roleId)
+            .orElseThrow(() -> new NotFoundException("Role with id " + roleId + " not found")));
     user.setEmail(userRequest.getEmail());
     user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
     user.setPhoneNumber(userRequest.getPhoneNumber());

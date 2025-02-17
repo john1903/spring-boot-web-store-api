@@ -9,7 +9,9 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="role_id" type="bigint" defaultValue="2"/>
+            <column name="role_id" type="bigint" defaultValue="2">
+                <constraints nullable="false"/>
+            </column>
             <column name="email" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>

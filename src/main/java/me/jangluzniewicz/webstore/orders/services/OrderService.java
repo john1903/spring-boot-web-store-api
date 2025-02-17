@@ -128,8 +128,6 @@ public class OrderService implements IOrder {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
-    order.setOrderDate(orderRequest.getOrderDate());
-    order.setStatusChangeDate(orderRequest.getStatusChangeDate());
     order.setCustomer(
         userService
             .getUserById(orderRequest.getCustomerId())
@@ -137,14 +135,6 @@ public class OrderService implements IOrder {
                 () ->
                     new NotFoundException(
                         "User with id " + orderRequest.getCustomerId() + " not found")));
-    order.setRating(
-        orderRequest.getRating() != null
-            ? Rating.builder()
-                .id(orderRequest.getRating().getId())
-                .rating(orderRequest.getRating().getRating())
-                .description(orderRequest.getRating().getDescription())
-                .build()
-            : null);
     order.setItems(
         orderRequest.getItems().stream()
             .map(
@@ -166,17 +156,6 @@ public class OrderService implements IOrder {
                       .build();
                 })
             .toList());
-    if (orderStatusCannotBeChanged(order)) {
-      throw new OrderStatusNotAllowedException(
-          "Order status for order with id " + id + " cannot be changed");
-    }
-    order.setStatus(
-        orderStatusService
-            .getOrderStatusById(orderRequest.getStatusId())
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        "Order status with id " + orderRequest.getStatusId() + " not found")));
     orderRepository.save(orderMapper.toEntity(order));
   }
 

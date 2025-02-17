@@ -74,7 +74,6 @@ class OrderServiceTest {
     orderRequest1 = OrderRequestTestDataBuilder.builder().build().buildOrderRequest();
     orderRequest2 =
         OrderRequestTestDataBuilder.builder()
-            .ratingBuilder(RatingRequestTestDataBuilder.builder().build())
             .items(List.of(OrderItemRequestTestDataBuilder.builder().quantity(3).build()))
             .build()
             .buildOrderRequest();
@@ -268,8 +267,6 @@ class OrderServiceTest {
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
-    when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
-        .thenReturn(Optional.of(orderStatus));
     OrderEntity updatedOrderEntity =
         OrderEntityTestDataBuilder.builder()
             .items(List.of(OrderItemEntityTestDataBuilder.builder().quantity(3).build()))
@@ -286,8 +283,6 @@ class OrderServiceTest {
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
     when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
-    when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
-        .thenReturn(Optional.of(orderStatus));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
     assertDoesNotThrow(() -> orderService.updateOrder(orderEntity.getId(), orderRequest1));
@@ -307,20 +302,6 @@ class OrderServiceTest {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
     when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.empty());
-
-    assertThrows(
-        NotFoundException.class,
-        () -> orderService.updateOrder(orderEntity.getId(), orderRequest2));
-  }
-
-  @Test
-  void updateOrder_WhenOrderStatusDoesNotExist_thenThrowNotFoundException() {
-    when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
-    when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
-    when(userService.getUserById(orderRequest2.getCustomerId())).thenReturn(Optional.of(user));
-    when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
-    when(orderStatusService.getOrderStatusById(orderRequest2.getStatusId()))
-        .thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,

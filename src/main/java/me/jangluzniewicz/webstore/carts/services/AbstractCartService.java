@@ -14,19 +14,13 @@ import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-@Service
-@Validated
-public class CartService implements ICart {
-  private final CartRepository cartRepository;
-  private final CartMapper cartMapper;
-  private final IProduct productService;
+public abstract class AbstractCartService implements ICart {
+  protected final CartRepository cartRepository;
+  protected final CartMapper cartMapper;
+  protected final IProduct productService;
 
-  public CartService(
+  public AbstractCartService(
       CartRepository cartRepository, CartMapper cartMapper, IProduct productService) {
     this.cartRepository = cartRepository;
     this.cartMapper = cartMapper;
@@ -44,14 +38,12 @@ public class CartService implements ICart {
   }
 
   @Override
-  @Cacheable(value = "carts", key = "#customerId")
   public Optional<Cart> getCartByCustomerId(Long customerId) {
     return cartRepository.findByCustomerId(customerId).map(cartMapper::fromEntity);
   }
 
   @Override
   @Transactional
-  @CacheEvict(value = "carts", key = "#customerId")
   public void updateCart(Long customerId, CartRequest cartRequest) {
     Cart cart = fetchCart(customerId);
     cart.setItems(
@@ -77,7 +69,6 @@ public class CartService implements ICart {
 
   @Override
   @Transactional
-  @CacheEvict(value = "carts", key = "#customerId")
   public void addProductToCart(Long customerId, CartItemRequest cartItemRequest) {
     Cart cart = fetchCart(customerId);
     cart.getItems()
@@ -99,14 +90,13 @@ public class CartService implements ICart {
 
   @Override
   @Transactional
-  @CacheEvict(value = "carts", key = "#customerId")
   public void emptyCart(Long customerId) {
     Cart cart = fetchCart(customerId);
     cart.setItems(new ArrayList<>());
     cartRepository.save(cartMapper.toEntity(cart));
   }
 
-  private Cart fetchCart(Long customerId) {
+  protected Cart fetchCart(Long customerId) {
     return cartRepository
         .findByCustomerId(customerId)
         .map(cartMapper::fromEntity)

@@ -15,7 +15,7 @@ import me.jangluzniewicz.webstore.carts.entities.CartEntity;
 import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
 import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
-import me.jangluzniewicz.webstore.carts.services.CartService;
+import me.jangluzniewicz.webstore.carts.services.CartServiceNoCache;
 import me.jangluzniewicz.webstore.common.testdata.carts.*;
 import me.jangluzniewicz.webstore.common.testdata.products.ProductTestDataBuilder;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
@@ -34,7 +34,7 @@ class CartServiceTest {
   @Mock private CartRepository cartRepository;
   @Mock private CartMapper cartMapper;
   @Mock private IProduct productService;
-  @InjectMocks private CartService cartService;
+  @InjectMocks private CartServiceNoCache cartService;
 
   private CartEntity cartEntity;
   private Cart cart;

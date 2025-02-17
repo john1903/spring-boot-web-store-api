@@ -5,7 +5,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import jakarta.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,8 +34,7 @@ public class JwtService {
     }
   }
 
-  public String createSignedJwt(
-      @NotNull Long id, @NotNull String username, @NotNull List<String> roles) {
+  public String createSignedJwt(Long id, String username, List<String> roles) {
     JWSHeader header = new JWSHeader(jwsAlgorithm);
     Date exp =
         Date.from(
@@ -60,7 +58,7 @@ public class JwtService {
     return signedJWT.serialize();
   }
 
-  private boolean isJwtExpired(@NotNull SignedJWT signedJWT) {
+  private boolean isJwtExpired(SignedJWT signedJWT) {
     try {
       JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
       LocalDateTime expirationTime =
@@ -74,7 +72,7 @@ public class JwtService {
     return false;
   }
 
-  public void verifyJwt(@NotNull SignedJWT signedJWT) {
+  public void verifyJwt(SignedJWT signedJWT) {
     try {
       if (!signedJWT.verify(jwsVerifier)) {
         throw new JwtException("JWT signature is not valid");
@@ -87,7 +85,7 @@ public class JwtService {
     }
   }
 
-  public Authentication getAuthentication(@NotNull SignedJWT signedJWT) {
+  public Authentication getAuthentication(SignedJWT signedJWT) {
     String username;
     List<String> roles;
     Long id;

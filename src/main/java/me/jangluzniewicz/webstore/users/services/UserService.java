@@ -1,8 +1,5 @@
 package me.jangluzniewicz.webstore.users.services;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
@@ -24,8 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class UserService implements IUser {
   private final UserRepository userRepository;
   private final IRole roleService;
@@ -48,7 +47,7 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public IdResponse registerNewUser(@NotNull UserRequest userRequest) {
+  public IdResponse registerNewUser(UserRequest userRequest) {
     if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())) {
       throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
     }
@@ -72,7 +71,7 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public void updateUser(@NotNull @Min(1) Long id, @NotNull UserRequest userRequest) {
+  public void updateUser(Long id, UserRequest userRequest) {
     User user =
         getUserById(id)
             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
@@ -94,18 +93,17 @@ public class UserService implements IUser {
   }
 
   @Override
-  public Optional<User> getUserByEmail(@NotNull @Size(min = 5, max = 255) String email) {
+  public Optional<User> getUserByEmail(String email) {
     return userRepository.findByEmailIgnoreCase(email).map(userMapper::fromEntity);
   }
 
   @Override
-  public Optional<User> getUserById(@NotNull @Min(1) Long id) {
+  public Optional<User> getUserById(Long id) {
     return userRepository.findById(id).map(userMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<User> getAllUsers(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+  public PagedResponse<User> getAllUsers(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<User> users = userRepository.findAll(pageable).map(userMapper::fromEntity);
     return new PagedResponse<>(users.getTotalPages(), users.toList());
@@ -113,7 +111,7 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public void deleteUser(@NotNull @Min(1) Long id) {
+  public void deleteUser(Long id) {
     if (!userRepository.existsById(id)) {
       throw new NotFoundException("User with id " + id + " not found");
     }

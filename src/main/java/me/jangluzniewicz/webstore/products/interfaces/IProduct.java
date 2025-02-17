@@ -1,5 +1,7 @@
 package me.jangluzniewicz.webstore.products.interfaces;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -8,16 +10,19 @@ import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
 import me.jangluzniewicz.webstore.products.models.Product;
 
 public interface IProduct {
-  IdResponse createNewProduct(ProductRequest productRequest);
+  IdResponse createNewProduct(@NotNull ProductRequest productRequest);
 
-  void updateProduct(Long id, ProductRequest productRequest);
+  void updateProduct(@NotNull @Min(1) Long id, @NotNull ProductRequest productRequest);
 
-  Optional<Product> getProductById(Long id);
+  Optional<Product> getProductById(@NotNull @Min(1) Long id);
 
-  PagedResponse<Product> getAllProducts(Integer page, Integer size);
+  PagedResponse<Product> getAllProducts(
+      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size);
 
   PagedResponse<Product> getFilteredProducts(
-      ProductFilterRequest filter, Integer page, Integer size);
+      @NotNull ProductFilterRequest filter,
+      @NotNull @Min(0) Integer page,
+      @NotNull @Min(1) Integer size);
 
-  void deleteProduct(Long id);
+  void deleteProduct(@NotNull @Min(1) Long id);
 }

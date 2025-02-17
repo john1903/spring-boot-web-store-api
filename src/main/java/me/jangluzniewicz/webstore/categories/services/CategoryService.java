@@ -1,8 +1,6 @@
 package me.jangluzniewicz.webstore.categories.services;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
@@ -20,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class CategoryService implements ICategory {
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
@@ -33,7 +33,7 @@ public class CategoryService implements ICategory {
 
   @Override
   @Transactional
-  public IdResponse createNewCategory(@NotNull CategoryRequest categoryRequest) {
+  public IdResponse createNewCategory(CategoryRequest categoryRequest) {
     if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
       throw new NotUniqueException(
           "Category with name " + categoryRequest.getName() + " already exists");
@@ -43,13 +43,12 @@ public class CategoryService implements ICategory {
   }
 
   @Override
-  public Optional<Category> getCategoryById(@NotNull @Min(1) Long id) {
+  public Optional<Category> getCategoryById(Long id) {
     return categoryRepository.findById(id).map(categoryMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<Category> getAllCategories(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+  public PagedResponse<Category> getAllCategories(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Category> categories =
         categoryRepository.findAll(pageable).map(categoryMapper::fromEntity);
@@ -58,7 +57,7 @@ public class CategoryService implements ICategory {
 
   @Override
   @Transactional
-  public void updateCategory(@NotNull @Min(1) Long id, @NotNull CategoryRequest categoryRequest) {
+  public void updateCategory(Long id, CategoryRequest categoryRequest) {
     Category category =
         getCategoryById(id)
             .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
@@ -72,7 +71,7 @@ public class CategoryService implements ICategory {
   }
 
   @Override
-  public void deleteCategory(@NotNull @Min(1) Long id) {
+  public void deleteCategory(Long id) {
     if (!categoryRepository.existsById(id)) {
       throw new NotFoundException("Category with id " + id + " not found");
     }

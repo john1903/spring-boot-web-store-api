@@ -1,8 +1,6 @@
 package me.jangluzniewicz.webstore.orderstatuses.services;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -20,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class OrderStatusService implements IOrderStatus {
   private final OrderStatusRepository orderStatusRepository;
   private final OrderStatusMapper orderStatusMapper;
@@ -34,7 +34,7 @@ public class OrderStatusService implements IOrderStatus {
 
   @Override
   @Transactional
-  public IdResponse createNewOrderStatus(@NotNull OrderStatusRequest orderStatusRequest) {
+  public IdResponse createNewOrderStatus(OrderStatusRequest orderStatusRequest) {
     if (orderStatusRepository.existsByNameIgnoreCase(orderStatusRequest.getName())) {
       throw new NotUniqueException(
           "Order status with name " + orderStatusRequest.getName() + " already exists");
@@ -45,13 +45,12 @@ public class OrderStatusService implements IOrderStatus {
   }
 
   @Override
-  public Optional<OrderStatus> getOrderStatusById(@NotNull @Min(1) Long id) {
+  public Optional<OrderStatus> getOrderStatusById(Long id) {
     return orderStatusRepository.findById(id).map(orderStatusMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<OrderStatus> getAllOrderStatuses(
-      @NotNull @Min(0) Integer page, @Min(1) Integer size) {
+  public PagedResponse<OrderStatus> getAllOrderStatuses(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<OrderStatus> orderStatuses =
         orderStatusRepository.findAll(pageable).map(orderStatusMapper::fromEntity);
@@ -60,8 +59,7 @@ public class OrderStatusService implements IOrderStatus {
 
   @Override
   @Transactional
-  public void updateOrderStatus(
-      @NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
+  public void updateOrderStatus(Long id, OrderStatusRequest orderStatusRequest) {
     OrderStatus orderStatus =
         getOrderStatusById(id)
             .orElseThrow(() -> new NotFoundException("Order status with id " + id + " not found"));
@@ -76,7 +74,7 @@ public class OrderStatusService implements IOrderStatus {
 
   @Override
   @Transactional
-  public void deleteOrderStatus(@NotNull @Min(1) Long id) {
+  public void deleteOrderStatus(Long id) {
     if (!orderStatusRepository.existsById(id)) {
       throw new NotFoundException("Order status with id " + id + " not found");
     }

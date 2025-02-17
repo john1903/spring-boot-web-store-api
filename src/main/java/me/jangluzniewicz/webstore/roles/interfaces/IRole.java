@@ -1,5 +1,7 @@
 package me.jangluzniewicz.webstore.roles.interfaces;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -7,13 +9,13 @@ import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 import me.jangluzniewicz.webstore.roles.models.Role;
 
 public interface IRole {
-  IdResponse createNewRole(RoleRequest roleRequest);
+  IdResponse createNewRole(@NotNull RoleRequest roleRequest);
 
-  Optional<Role> getRoleById(Long id);
+  Optional<Role> getRoleById(@NotNull @Min(1) Long id);
 
-  PagedResponse<Role> getAllRoles(Integer page, Integer size);
+  PagedResponse<Role> getAllRoles(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size);
 
-  void updateRole(Long id, RoleRequest roleRequest);
+  void updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest);
 
-  void deleteRole(Long id);
+  void deleteRole(@NotNull @Min(1) Long id);
 }

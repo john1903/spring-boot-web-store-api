@@ -1,8 +1,6 @@
 package me.jangluzniewicz.webstore.orders.services;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -32,8 +30,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class OrderService implements IOrder {
   private final OrderRepository orderRepository;
   private final IOrderStatus orderStatusService;
@@ -58,7 +58,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public IdResponse createNewOrder(@NotNull OrderRequest orderRequest) {
+  public IdResponse createNewOrder(OrderRequest orderRequest) {
     Order order =
         Order.builder()
             .customer(
@@ -92,15 +92,12 @@ public class OrderService implements IOrder {
   }
 
   @Override
-  public Optional<Order> getOrderById(@NotNull @Min(1) Long id) {
+  public Optional<Order> getOrderById(Long id) {
     return orderRepository.findById(id).map(orderMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<Order> getOrdersByCustomerId(
-      @NotNull @Min(1) Long customerId,
-      @NotNull @Min(0) Integer page,
-      @NotNull @Min(1) Integer size) {
+  public PagedResponse<Order> getOrdersByCustomerId(Long customerId, Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Order> orders =
         orderRepository
@@ -110,8 +107,7 @@ public class OrderService implements IOrder {
   }
 
   @Override
-  public PagedResponse<Order> getAllOrders(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+  public PagedResponse<Order> getAllOrders(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Order> orders = orderRepository.findAll(pageable).map(orderMapper::fromEntity);
     return new PagedResponse<>(orders.getTotalPages(), orders.toList());
@@ -119,9 +115,7 @@ public class OrderService implements IOrder {
 
   @Override
   public PagedResponse<Order> getFilteredOrders(
-      @NotNull OrderFilterRequest filter,
-      @NotNull @Min(0) Integer page,
-      @NotNull @Min(1) Integer size) {
+      OrderFilterRequest filter, Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Specification<OrderEntity> specification = OrderSpecification.filterBy(filter);
     Page<Order> orders =
@@ -131,7 +125,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public void updateOrder(@NotNull @Min(1) Long id, @NotNull OrderRequest orderRequest) {
+  public void updateOrder(Long id, OrderRequest orderRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -188,8 +182,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public void changeOrderStatus(
-      @NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest) {
+  public void changeOrderStatus(Long id, OrderStatusRequest orderStatusRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -211,7 +204,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public void addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest) {
+  public void addRatingToOrder(Long id, RatingRequest ratingRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -228,7 +221,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public void deleteOrder(@NotNull @Min(1) Long id) {
+  public void deleteOrder(Long id) {
     if (!orderRepository.existsById(id)) {
       throw new NotFoundException("Order with id " + id + " not found");
     }
@@ -244,7 +237,7 @@ public class OrderService implements IOrder {
     }
   }
 
-  public Long getOrderOwnerId(@NotNull Long id) {
+  public Long getOrderOwnerId(Long id) {
     return orderRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"))
@@ -252,7 +245,7 @@ public class OrderService implements IOrder {
         .getId();
   }
 
-  private boolean orderStatusCannotBeChanged(@NotNull Order order) {
+  private boolean orderStatusCannotBeChanged(Order order) {
     Long currentStatusId = order.getStatus().getId();
     return currentStatusId.equals(ORDER_STATUS_COMPLETED_ID)
         || currentStatusId.equals(ORDER_STATUS_CANCELLED_ID);

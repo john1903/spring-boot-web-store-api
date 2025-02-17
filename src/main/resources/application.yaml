@@ -12,10 +12,11 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY:sk-your-api-key}
+  cache:
+    type: redis
 server:
   port: 3000
   servlet:
     context-path: /api
-
 jwt:
   secret: ${JWT_SECRET:c467be2fdfa1dfcebbc490bc57b5e21f52a33a14106ccf0b78b0ad2dd3d244f7}

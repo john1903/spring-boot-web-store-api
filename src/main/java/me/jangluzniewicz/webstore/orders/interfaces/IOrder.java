@@ -1,5 +1,7 @@
 package me.jangluzniewicz.webstore.orders.interfaces;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -10,23 +12,29 @@ import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
 
 public interface IOrder {
-  IdResponse createNewOrder(OrderRequest orderRequest);
+  IdResponse createNewOrder(@NotNull OrderRequest orderRequest);
 
-  Optional<Order> getOrderById(Long id);
+  Optional<Order> getOrderById(@NotNull @Min(1) Long id);
 
-  PagedResponse<Order> getOrdersByCustomerId(Long customerId, Integer page, Integer size);
+  PagedResponse<Order> getOrdersByCustomerId(
+      @NotNull @Min(1) Long customerId,
+      @NotNull @Min(0) Integer page,
+      @NotNull @Min(1) Integer size);
 
-  PagedResponse<Order> getAllOrders(Integer page, Integer size);
+  PagedResponse<Order> getAllOrders(@NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size);
 
-  PagedResponse<Order> getFilteredOrders(OrderFilterRequest filter, Integer page, Integer size);
+  PagedResponse<Order> getFilteredOrders(
+      @NotNull OrderFilterRequest filter,
+      @NotNull @Min(0) Integer page,
+      @NotNull @Min(1) Integer size);
 
-  void updateOrder(Long id, OrderRequest orderRequest);
+  void updateOrder(@NotNull @Min(1) Long id, @NotNull OrderRequest orderRequest);
 
-  void changeOrderStatus(Long id, OrderStatusRequest orderStatusRequest);
+  void changeOrderStatus(@NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest);
 
-  void addRatingToOrder(Long id, RatingRequest ratingRequest);
+  void addRatingToOrder(@NotNull @Min(1) Long id, @NotNull RatingRequest ratingRequest);
 
-  Long getOrderOwnerId(Long id);
+  Long getOrderOwnerId(@NotNull @Min(1) Long id);
 
-  void deleteOrder(Long id);
+  void deleteOrder(@NotNull @Min(1) Long id);
 }

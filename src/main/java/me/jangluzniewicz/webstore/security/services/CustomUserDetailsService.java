@@ -1,6 +1,5 @@
 package me.jangluzniewicz.webstore.security.services;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.users.services.UserService;
@@ -17,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public CustomUser loadUserByUsername(@NotNull String username) throws UsernameNotFoundException {
+  public CustomUser loadUserByUsername(String username) throws UsernameNotFoundException {
     return userService
         .getUserByEmail(username)
         .map(this::mapUserToUserDetails)

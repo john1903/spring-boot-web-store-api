@@ -34,3 +34,6 @@ build/
 
 ### MacOs ###
 .DS_Store
+
+### Docker ###
+docker-compose.yaml

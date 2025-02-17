@@ -1,7 +1,5 @@
 package me.jangluzniewicz.webstore.roles.services;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -20,8 +18,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class RoleService implements IRole {
   private final RoleRepository roleRepository;
   private final RoleMapper roleMapper;
@@ -33,7 +33,7 @@ public class RoleService implements IRole {
 
   @Override
   @Transactional
-  public IdResponse createNewRole(@NotNull RoleRequest roleRequest) {
+  public IdResponse createNewRole(RoleRequest roleRequest) {
     if (roleRepository.existsByNameIgnoreCase(roleRequest.getName())) {
       throw new NotUniqueException("Role with name " + roleRequest.getName() + " already exists");
     }
@@ -42,13 +42,12 @@ public class RoleService implements IRole {
   }
 
   @Override
-  public Optional<Role> getRoleById(@NotNull @Min(1) Long id) {
+  public Optional<Role> getRoleById(Long id) {
     return roleRepository.findById(id).map(roleMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<Role> getAllRoles(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+  public PagedResponse<Role> getAllRoles(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Role> roles = roleRepository.findAll(pageable).map(roleMapper::fromEntity);
     return new PagedResponse<>(roles.getTotalPages(), roles.toList());
@@ -56,7 +55,7 @@ public class RoleService implements IRole {
 
   @Override
   @Transactional
-  public void updateRole(@NotNull @Min(1) Long id, @NotNull RoleRequest roleRequest) {
+  public void updateRole(Long id, RoleRequest roleRequest) {
     Role role =
         getRoleById(id)
             .orElseThrow(() -> new NotFoundException("Role with id " + id + " not found"));
@@ -70,7 +69,7 @@ public class RoleService implements IRole {
 
   @Override
   @Transactional
-  public void deleteRole(@NotNull @Min(1) Long id) {
+  public void deleteRole(Long id) {
     if (!roleRepository.existsById(id)) {
       throw new NotFoundException("Role with id " + id + " not found");
     }

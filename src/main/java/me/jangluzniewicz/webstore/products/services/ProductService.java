@@ -1,8 +1,6 @@
 package me.jangluzniewicz.webstore.products.services;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
@@ -24,8 +22,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class ProductService implements IProduct {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
@@ -40,7 +40,7 @@ public class ProductService implements IProduct {
 
   @Override
   @Transactional
-  public IdResponse createNewProduct(@NotNull ProductRequest productRequest) {
+  public IdResponse createNewProduct(ProductRequest productRequest) {
     Product product =
         Product.builder()
             .name(productRequest.getName())
@@ -62,7 +62,7 @@ public class ProductService implements IProduct {
 
   @Override
   @Transactional
-  public void updateProduct(@NotNull @Min(1) Long id, @NotNull ProductRequest productRequest) {
+  public void updateProduct(Long id, ProductRequest productRequest) {
     Product product =
         getProductById(id)
             .orElseThrow(() -> new NotFoundException("Product with id " + id + " not found"));
@@ -81,13 +81,12 @@ public class ProductService implements IProduct {
   }
 
   @Override
-  public Optional<Product> getProductById(@NotNull @Min(1) Long id) {
+  public Optional<Product> getProductById(Long id) {
     return productRepository.findById(id).map(productMapper::fromEntity);
   }
 
   @Override
-  public PagedResponse<Product> getAllProducts(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size) {
+  public PagedResponse<Product> getAllProducts(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Product> products = productRepository.findAll(pageable).map(productMapper::fromEntity);
     return new PagedResponse<>(products.getTotalPages(), products.toList());
@@ -95,9 +94,7 @@ public class ProductService implements IProduct {
 
   @Override
   public PagedResponse<Product> getFilteredProducts(
-      @NotNull ProductFilterRequest filter,
-      @NotNull @Min(0) Integer page,
-      @NotNull @Min(1) Integer size) {
+      ProductFilterRequest filter, Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Specification<ProductEntity> specification = ProductSpecification.filterBy(filter);
     Page<Product> products =
@@ -107,7 +104,7 @@ public class ProductService implements IProduct {
 
   @Override
   @Transactional
-  public void deleteProduct(@NotNull @Min(1) Long id) {
+  public void deleteProduct(Long id) {
     if (!productRepository.existsById(id)) {
       throw new NotFoundException("Product with id " + id + " not found");
     }

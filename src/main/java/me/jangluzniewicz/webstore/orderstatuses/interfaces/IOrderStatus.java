@@ -1,5 +1,7 @@
 package me.jangluzniewicz.webstore.orderstatuses.interfaces;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
@@ -7,13 +9,14 @@ import me.jangluzniewicz.webstore.orderstatuses.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 
 public interface IOrderStatus {
-  IdResponse createNewOrderStatus(OrderStatusRequest orderStatusRequest);
+  IdResponse createNewOrderStatus(@NotNull OrderStatusRequest orderStatusRequest);
 
-  Optional<OrderStatus> getOrderStatusById(Long id);
+  Optional<OrderStatus> getOrderStatusById(@NotNull @Min(1) Long id);
 
-  PagedResponse<OrderStatus> getAllOrderStatuses(Integer page, Integer size);
+  PagedResponse<OrderStatus> getAllOrderStatuses(
+      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size);
 
-  void updateOrderStatus(Long id, OrderStatusRequest orderStatusRequest);
+  void updateOrderStatus(@NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest);
 
-  void deleteOrderStatus(Long id);
+  void deleteOrderStatus(@NotNull @Min(1) Long id);
 }

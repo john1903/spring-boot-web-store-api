@@ -57,12 +57,14 @@ public class UserService implements IUser {
             .phoneNumber(userRequest.getPhoneNumber())
             .password(passwordEncoder.encode(userRequest.getPassword()))
             .role(
-                roleService
-                    .getRoleById(userRequest.getRoleId())
-                    .orElseThrow(
-                        () ->
-                            new NotFoundException(
-                                "Role with id " + userRequest.getRoleId() + " not found")))
+                userRequest.getRoleId() != null
+                    ? roleService
+                        .getRoleById(userRequest.getRoleId())
+                        .orElseThrow(
+                            () ->
+                                new NotFoundException(
+                                    "Role with id " + userRequest.getRoleId() + " not found"))
+                    : null)
             .build();
     Long userId = userRepository.save(userMapper.toEntity(user)).getId();
     cartService.createNewCart(userId);

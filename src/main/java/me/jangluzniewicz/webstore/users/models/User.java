@@ -13,7 +13,7 @@ import me.jangluzniewicz.webstore.roles.models.Role;
 @Builder
 public class User {
   private Long id;
-  @NonNull private Role role;
+  private Role role;
   @NonNull private String email;
   @NonNull private String password;
   @NonNull private String phoneNumber;

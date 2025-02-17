@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.common.testdata.orders;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -25,6 +26,8 @@ public class OrderTestDataBuilder {
 
   public Order buildOrder() {
     return Order.builder()
+        .orderDate(LocalDateTime.now())
+        .statusChangeDate(LocalDateTime.now())
         .id(id)
         .customer(userBuilder.buildUser())
         .status(orderStatusBuilder.buildOrderStatus())

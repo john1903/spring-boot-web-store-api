@@ -8,10 +8,7 @@ import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.OrderStatusNotAllowedException;
-import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
-import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
-import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
-import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
+import me.jangluzniewicz.webstore.orders.controllers.*;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
@@ -22,6 +19,7 @@ import me.jangluzniewicz.webstore.orders.repositories.OrderRepository;
 import me.jangluzniewicz.webstore.orders.repositories.OrderSpecification;
 import me.jangluzniewicz.webstore.orderstatuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
+import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -71,21 +69,22 @@ public class OrderService implements IOrder {
             .items(
                 orderRequest.getItems().stream()
                     .map(
-                        orderItemRequest ->
-                            OrderItem.builder()
-                                .product(
-                                    productService
-                                        .getProductById(orderItemRequest.getProductId())
-                                        .orElseThrow(
-                                            () ->
-                                                new NotFoundException(
-                                                    "Product with id "
-                                                        + orderItemRequest.getProductId()
-                                                        + " not found")))
-                                .price(orderItemRequest.getPrice())
-                                .quantity(orderItemRequest.getQuantity())
-                                .discount(orderItemRequest.getDiscount())
-                                .build())
+                        orderItemRequest -> {
+                          Product product =
+                              productService
+                                  .getProductById(orderItemRequest.getProductId())
+                                  .orElseThrow(
+                                      () ->
+                                          new NotFoundException(
+                                              "Product with id "
+                                                  + orderItemRequest.getProductId()
+                                                  + " not found"));
+                          return OrderItem.builder()
+                              .product(product)
+                              .price(product.getPrice())
+                              .quantity(orderItemRequest.getQuantity())
+                              .build();
+                        })
                     .toList())
             .build();
     return new IdResponse(orderRepository.save(orderMapper.toEntity(order)).getId());
@@ -149,22 +148,23 @@ public class OrderService implements IOrder {
     order.setItems(
         orderRequest.getItems().stream()
             .map(
-                orderItemRequest ->
-                    OrderItem.builder()
-                        .id(orderItemRequest.getId())
-                        .product(
-                            productService
-                                .getProductById(orderItemRequest.getProductId())
-                                .orElseThrow(
-                                    () ->
-                                        new NotFoundException(
-                                            "Product with id "
-                                                + orderItemRequest.getProductId()
-                                                + " not found")))
-                        .price(orderItemRequest.getPrice())
-                        .quantity(orderItemRequest.getQuantity())
-                        .discount(orderItemRequest.getDiscount())
-                        .build())
+                orderItemRequest -> {
+                  Product product =
+                      productService
+                          .getProductById(orderItemRequest.getProductId())
+                          .orElseThrow(
+                              () ->
+                                  new NotFoundException(
+                                      "Product with id "
+                                          + orderItemRequest.getProductId()
+                                          + " not found"));
+                  return OrderItem.builder()
+                      .id(orderItemRequest.getId())
+                      .product(product)
+                      .price(product.getPrice())
+                      .quantity(orderItemRequest.getQuantity())
+                      .build();
+                })
             .toList());
     if (orderStatusCannotBeChanged(order)) {
       throw new OrderStatusNotAllowedException(

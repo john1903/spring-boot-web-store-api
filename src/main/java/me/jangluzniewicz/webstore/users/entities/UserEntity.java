@@ -3,8 +3,10 @@ package me.jangluzniewicz.webstore.users.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
+@DynamicInsert
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NoArgsConstructor

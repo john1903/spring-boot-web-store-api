@@ -12,3 +12,5 @@ spring:
       port: ${REDIS_PORT:6379}
   liquibase:
     contexts: dev
+  jpa:
+    show-sql: true

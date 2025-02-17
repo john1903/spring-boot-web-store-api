@@ -31,6 +31,4 @@ public class OrderItemEntity {
   @Column(nullable = false)
   @NonNull
   private BigDecimal price;
-
-  private BigDecimal discount;
 }

@@ -20,7 +20,6 @@ public class OrderItemEntityTestDataBuilder {
     var product = productBuilder.buildProductEntity();
     return OrderItemEntity.builder()
         .id(id)
-        .discount(discount)
         .quantity(quantity)
         .product(product)
         .price(product.getPrice())

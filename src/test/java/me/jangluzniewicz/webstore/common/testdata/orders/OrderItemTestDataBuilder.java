@@ -17,7 +17,6 @@ public class OrderItemTestDataBuilder {
     var product = productBuilder.buildProduct();
     return OrderItem.builder()
         .id(id)
-        .discount(discount)
         .quantity(quantity)
         .product(product)
         .price(product.getPrice())

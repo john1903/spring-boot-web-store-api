@@ -9,9 +9,7 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="order_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
+            <column name="order_id" type="bigint"/>
             <column name="product_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
@@ -21,7 +19,6 @@
             <column name="price" type="decimal(10, 2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="discount" type="decimal(10, 2)" defaultValue="0.0"/>
         </createTable>
         <addForeignKeyConstraint baseTableName="order_items" baseColumnNames="order_id"
                                  constraintName="fk_order_items_order_id" referencedTableName="orders"

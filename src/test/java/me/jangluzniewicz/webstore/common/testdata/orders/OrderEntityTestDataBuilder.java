@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.common.testdata.orders;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -27,6 +28,8 @@ public class OrderEntityTestDataBuilder {
 
   public OrderEntity buildOrderEntity() {
     return OrderEntity.builder()
+        .orderDate(LocalDateTime.now())
+        .statusChangeDate(LocalDateTime.now())
         .id(id)
         .customer(userEntityBuilder.buildUserEntity())
         .status(orderStatusEntityBuilder.buildOrderStatusEntity())

@@ -7,8 +7,11 @@ import java.util.List;
 import lombok.*;
 import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Formula;
 
 @Entity
+@DynamicInsert
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NoArgsConstructor
@@ -45,20 +48,6 @@ public class OrderEntity {
   @JoinColumn(name = "order_id")
   private List<OrderItemEntity> items;
 
+  @Formula("(SELECT SUM(oi.price * oi.quantity) FROM order_items oi WHERE oi.order_id = id)")
   private BigDecimal total;
-
-  @PrePersist
-  @PreUpdate
-  private void calculateTotal() {
-    total =
-        items.stream()
-            .map(
-                orderItemEntity ->
-                    orderItemEntity
-                        .getPrice()
-                        .multiply(
-                            BigDecimal.valueOf(orderItemEntity.getQuantity())
-                                .multiply(orderItemEntity.getDiscount())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-  }
 }

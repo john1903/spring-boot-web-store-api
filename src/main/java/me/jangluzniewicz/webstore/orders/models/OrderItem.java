@@ -17,5 +17,4 @@ public class OrderItem {
   @NonNull private Product product;
   @NonNull private Integer quantity;
   @NonNull private BigDecimal price;
-  private BigDecimal discount;
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 @Entity
 @AllArgsConstructor
@@ -27,19 +28,6 @@ public class CartEntity {
   @JoinColumn(name = "cart_id")
   private List<CartItemEntity> items;
 
+  @Formula("(SELECT SUM(ci.price * ci.quantity) FROM cart_items ci WHERE ci.cart_id = id)")
   private BigDecimal total;
-
-  @PrePersist
-  @PreUpdate
-  private void calculateTotal() {
-    total =
-        items.stream()
-            .map(
-                cartItemEntity ->
-                    cartItemEntity
-                        .getProduct()
-                        .getPrice()
-                        .multiply(BigDecimal.valueOf(cartItemEntity.getQuantity())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-  }
 }

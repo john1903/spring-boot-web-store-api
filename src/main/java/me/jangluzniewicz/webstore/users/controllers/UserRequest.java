@@ -9,7 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class UserRequest {
-  @NotNull(message = "roleId is required")
   private Long roleId;
 
   @NotNull(message = "email is required")

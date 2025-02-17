@@ -9,6 +9,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-your-api-key}
 server:
   port: 3000
   servlet:

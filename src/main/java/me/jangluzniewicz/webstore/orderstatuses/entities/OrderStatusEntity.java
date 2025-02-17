@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.order_statuses.entities;
+package me.jangluzniewicz.webstore.orderstatuses.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

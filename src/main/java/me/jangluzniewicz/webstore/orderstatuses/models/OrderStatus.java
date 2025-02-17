@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.order_statuses.models;
+package me.jangluzniewicz.webstore.orderstatuses.models;
 
 import lombok.*;
 

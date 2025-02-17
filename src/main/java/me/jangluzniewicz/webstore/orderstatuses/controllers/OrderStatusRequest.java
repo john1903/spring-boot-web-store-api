@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.order_statuses.controllers;
+package me.jangluzniewicz.webstore.orderstatuses.controllers;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,7 +1,7 @@
-package me.jangluzniewicz.webstore.order_statuses.mappers;
+package me.jangluzniewicz.webstore.orderstatuses.mappers;
 
-import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
+import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

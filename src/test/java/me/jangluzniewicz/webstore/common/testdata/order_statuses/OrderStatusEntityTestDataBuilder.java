@@ -2,7 +2,7 @@ package me.jangluzniewicz.webstore.common.testdata.order_statuses;
 
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
+import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
 
 @Builder
 public class OrderStatusEntityTestDataBuilder {

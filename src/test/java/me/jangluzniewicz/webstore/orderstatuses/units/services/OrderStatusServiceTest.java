@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.order_statuses.units.services;
+package me.jangluzniewicz.webstore.orderstatuses.units.services;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,12 +17,12 @@ import me.jangluzniewicz.webstore.common.testdata.order_statuses.OrderStatusTest
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
-import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
-import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
-import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
-import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
-import me.jangluzniewicz.webstore.order_statuses.services.OrderStatusService;
+import me.jangluzniewicz.webstore.orderstatuses.controllers.OrderStatusRequest;
+import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
+import me.jangluzniewicz.webstore.orderstatuses.mappers.OrderStatusMapper;
+import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.repositories.OrderStatusRepository;
+import me.jangluzniewicz.webstore.orderstatuses.services.OrderStatusService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

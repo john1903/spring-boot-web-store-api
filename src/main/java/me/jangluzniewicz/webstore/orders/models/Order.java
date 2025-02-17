@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 import me.jangluzniewicz.webstore.users.models.User;
 
 @AllArgsConstructor

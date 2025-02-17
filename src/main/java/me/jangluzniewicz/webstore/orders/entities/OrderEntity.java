@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
-import me.jangluzniewicz.webstore.order_statuses.entities.OrderStatusEntity;
+import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 
 @Entity

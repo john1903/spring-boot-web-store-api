@@ -1,10 +1,10 @@
-package me.jangluzniewicz.webstore.order_statuses.interfaces;
+package me.jangluzniewicz.webstore.orderstatuses.interfaces;
 
 import java.util.Optional;
 import me.jangluzniewicz.webstore.common.models.IdResponse;
 import me.jangluzniewicz.webstore.common.models.PagedResponse;
-import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.controllers.OrderStatusRequest;
+import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 
 public interface IOrderStatus {
   IdResponse createNewOrderStatus(OrderStatusRequest orderStatusRequest);

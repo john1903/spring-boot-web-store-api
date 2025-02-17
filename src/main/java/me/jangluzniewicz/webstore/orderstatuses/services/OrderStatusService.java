@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.order_statuses.services;
+package me.jangluzniewicz.webstore.orderstatuses.services;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Min;
@@ -9,11 +9,11 @@ import me.jangluzniewicz.webstore.common.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
-import me.jangluzniewicz.webstore.order_statuses.controllers.OrderStatusRequest;
-import me.jangluzniewicz.webstore.order_statuses.interfaces.IOrderStatus;
-import me.jangluzniewicz.webstore.order_statuses.mappers.OrderStatusMapper;
-import me.jangluzniewicz.webstore.order_statuses.models.OrderStatus;
-import me.jangluzniewicz.webstore.order_statuses.repositories.OrderStatusRepository;
+import me.jangluzniewicz.webstore.orderstatuses.controllers.OrderStatusRequest;
+import me.jangluzniewicz.webstore.orderstatuses.interfaces.IOrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.mappers.OrderStatusMapper;
+import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
+import me.jangluzniewicz.webstore.orderstatuses.repositories.OrderStatusRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

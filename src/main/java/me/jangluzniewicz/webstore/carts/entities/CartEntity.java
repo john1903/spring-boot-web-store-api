@@ -28,6 +28,9 @@ public class CartEntity {
   @JoinColumn(name = "cart_id")
   private List<CartItemEntity> items;
 
-  @Formula("(SELECT SUM(ci.price * ci.quantity) FROM cart_items ci WHERE ci.cart_id = id)")
+  @Formula(
+      "(SELECT COALESCE(SUM(p.price * ci.quantity), 0.00) FROM cart_items ci "
+          + "JOIN products p ON ci.product_id = p.id "
+          + "WHERE ci.cart_id = id)")
   private BigDecimal total;
 }

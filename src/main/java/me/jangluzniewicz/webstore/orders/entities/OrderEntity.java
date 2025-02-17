@@ -48,6 +48,7 @@ public class OrderEntity {
   @JoinColumn(name = "order_id")
   private List<OrderItemEntity> items;
 
-  @Formula("(SELECT SUM(oi.price * oi.quantity) FROM order_items oi WHERE oi.order_id = id)")
+  @Formula(
+      "(SELECT COALESCE(SUM(oi.price * oi.quantity), 0.00) FROM order_items oi WHERE oi.order_id = id)")
   private BigDecimal total;
 }

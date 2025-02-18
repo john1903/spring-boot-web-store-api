@@ -6,7 +6,7 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.models.Cart;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
 
 public interface ICart {
   IdResponse createNewCart(@NotNull @Min(1) Long customerId);

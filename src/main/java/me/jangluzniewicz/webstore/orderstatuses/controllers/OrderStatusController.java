@@ -2,8 +2,8 @@ package me.jangluzniewicz.webstore.orderstatuses.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.orderstatuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 import org.springframework.http.ResponseEntity;

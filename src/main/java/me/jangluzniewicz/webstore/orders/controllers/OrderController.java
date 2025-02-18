@@ -2,8 +2,8 @@ package me.jangluzniewicz.webstore.orders.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.orders.interfaces.IOrder;
 import me.jangluzniewicz.webstore.orders.models.Order;

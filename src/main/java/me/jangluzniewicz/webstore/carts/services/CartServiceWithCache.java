@@ -6,7 +6,7 @@ import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
 import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;

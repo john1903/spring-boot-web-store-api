@@ -2,7 +2,7 @@ package me.jangluzniewicz.webstore.security.controllers;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.springframework.http.ResponseEntity;

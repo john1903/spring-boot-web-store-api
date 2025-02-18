@@ -3,8 +3,8 @@ package me.jangluzniewicz.webstore.users.interfaces;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 import me.jangluzniewicz.webstore.users.models.User;
 

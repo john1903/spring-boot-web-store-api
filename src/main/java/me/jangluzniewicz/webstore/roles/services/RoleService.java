@@ -1,8 +1,8 @@
 package me.jangluzniewicz.webstore.roles.services;
 
 import java.util.Optional;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;

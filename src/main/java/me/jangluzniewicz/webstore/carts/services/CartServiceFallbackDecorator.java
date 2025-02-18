@@ -5,7 +5,7 @@ import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.carts.models.Cart;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.QueryTimeoutException;

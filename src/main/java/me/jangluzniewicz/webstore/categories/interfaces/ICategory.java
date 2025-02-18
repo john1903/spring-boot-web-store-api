@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
 import me.jangluzniewicz.webstore.categories.models.Category;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 
 public interface ICategory {
   IdResponse createNewCategory(@NotNull CategoryRequest categoryRequest);

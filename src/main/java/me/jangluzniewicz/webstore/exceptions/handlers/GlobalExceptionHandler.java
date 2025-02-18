@@ -15,6 +15,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
@@ -202,6 +204,51 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(OrderStatusNotAllowedException.class)
   public ResponseEntity<ApiError> handleOrderStatusNotAllowedException(
       OrderStatusNotAllowedException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(CsvReaderException.class)
+  public ResponseEntity<ApiError> handleCsvReaderException(
+      CsvReaderException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MissingServletRequestPartException.class)
+  public ResponseEntity<ApiError> handleMissingServletRequestPartException(
+      MissingServletRequestPartException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    ApiError apiError =
+        ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MultipartException.class)
+  public ResponseEntity<ApiError> handleMultipartException(
+      MultipartException e, HttpServletRequest request) {
     String url = request.getRequestURL().toString();
     ApiError apiError =
         ApiError.builder()

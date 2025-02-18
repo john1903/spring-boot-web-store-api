@@ -1,7 +1,7 @@
 package me.jangluzniewicz.webstore.users.controllers;
 
 import jakarta.validation.Valid;
-import me.jangluzniewicz.webstore.common.models.PagedResponse;
+import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
 import org.springframework.http.ResponseEntity;

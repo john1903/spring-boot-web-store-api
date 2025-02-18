@@ -10,7 +10,7 @@ import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
 import me.jangluzniewicz.webstore.carts.models.Cart;
 import me.jangluzniewicz.webstore.carts.models.CartItem;
 import me.jangluzniewicz.webstore.carts.repositories.CartRepository;
-import me.jangluzniewicz.webstore.common.models.IdResponse;
+import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;

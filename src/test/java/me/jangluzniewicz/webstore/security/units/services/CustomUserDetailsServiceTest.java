@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.security.services.units;
+package me.jangluzniewicz.webstore.security.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -7,8 +7,8 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserTestDataBuilder;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.security.services.CustomUserDetailsService;
+import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
-import me.jangluzniewicz.webstore.users.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTest {
-  @Mock private UserService userService;
+  @Mock private IUser userService;
   @InjectMocks private CustomUserDetailsService customUserDetailsService;
 
   private User user;

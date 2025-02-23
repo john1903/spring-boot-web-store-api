@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.security.services.units;
+package me.jangluzniewicz.webstore.security.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 

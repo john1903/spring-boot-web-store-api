@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.models.Category;
-import me.jangluzniewicz.webstore.commons.services.CsvProductRequestReader;
+import me.jangluzniewicz.webstore.commons.interfaces.ICsvReader;
 import me.jangluzniewicz.webstore.commons.testdata.categories.CategoryTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductFilterRequestTestDataBuilder;
@@ -46,7 +46,7 @@ class ProductServiceTest {
   @Mock private ProductRepository productRepository;
   @Mock private ProductMapper productMapper;
   @Mock private ICategory categoryService;
-  @Mock private CsvProductRequestReader csvProductRequestReader;
+  @Mock private ICsvReader<ProductRequest> csvProductRequestReader;
   @InjectMocks private ProductService productService;
 
   @Mock private MultipartFile file;

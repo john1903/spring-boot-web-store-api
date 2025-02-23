@@ -2,16 +2,16 @@ package me.jangluzniewicz.webstore.security.services;
 
 import java.util.List;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
-import me.jangluzniewicz.webstore.users.services.UserService;
+import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-  private final UserService userService;
+  private final IUser userService;
 
-  public CustomUserDetailsService(UserService userService) {
+  public CustomUserDetailsService(IUser userService) {
     this.userService = userService;
   }
 

@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.commons.services.units;
+package me.jangluzniewicz.webstore.commons.units.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

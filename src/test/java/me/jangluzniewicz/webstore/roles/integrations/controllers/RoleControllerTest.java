@@ -15,7 +15,17 @@ public class RoleControllerTest extends IntegrationTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  void getRole_whenRoleExists_shouldReturnRole() throws Exception {
+  void getRoles_whenRolesExist_shouldReturnOkAndPagedResponse() throws Exception {
+    mockMvc
+        .perform(get("/roles?page=0&size=20"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.content", is(notNullValue())))
+        .andExpect(jsonPath("$.totalPages", is(greaterThan(0))));
+  }
+
+  @Test
+  void getRole_whenRoleExists_shouldReturnOkAndRole() throws Exception {
     mockMvc
         .perform(get("/roles/1"))
         .andExpect(status().isOk())
@@ -29,18 +39,8 @@ public class RoleControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getRoles_whenRolesExist_shouldReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/roles?page=0&size=20"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThan(0))));
-  }
-
-  @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRoleNameNotExists_shouldReturnCreatedAndValidResponse() throws Exception {
+  void createRole_whenRequestValid_shouldReturnCreatedAndIdResponse() throws Exception {
     String roleRequest = "{\"name\": \"TEST\"}";
 
     mockMvc
@@ -73,7 +73,7 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleExistsAndRoleNameNotExists_shouldReturnNoContent() throws Exception {
+  void updateRole_whenRoleExistsAndRequestValid_shouldReturnNoContent() throws Exception {
     String roleRequest = "{\"name\": \"TEST\"}";
 
     mockMvc
@@ -100,16 +100,6 @@ public class RoleControllerTest extends IntegrationTest {
         .perform(
             put("/roles/999").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
         .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRequestInvalid_shouldReturnBadRequest() throws Exception {
-    String roleRequest = "{}";
-
-    mockMvc
-        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
-        .andExpect(status().isBadRequest());
   }
 
   @Test

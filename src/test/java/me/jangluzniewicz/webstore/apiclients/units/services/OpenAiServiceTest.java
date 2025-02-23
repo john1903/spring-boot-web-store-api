@@ -6,10 +6,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import me.jangluzniewicz.webstore.apiclients.services.OpenAiService;
-import me.jangluzniewicz.webstore.commons.testdata.products.ProductTestDataBuilder;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
+import me.jangluzniewicz.webstore.utils.testdata.products.ProductTestDataBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

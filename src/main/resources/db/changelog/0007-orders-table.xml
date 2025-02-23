@@ -14,9 +14,6 @@
             <column name="customer_id" type="bigint"/>
             <column name="order_status_id" type="bigint" defaultValue="1"/>
             <column name="rating_id" type="bigint"/>
-            <column name="total" type="decimal(10, 2)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
         <addForeignKeyConstraint baseTableName="orders" baseColumnNames="customer_id"
                                  constraintName="fk_orders_customer_id" referencedTableName="users"
@@ -31,22 +28,18 @@
     <changeSet id="0007-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
-            <column name="total" value="799.99"/>
         </insert>
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
-            <column name="total" value="1999.99"/>
         </insert>
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
             <column name="order_status_id" value="3"/>
-            <column name="total" value="99.99"/>
         </insert>
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
             <column name="order_status_id" value="4"/>
             <column name="rating_id" value="1"/>
-            <column name="total" value="1999.99"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

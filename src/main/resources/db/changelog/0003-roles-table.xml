@@ -21,5 +21,8 @@
         <insert tableName="roles">
             <column name="name" value="CUSTOMER"/>
         </insert>
+        <insert tableName="roles">
+            <column name="name" value="NO_USE"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -12,9 +12,6 @@
             <column name="customer_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="total" type="decimal(10, 2)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
         <addForeignKeyConstraint baseTableName="carts" baseColumnNames="customer_id"
                                  constraintName="fk_carts_customer_id" referencedTableName="users"
@@ -23,7 +20,6 @@
     <changeSet id="0009-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="carts">
             <column name="customer_id" value="2"/>
-            <column name="total" value="99.99"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

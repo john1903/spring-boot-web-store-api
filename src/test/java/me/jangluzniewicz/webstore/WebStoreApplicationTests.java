@@ -1,11 +1,9 @@
 package me.jangluzniewicz.webstore;
 
+import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class WebStoreApplicationTests {
-
+class WebStoreApplicationTests extends IntegrationTest {
   @Test
   void contextLoads() {}
 }

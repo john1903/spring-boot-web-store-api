@@ -3,7 +3,6 @@ package me.jangluzniewicz.webstore.roles.services;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
@@ -11,8 +10,6 @@ import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -73,15 +70,6 @@ public class RoleService implements IRole {
     if (!roleRepository.existsById(id)) {
       throw new NotFoundException("Role with id " + id + " not found");
     }
-    try {
-      roleRepository.deleteById(id);
-    } catch (DataIntegrityViolationException e) {
-      if (e.getCause() instanceof ConstraintViolationException) {
-        throw new DeletionNotAllowedException(
-            "Role with id " + id + " cannot be deleted due to existing relations");
-      } else {
-        throw e;
-      }
-    }
+    roleRepository.deleteById(id);
   }
 }

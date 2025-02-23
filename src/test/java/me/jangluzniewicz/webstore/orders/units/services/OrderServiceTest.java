@@ -3,10 +3,8 @@ package me.jangluzniewicz.webstore.orders.units.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.testdata.order_statuses.OrderStatusTestDataBuilder;
@@ -14,7 +12,6 @@ import me.jangluzniewicz.webstore.commons.testdata.orders.*;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserTestDataBuilder;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
@@ -31,14 +28,12 @@ import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -235,30 +230,6 @@ class OrderServiceTest {
     when(orderRepository.existsById(orderEntity.getId())).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> orderService.deleteOrder(orderEntity.getId()));
-  }
-
-  @Test
-  void deleteOrder_whenOrderHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(orderRepository.existsById(orderEntity.getId())).thenReturn(true);
-    doThrow(
-            new DataIntegrityViolationException(
-                "", new ConstraintViolationException("", new SQLException(), "")))
-        .when(orderRepository)
-        .deleteById(orderEntity.getId());
-
-    assertThrows(
-        DeletionNotAllowedException.class, () -> orderService.deleteOrder(orderEntity.getId()));
-  }
-
-  @Test
-  void deleteOrder_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(orderRepository.existsById(orderEntity.getId())).thenReturn(true);
-    doThrow(new DataIntegrityViolationException("", new SQLException()))
-        .when(orderRepository)
-        .deleteById(orderEntity.getId());
-
-    assertThrows(
-        DataIntegrityViolationException.class, () -> orderService.deleteOrder(orderEntity.getId()));
   }
 
   @Test

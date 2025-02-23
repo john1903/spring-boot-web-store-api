@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
@@ -20,17 +18,14 @@ import me.jangluzniewicz.webstore.categories.services.CategoryService;
 import me.jangluzniewicz.webstore.commons.testdata.categories.CategoryEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.categories.CategoryRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.categories.CategoryTestDataBuilder;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -159,31 +154,5 @@ class CategoryServiceTest {
 
     assertThrows(
         NotFoundException.class, () -> categoryService.deleteCategory(categoryEntity.getId()));
-  }
-
-  @Test
-  void deleteCategory_whenHasDependencies_thenThrowException() {
-    when(categoryRepository.existsById(categoryEntity.getId())).thenReturn(true);
-    doThrow(
-            new DataIntegrityViolationException(
-                "", new ConstraintViolationException("", new SQLException(), "")))
-        .when(categoryRepository)
-        .deleteById(categoryEntity.getId());
-
-    assertThrows(
-        DeletionNotAllowedException.class,
-        () -> categoryService.deleteCategory(categoryEntity.getId()));
-  }
-
-  @Test
-  void deleteCategory_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(categoryRepository.existsById(categoryEntity.getId())).thenReturn(true);
-    doThrow(new DataIntegrityViolationException("", new SQLException()))
-        .when(categoryRepository)
-        .deleteById(categoryEntity.getId());
-
-    assertThrows(
-        DataIntegrityViolationException.class,
-        () -> categoryService.deleteCategory(categoryEntity.getId()));
   }
 }

@@ -4,7 +4,6 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
@@ -13,8 +12,6 @@ import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -116,15 +113,6 @@ public class UserService implements IUser {
     if (!userRepository.existsById(id)) {
       throw new NotFoundException("User with id " + id + " not found");
     }
-    try {
-      userRepository.deleteById(id);
-    } catch (DataIntegrityViolationException e) {
-      if (e.getCause() instanceof ConstraintViolationException) {
-        throw new DeletionNotAllowedException(
-            "User with id " + id + " cannot be deleted due to existing relations");
-      } else {
-        throw e;
-      }
-    }
+    userRepository.deleteById(id);
   }
 }

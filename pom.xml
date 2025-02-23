@@ -160,9 +160,9 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/*MapperImpl.class</exclude>
-                                <exclude>me/jangluzniewicz/webstore/security/config/**</exclude>
-                                <exclude>me/jangluzniewicz/webstore/exceptions/**</exclude>
-                                <exclude>me/jangluzniewicz/webstore/WebStoreApplication.class</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/exceptions/**</exclude>
+                                <exclude>**/WebStoreApplication.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>

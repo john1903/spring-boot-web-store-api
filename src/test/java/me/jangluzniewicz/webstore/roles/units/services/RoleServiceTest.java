@@ -5,16 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.testdata.roles.RoleEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.roles.RoleRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.roles.RoleTestDataBuilder;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
@@ -23,14 +20,12 @@ import me.jangluzniewicz.webstore.roles.mappers.RoleMapper;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import me.jangluzniewicz.webstore.roles.repositories.RoleRepository;
 import me.jangluzniewicz.webstore.roles.services.RoleService;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -144,29 +139,5 @@ class RoleServiceTest {
     when(roleRepository.existsById(roleEntity.getId())).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> roleService.deleteRole(roleEntity.getId()));
-  }
-
-  @Test
-  void deleteRole_whenRoleHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(roleRepository.existsById(roleEntity.getId())).thenReturn(true);
-    doThrow(
-            new DataIntegrityViolationException(
-                "", new ConstraintViolationException("", new SQLException(), "")))
-        .when(roleRepository)
-        .deleteById(roleEntity.getId());
-
-    assertThrows(
-        DeletionNotAllowedException.class, () -> roleService.deleteRole(roleEntity.getId()));
-  }
-
-  @Test
-  void deleteRole_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(roleRepository.existsById(roleEntity.getId())).thenReturn(true);
-    doThrow(new DataIntegrityViolationException("", new SQLException()))
-        .when(roleRepository)
-        .deleteById(roleEntity.getId());
-
-    assertThrows(
-        DataIntegrityViolationException.class, () -> roleService.deleteRole(roleEntity.getId()));
   }
 }

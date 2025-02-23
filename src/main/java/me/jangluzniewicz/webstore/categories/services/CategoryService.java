@@ -9,11 +9,8 @@ import me.jangluzniewicz.webstore.categories.models.Category;
 import me.jangluzniewicz.webstore.categories.repositories.CategoryRepository;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -75,15 +72,6 @@ public class CategoryService implements ICategory {
     if (!categoryRepository.existsById(id)) {
       throw new NotFoundException("Category with id " + id + " not found");
     }
-    try {
-      categoryRepository.deleteById(id);
-    } catch (DataIntegrityViolationException e) {
-      if (e.getCause() instanceof ConstraintViolationException) {
-        throw new DeletionNotAllowedException(
-            "Category with id " + id + " cannot be deleted due to existing relations");
-      } else {
-        throw e;
-      }
-    }
+    categoryRepository.deleteById(id);
   }
 }

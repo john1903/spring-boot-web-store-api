@@ -5,7 +5,6 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.OrderStatusNotAllowedException;
 import me.jangluzniewicz.webstore.orders.controllers.*;
@@ -21,8 +20,6 @@ import me.jangluzniewicz.webstore.orderstatuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -204,16 +201,7 @@ public class OrderService implements IOrder {
     if (!orderRepository.existsById(id)) {
       throw new NotFoundException("Order with id " + id + " not found");
     }
-    try {
-      orderRepository.deleteById(id);
-    } catch (DataIntegrityViolationException e) {
-      if (e.getCause() instanceof ConstraintViolationException) {
-        throw new DeletionNotAllowedException(
-            "Product with id " + id + " cannot be deleted due to existing relations");
-      } else {
-        throw e;
-      }
-    }
+    orderRepository.deleteById(id);
   }
 
   public Long getOrderOwnerId(Long id) {

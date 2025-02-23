@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
@@ -18,7 +16,6 @@ import me.jangluzniewicz.webstore.commons.testdata.products.ProductEntityTestDat
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductFilterRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductTestDataBuilder;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
@@ -27,14 +24,12 @@ import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.products.repositories.ProductRepository;
 import me.jangluzniewicz.webstore.products.services.ProductService;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -163,31 +158,5 @@ class ProductServiceTest {
 
     assertThrows(
         NotFoundException.class, () -> productService.deleteProduct(productEntity.getId()));
-  }
-
-  @Test
-  void deleteProduct_whenProductHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(productRepository.existsById(productEntity.getId())).thenReturn(true);
-    doThrow(
-            new DataIntegrityViolationException(
-                "", new ConstraintViolationException("", new SQLException(), "")))
-        .when(productRepository)
-        .deleteById(productEntity.getId());
-
-    assertThrows(
-        DeletionNotAllowedException.class,
-        () -> productService.deleteProduct(productEntity.getId()));
-  }
-
-  @Test
-  void deleteProduct_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(productRepository.existsById(productEntity.getId())).thenReturn(true);
-    doThrow(new DataIntegrityViolationException("", new SQLException()))
-        .when(productRepository)
-        .deleteById(productEntity.getId());
-
-    assertThrows(
-        DataIntegrityViolationException.class,
-        () -> productService.deleteProduct(productEntity.getId()));
   }
 }

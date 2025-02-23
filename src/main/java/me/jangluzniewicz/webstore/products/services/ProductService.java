@@ -9,7 +9,6 @@ import me.jangluzniewicz.webstore.commons.interfaces.ICsvReader;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.CsvReaderException;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
@@ -19,8 +18,6 @@ import me.jangluzniewicz.webstore.products.mappers.ProductMapper;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.products.repositories.ProductRepository;
 import me.jangluzniewicz.webstore.products.repositories.ProductSpecification;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -154,15 +151,6 @@ public class ProductService implements IProduct {
     if (!productRepository.existsById(id)) {
       throw new NotFoundException("Product with id " + id + " not found");
     }
-    try {
-      productRepository.deleteById(id);
-    } catch (DataIntegrityViolationException e) {
-      if (e.getCause() instanceof ConstraintViolationException) {
-        throw new DeletionNotAllowedException(
-            "Product with id " + id + " cannot be deleted due to existing relations");
-      } else {
-        throw e;
-      }
-    }
+    productRepository.deleteById(id);
   }
 }

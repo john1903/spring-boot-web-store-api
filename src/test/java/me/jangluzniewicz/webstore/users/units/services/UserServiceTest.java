@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
@@ -17,7 +15,6 @@ import me.jangluzniewicz.webstore.commons.testdata.roles.RoleTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserTestDataBuilder;
-import me.jangluzniewicz.webstore.exceptions.DeletionNotAllowedException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
@@ -28,14 +25,12 @@ import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
 import me.jangluzniewicz.webstore.users.services.UserService;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -202,29 +197,5 @@ class UserServiceTest {
     when(userRepository.existsById(userEntity.getId())).thenReturn(false);
 
     assertThrows(NotFoundException.class, () -> userService.deleteUser(userEntity.getId()));
-  }
-
-  @Test
-  void deleteUser_whenUserHasDependencies_thenThrowDeletionNotAllowedException() {
-    when(userRepository.existsById(userEntity.getId())).thenReturn(true);
-    doThrow(
-            new DataIntegrityViolationException(
-                "", new ConstraintViolationException("", new SQLException(), "")))
-        .when(userRepository)
-        .deleteById(userEntity.getId());
-
-    assertThrows(
-        DeletionNotAllowedException.class, () -> userService.deleteUser(userEntity.getId()));
-  }
-
-  @Test
-  void deleteUser_whenDataIntegrityViolationIsNotConstraintRelated_thenThrowException() {
-    when(userRepository.existsById(userEntity.getId())).thenReturn(true);
-    doThrow(new DataIntegrityViolationException("", new SQLException()))
-        .when(userRepository)
-        .deleteById(userEntity.getId());
-
-    assertThrows(
-        DataIntegrityViolationException.class, () -> userService.deleteUser(userEntity.getId()));
   }
 }

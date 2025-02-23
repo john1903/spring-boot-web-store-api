@@ -7,15 +7,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.models.Category;
+import me.jangluzniewicz.webstore.commons.services.CsvProductRequestReader;
 import me.jangluzniewicz.webstore.commons.testdata.categories.CategoryTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductFilterRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductTestDataBuilder;
+import me.jangluzniewicz.webstore.exceptions.CsvReaderException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.controllers.ProductFilterRequest;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
@@ -34,14 +39,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
   @Mock private ProductRepository productRepository;
   @Mock private ProductMapper productMapper;
   @Mock private ICategory categoryService;
+  @Mock private CsvProductRequestReader csvProductRequestReader;
   @InjectMocks private ProductService productService;
 
+  @Mock private MultipartFile file;
   private ProductEntity productEntity;
   private Product product;
   private Category category;
@@ -158,5 +166,57 @@ class ProductServiceTest {
 
     assertThrows(
         NotFoundException.class, () -> productService.deleteProduct(productEntity.getId()));
+  }
+
+  @Test
+  void createNewProductsFromCsv_whenCsvFileIsValid_thenCreateProducts() throws IOException {
+    when(file.getContentType()).thenReturn("text/csv");
+    String csv =
+        """
+        Bicycle,Two wheels,1000,10,1
+        """;
+    InputStream inputStream = new ByteArrayInputStream(csv.getBytes());
+    when(file.getInputStream()).thenReturn(inputStream);
+    when(csvProductRequestReader.csvToModel(inputStream)).thenReturn(List.of(productRequest));
+    when(categoryService.getCategoryById(productRequest.getCategoryId()))
+        .thenReturn(Optional.of(category));
+    when(productMapper.toEntity(any())).thenReturn(productEntity);
+    when(productRepository.saveAll(any())).thenReturn(List.of(productEntity));
+
+    assertDoesNotThrow(() -> productService.createNewProductsFromCsv(file));
+  }
+
+  @Test
+  void createNewProductsFromCsv_whenCategoryNotFound_thenThrowNotFoundException()
+      throws IOException {
+    when(file.getContentType()).thenReturn("text/csv");
+    String csv =
+        """
+        Bicycle,Two wheels,1000,10,1
+        """;
+    InputStream inputStream = new ByteArrayInputStream(csv.getBytes());
+    when(file.getInputStream()).thenReturn(inputStream);
+    when(csvProductRequestReader.csvToModel(inputStream)).thenReturn(List.of(productRequest));
+    when(categoryService.getCategoryById(productRequest.getCategoryId()))
+        .thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> productService.createNewProductsFromCsv(file));
+  }
+
+  @Test
+  void createNewProductsFromCsv_whenFileIsNotCsv_thenThrowIllegalArgumentException() {
+    when(file.getContentType()).thenReturn("application/json");
+
+    assertThrows(
+        IllegalArgumentException.class, () -> productService.createNewProductsFromCsv(file));
+  }
+
+  @Test
+  void createNewProductsFromCsv_whenErrorWhileReadingCsv_thenThrowCsvReaderException()
+      throws IOException {
+    when(file.getContentType()).thenReturn("text/csv");
+    when(file.getInputStream()).thenThrow(IOException.class);
+
+    assertThrows(CsvReaderException.class, () -> productService.createNewProductsFromCsv(file));
   }
 }

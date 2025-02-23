@@ -7,12 +7,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.commons.testdata.order_statuses.OrderStatusEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.order_statuses.OrderStatusTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.orders.*;
 import me.jangluzniewicz.webstore.commons.testdata.products.ProductTestDataBuilder;
 import me.jangluzniewicz.webstore.commons.testdata.users.UserTestDataBuilder;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
+import me.jangluzniewicz.webstore.exceptions.OrderStatusNotAllowedException;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
@@ -181,6 +183,48 @@ class OrderServiceTest {
   }
 
   @Test
+  void changeOrderStatus_whenCurrentStatusIsCancelled_thenThrowOrderStatusNotAllowedException() {
+    OrderEntity cancelledOrderEntity =
+        OrderEntityTestDataBuilder.builder()
+            .orderStatusEntityBuilder(OrderStatusEntityTestDataBuilder.builder().id(3L).build())
+            .build()
+            .buildOrderEntity();
+    when(orderRepository.findById(cancelledOrderEntity.getId()))
+        .thenReturn(Optional.of(cancelledOrderEntity));
+    Order cancelledOrder =
+        OrderTestDataBuilder.builder()
+            .orderStatusBuilder(OrderStatusTestDataBuilder.builder().id(3L).build())
+            .build()
+            .buildOrder();
+    when(orderMapper.fromEntity(cancelledOrderEntity)).thenReturn(cancelledOrder);
+
+    assertThrows(
+        OrderStatusNotAllowedException.class,
+        () -> orderService.changeOrderStatus(cancelledOrderEntity.getId(), orderStatusRequest));
+  }
+
+  @Test
+  void changeOrderStatus_whenCurrentStatusIsCompleted_thenThrowOrderStatusNotAllowedException() {
+    OrderEntity completedEntity =
+        OrderEntityTestDataBuilder.builder()
+            .orderStatusEntityBuilder(OrderStatusEntityTestDataBuilder.builder().id(4L).build())
+            .build()
+            .buildOrderEntity();
+    when(orderRepository.findById(completedEntity.getId()))
+        .thenReturn(Optional.of(completedEntity));
+    Order completedOrder =
+        OrderTestDataBuilder.builder()
+            .orderStatusBuilder(OrderStatusTestDataBuilder.builder().id(4L).build())
+            .build()
+            .buildOrder();
+    when(orderMapper.fromEntity(completedEntity)).thenReturn(completedOrder);
+
+    assertThrows(
+        OrderStatusNotAllowedException.class,
+        () -> orderService.changeOrderStatus(completedEntity.getId(), orderStatusRequest));
+  }
+
+  @Test
   void addRatingToOrder_whenOrderExistsAndRatingIsNull_thenAddRating() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
@@ -289,5 +333,19 @@ class OrderServiceTest {
     assertThrows(
         NotFoundException.class,
         () -> orderService.updateOrder(orderEntity.getId(), orderRequest2));
+  }
+
+  @Test
+  void getOrderOwnerId_whenOrderExists_thenReturnOwnerId() {
+    when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
+
+    assertEquals(user.getId(), orderService.getOrderOwnerId(orderEntity.getId()));
+  }
+
+  @Test
+  void getOrderOwnerId_whenOrderDoesNotExist_thenThrowNotFoundException() {
+    when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> orderService.getOrderOwnerId(orderEntity.getId()));
   }
 }

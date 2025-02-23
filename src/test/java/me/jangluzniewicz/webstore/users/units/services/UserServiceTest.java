@@ -88,6 +88,22 @@ class UserServiceTest {
   }
 
   @Test
+  void registerNewUser_whenRoleIsNull_thenReturnIdResponse() {
+    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
+    when(userRepository.save(any())).thenReturn(userEntity);
+    when(cartService.createNewCart(userEntity.getId()))
+        .thenReturn(new IdResponse(userEntity.getId()));
+
+    assertEquals(
+        userEntity.getId(),
+        userService
+            .registerNewUser(
+                UserRequestTestDataBuilder.builder().roleId(null).build().buildUserRequest())
+            .getId());
+  }
+
+  @Test
   void updateUser_whenUserExistsAndEmailIsUnique_thenUpdateUser() {
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
@@ -162,18 +178,18 @@ class UserServiceTest {
 
   @Test
   void getUserByEmail_whenUserExists_thenReturnUser() {
-    when(userRepository.findByEmailIgnoreCase("admin@admin.com"))
+    when(userRepository.findByEmailIgnoreCase(userEntity.getEmail()))
         .thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
 
-    assertTrue(userService.getUserByEmail("admin@admin.com").isPresent());
+    assertTrue(userService.getUserByEmail(userEntity.getEmail()).isPresent());
   }
 
   @Test
   void getUserByEmail_whenUserDoesNotExist_thenReturnEmpty() {
-    when(userRepository.findByEmailIgnoreCase("admin@admin.com")).thenReturn(Optional.empty());
+    when(userRepository.findByEmailIgnoreCase(userEntity.getEmail())).thenReturn(Optional.empty());
 
-    assertTrue(userService.getUserByEmail("admin@admin.com").isEmpty());
+    assertTrue(userService.getUserByEmail(userEntity.getEmail()).isEmpty());
   }
 
   @Test

@@ -2,6 +2,7 @@ package me.jangluzniewicz.webstore.security.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import me.jangluzniewicz.webstore.exceptions.JwtException;
@@ -11,6 +12,8 @@ import org.springframework.security.core.userdetails.User;
 @Getter
 public class CustomUser extends User {
   private final Long id;
+
+  @Getter(AccessLevel.NONE)
   private final List<String> roles;
 
   @Builder(builderMethodName = "customBuilder")
@@ -41,9 +44,5 @@ public class CustomUser extends User {
           .forEach(result::add);
     }
     return result;
-  }
-
-  public boolean hasRole(String role) {
-    return roles.contains(role);
   }
 }

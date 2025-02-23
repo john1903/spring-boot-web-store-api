@@ -28,4 +28,25 @@
                                     constraintName="fk_orders_rating_id" referencedTableName="ratings"
                                     referencedColumnNames="id"/>
     </changeSet>
+    <changeSet id="0007-2" author="jangluzniewicz" context="dev, test">
+        <insert tableName="orders">
+            <column name="customer_id" value="2"/>
+            <column name="total" value="799.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="customer_id" value="2"/>
+            <column name="total" value="1999.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="customer_id" value="2"/>
+            <column name="order_status_id" value="3"/>
+            <column name="total" value="99.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="customer_id" value="2"/>
+            <column name="order_status_id" value="4"/>
+            <column name="rating_id" value="1"/>
+            <column name="total" value="1999.99"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

@@ -20,10 +20,10 @@
                                  constraintName="fk_carts_customer_id" referencedTableName="users"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
     </changeSet>
-    <changeSet id="0009-2" author="jangluzniewicz" context="dev">
+    <changeSet id="0009-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="carts">
             <column name="customer_id" value="2"/>
-            <column name="total" value="0.00"/>
+            <column name="total" value="99.99"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

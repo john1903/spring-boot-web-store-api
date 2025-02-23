@@ -24,4 +24,11 @@
                                     constraintName="fk_cart_items_product_id" referencedTableName="products"
                                     referencedColumnNames="id"/>
     </changeSet>
+    <changeSet id="0010-2" author="jangluzniewicz" context="dev, test">
+        <insert tableName="cart_items">
+            <column name="cart_id" value="1"/>
+            <column name="product_id" value="1"/>
+            <column name="quantity" value="1"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

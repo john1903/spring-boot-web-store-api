@@ -26,15 +26,15 @@
                                  constraintName="fk_users_role_id" referencedTableName="roles"
                                  referencedColumnNames="id"/>
     </changeSet>
-    <changeSet id="0005-2" author="jangluzniewicz" context="dev">
+    <changeSet id="0005-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="users">
-            <column name="role_id" valueNumeric="1"/>
+            <column name="role_id" value="1"/>
             <column name="email" value="admin@admin.com"/>
             <column name="password" value="$2a$10$gu3a4.R8d06WuUZilj3eGua39fG3I5.1grjiOW2cmT0Z2Q1X6vaA2"/>
             <column name="phone_number" value="111111111"/>
         </insert>
         <insert tableName="users">
-            <column name="role_id" valueNumeric="2"/>
+            <column name="role_id" value="2"/>
             <column name="email" value="client@client.com"/>
             <column name="password" value="$2a$10$tv8foJr7GtbQfW.kQ2E7LOJEvAVbFjhqYvxxOTaTSC8ZgTgxePcma"/>
             <column name="phone_number" value="222222222"/>

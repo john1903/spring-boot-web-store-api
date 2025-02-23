@@ -25,4 +25,27 @@
                                  constraintName="fk_products_category_id" referencedTableName="categories"
                                  referencedColumnNames="id"/>
     </changeSet>
+    <changeSet id="0004-2" author="jangluzniewicz" context="dev, test">
+        <insert tableName="products">
+            <column name="name" value="Headphones"/>
+            <column name="description" value="Wireless headphones"/>
+            <column name="price" value="99.99"/>
+            <column name="weight" value="0.5"/>
+            <column name="category_id" value="1"/>
+        </insert>
+        <insert tableName="products">
+            <column name="name" value="Smartphone"/>
+            <column name="description" value="Flagship smartphone"/>
+            <column name="price" value="799.99"/>
+            <column name="weight" value="0.3"/>
+            <column name="category_id" value="1"/>
+        </insert>
+        <insert tableName="products">
+            <column name="name" value="Laptop"/>
+            <column name="description" value="Gaming laptop"/>
+            <column name="price" value="1999.99"/>
+            <column name="weight" value="2.5"/>
+            <column name="category_id" value="1"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

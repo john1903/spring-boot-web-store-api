@@ -27,4 +27,30 @@
                                  constraintName="fk_order_items_product_id" referencedTableName="products"
                                  referencedColumnNames="id"/>
     </changeSet>
+    <changeSet id="0008-2" author="jangluzniewicz" context="dev, test">
+        <insert tableName="order_items">
+            <column name="order_id" value="1"/>
+            <column name="product_id" value="2"/>
+            <column name="quantity" value="1"/>
+            <column name="price" value="799.99"/>
+        </insert>
+        <insert tableName="order_items">
+            <column name="order_id" value="2"/>
+            <column name="product_id" value="3"/>
+            <column name="quantity" value="1"/>
+            <column name="price" value="1999.99"/>
+        </insert>
+        <insert tableName="order_items">
+            <column name="order_id" value="3"/>
+            <column name="product_id" value="1"/>
+            <column name="quantity" value="1"/>
+            <column name="price" value="99.99"/>
+        </insert>
+        <insert tableName="order_items">
+            <column name="order_id" value="4"/>
+            <column name="product_id" value="1"/>
+            <column name="quantity" value="1"/>
+            <column name="price" value="1999.99"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

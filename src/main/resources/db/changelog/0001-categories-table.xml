@@ -14,7 +14,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="0001-2" author="jangluzniewicz" context="dev">
+    <changeSet id="0001-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="categories">
             <column name="name" value="ELECTRONICS"/>
         </insert>

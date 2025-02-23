@@ -17,4 +17,10 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet id="0006-2" author="jangluzniewicz">
+        <insert tableName="ratings">
+            <column name="rating" value="5"/>
+            <column name="description" value="Excellent"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

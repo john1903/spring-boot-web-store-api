@@ -1,4 +1,4 @@
-package me.jangluzniewicz.webstore.orderstatuses.integartions.controllers;
+package me.jangluzniewicz.webstore.orderstatuses.integrations.controllers;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -15,7 +15,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  void getOrderStatuses_whenOrderStatusesExists_shouldReturnOkAndPagedResponse() throws Exception {
+  void getOrderStatuses_whenOrderStatusesExists_thenReturnOkAndPagedResponse() throws Exception {
     mockMvc
         .perform(get("/order-statuses"))
         .andExpect(status().isOk())
@@ -25,7 +25,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getOrderStatus_whenOrderStatusExists_shouldReturnOkAndOrderStatus() throws Exception {
+  void getOrderStatus_whenOrderStatusExists_thenReturnOkAndOrderStatus() throws Exception {
     mockMvc
         .perform(get("/order-statuses/1"))
         .andExpect(status().isOk())
@@ -34,14 +34,19 @@ public class OrderStatusControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getOrderStatus_whenOrderStatusDoesNotExist_shouldReturnNotFound() throws Exception {
+  void getOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(get("/order-statuses/999")).andExpect(status().isNotFound());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createOrderStatus_whenRequestValid_shouldReturnCreatedAndIdResponse() throws Exception {
-    String orderStatusRequest = "{\"name\": \"NEW_ORDER_STATUS\"}";
+  void createOrderStatus_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
+    String orderStatusRequest =
+        """
+        {
+          "name": "NEW_ORDER_STATUS"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -55,8 +60,13 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createOrderStatus_whenOrderStatusNameExists_shouldReturnConflict() throws Exception {
-    String orderStatusRequest = "{\"name\": \"APPROVED\"}";
+  void createOrderStatus_whenOrderStatusNameExists_thenReturnConflict() throws Exception {
+    String orderStatusRequest =
+        """
+        {
+          "name": "APPROVED"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -68,9 +78,14 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndRequestValid_shouldReturnNoContent()
+  void updateOrderStatus_whenOrderStatusExistsAndRequestValid_thenReturnNoContent()
       throws Exception {
-    String orderStatusRequest = "{\"name\": \"UPDATED_ORDER_STATUS\"}";
+    String orderStatusRequest =
+        """
+        {
+          "name": "UPDATED_ORDER_STATUS"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -82,7 +97,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndRequestInvalid_shouldReturnBadRequest()
+  void updateOrderStatus_whenOrderStatusExistsAndRequestInvalid_thenReturnBadRequest()
       throws Exception {
     String orderStatusRequest = "{}";
 
@@ -96,8 +111,13 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusDoesNotExist_shouldReturnNotFound() throws Exception {
-    String orderStatusRequest = "{\"name\": \"UPDATED_ORDER_STATUS\"}";
+  void updateOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
+    String orderStatusRequest =
+        """
+        {
+          "name": "UPDATED_ORDER_STATUS"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -109,9 +129,13 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndNameExists_shouldReturnConflict()
-      throws Exception {
-    String orderStatusRequest = "{\"name\": \"APPROVED\"}";
+  void updateOrderStatus_whenOrderStatusExistsAndNameExists_thenReturnConflict() throws Exception {
+    String orderStatusRequest =
+        """
+        {
+          "name": "APPROVED"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -123,13 +147,13 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteOrderStatus_whenOrderStatusExists_shouldReturnNoContent() throws Exception {
+  void deleteOrderStatus_whenOrderStatusExists_thenReturnNoContent() throws Exception {
     mockMvc.perform(delete("/order-statuses/2")).andExpect(status().isNoContent());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteOrderStatus_whenOrderStatusDoesNotExist_shouldReturnNotFound() throws Exception {
+  void deleteOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(delete("/order-statuses/999")).andExpect(status().isNotFound());
   }
 }

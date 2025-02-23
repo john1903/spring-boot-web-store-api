@@ -15,9 +15,9 @@ public class RoleControllerTest extends IntegrationTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  void getRoles_whenRolesExist_shouldReturnOkAndPagedResponse() throws Exception {
+  void getRoles_whenRolesExist_thenReturnOkAndPagedResponse() throws Exception {
     mockMvc
-        .perform(get("/roles?page=0&size=20"))
+        .perform(get("/roles"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.content", is(notNullValue())))
@@ -25,7 +25,7 @@ public class RoleControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getRole_whenRoleExists_shouldReturnOkAndRole() throws Exception {
+  void getRole_whenRoleExists_thenReturnOkAndRole() throws Exception {
     mockMvc
         .perform(get("/roles/1"))
         .andExpect(status().isOk())
@@ -34,14 +34,19 @@ public class RoleControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getRole_whenRoleDoesNotExist_shouldReturnNotFound() throws Exception {
+  void getRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(get("/roles/999")).andExpect(status().isNotFound());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRequestValid_shouldReturnCreatedAndIdResponse() throws Exception {
-    String roleRequest = "{\"name\": \"TEST\"}";
+  void createRole_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
+    String roleRequest =
+        """
+        {
+          "name": "TEST"
+        }
+        """;
 
     mockMvc
         .perform(post("/roles").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
@@ -53,8 +58,13 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRoleNameExists_shouldReturnConflict() throws Exception {
-    String roleRequest = "{\"name\": \"ADMIN\"}";
+  void createRole_whenRoleNameExists_thenReturnConflict() throws Exception {
+    String roleRequest =
+        """
+        {
+          "name": "CUSTOMER"
+        }
+        """;
 
     mockMvc
         .perform(post("/roles").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
@@ -63,7 +73,7 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRequestInvalid_shouldReturnBadRequest() throws Exception {
+  void createRole_whenRequestInvalid_thenReturnBadRequest() throws Exception {
     String roleRequest = "{}";
 
     mockMvc
@@ -73,8 +83,13 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleExistsAndRequestValid_shouldReturnNoContent() throws Exception {
-    String roleRequest = "{\"name\": \"TEST\"}";
+  void updateRole_whenRoleExistsAndRequestValid_thenReturnNoContent() throws Exception {
+    String roleRequest =
+        """
+        {
+          "name": "TEST"
+        }
+        """;
 
     mockMvc
         .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
@@ -83,8 +98,13 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleExistsAndRoleNameExists_shouldReturnConflict() throws Exception {
-    String roleRequest = "{\"name\": \"CUSTOMER\"}";
+  void updateRole_whenRoleExistsAndRoleNameExists_thenReturnConflict() throws Exception {
+    String roleRequest =
+        """
+        {
+          "name": "CUSTOMER"
+        }
+        """;
 
     mockMvc
         .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
@@ -93,8 +113,13 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleDoesNotExist_shouldReturnNotFound() throws Exception {
-    String roleRequest = "{\"name\": \"TEST\"}";
+  void updateRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
+    String roleRequest =
+        """
+        {
+          "name": "TEST"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -104,13 +129,13 @@ public class RoleControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteRole_whenRoleExists_shouldReturnNoContent() throws Exception {
+  void deleteRole_whenRoleExists_thenReturnNoContent() throws Exception {
     mockMvc.perform(delete("/roles/3")).andExpect(status().isNoContent());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteRole_whenRoleDoesNotExist_shouldReturnNotFound() throws Exception {
+  void deleteRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(delete("/roles/999")).andExpect(status().isNotFound());
   }
 }

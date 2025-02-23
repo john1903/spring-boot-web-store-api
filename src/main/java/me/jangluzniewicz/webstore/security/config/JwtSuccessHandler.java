@@ -23,7 +23,6 @@ public class JwtSuccessHandler implements AuthenticationSuccessHandler {
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
     response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
     List<String> roles =
         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     Long id =

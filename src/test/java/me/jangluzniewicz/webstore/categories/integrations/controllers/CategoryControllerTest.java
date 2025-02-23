@@ -15,7 +15,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  void getCategories_whenCategoriesExist_shouldReturnOkAndPagedResponse() throws Exception {
+  void getCategories_whenCategoriesExist_thenReturnOkAndPagedResponse() throws Exception {
     mockMvc
         .perform(get("/categories"))
         .andExpect(status().isOk())
@@ -25,7 +25,7 @@ public class CategoryControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getCategory_whenCategoryExists_shouldReturnOkAndCategory() throws Exception {
+  void getCategory_whenCategoryExists_thenReturnOkAndCategory() throws Exception {
     mockMvc
         .perform(get("/categories/1"))
         .andExpect(status().isOk())
@@ -34,14 +34,19 @@ public class CategoryControllerTest extends IntegrationTest {
   }
 
   @Test
-  void getCategory_whenCategoryDoesNotExist_shouldReturnNotFound() throws Exception {
+  void getCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(get("/categories/999")).andExpect(status().isNotFound());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenRequestValid_shouldReturnCreatedAndIdResponse() throws Exception {
-    String categoryRequest = "{\"name\": \"NEW_CATEGORY\"}";
+  void createCategory_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
+    String categoryRequest =
+        """
+        {
+          "name": "NEW_CATEGORY"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -56,7 +61,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenRequestInvalid_shouldReturnBadRequest() throws Exception {
+  void createCategory_whenRequestInvalid_thenReturnBadRequest() throws Exception {
     String categoryRequest = "{}";
 
     mockMvc
@@ -69,8 +74,13 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenCategoryNameExists_shouldReturnConflict() throws Exception {
-    String categoryRequest = "{\"name\": \"ELECTRONICS\"}";
+  void createCategory_whenCategoryNameExists_thenReturnConflict() throws Exception {
+    String categoryRequest =
+        """
+        {
+          "name": "ELECTRONICS"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -82,8 +92,13 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndRequestValid_shouldReturnNoContent() throws Exception {
-    String categoryRequest = "{\"name\": \"UPDATED\"}";
+  void updateCategory_whenCategoryExistsAndRequestValid_thenReturnNoContent() throws Exception {
+    String categoryRequest =
+        """
+        {
+          "name": "UPDATED"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -95,8 +110,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndRequestInvalid_shouldReturnBadRequest()
-      throws Exception {
+  void updateCategory_whenCategoryExistsAndRequestInvalid_thenReturnBadRequest() throws Exception {
     String categoryRequest = "{}";
 
     mockMvc
@@ -109,8 +123,13 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryDoesNotExist_shouldReturnNotFound() throws Exception {
-    String categoryRequest = "{\"name\": \"UPDATED\"}";
+  void updateCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
+    String categoryRequest =
+        """
+        {
+          "name": "UPDATED"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -122,9 +141,14 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndCategoryNameExists_shouldReturnConflict()
+  void updateCategory_whenCategoryExistsAndCategoryNameExists_thenReturnConflict()
       throws Exception {
-    String categoryRequest = "{\"name\": \"ELECTRONICS\"}";
+    String categoryRequest =
+        """
+        {
+          "name": "ELECTRONICS"
+        }
+        """;
 
     mockMvc
         .perform(
@@ -136,13 +160,13 @@ public class CategoryControllerTest extends IntegrationTest {
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteCategory_whenCategoryExists_shouldReturnNoContent() throws Exception {
+  void deleteCategory_whenCategoryExists_thenReturnNoContent() throws Exception {
     mockMvc.perform(delete("/categories/3")).andExpect(status().isNoContent());
   }
 
   @Test
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteCategory_whenCategoryDoesNotExist_shouldReturnNotFound() throws Exception {
+  void deleteCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
     mockMvc.perform(delete("/categories/999")).andExpect(status().isNotFound());
   }
 }

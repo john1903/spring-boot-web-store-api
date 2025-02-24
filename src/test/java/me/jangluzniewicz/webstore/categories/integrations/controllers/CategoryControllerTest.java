@@ -50,9 +50,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            post("/categories")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -66,9 +64,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            post("/categories")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isBadRequest());
   }
 
@@ -84,9 +80,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            post("/categories")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isConflict());
   }
 
@@ -102,9 +96,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            put("/categories/1")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            put("/categories/1").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isNoContent());
   }
 
@@ -115,9 +107,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            put("/categories/1")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            put("/categories/1").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isBadRequest());
   }
 
@@ -133,9 +123,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            put("/categories/999")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            put("/categories/999").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isNotFound());
   }
 
@@ -152,9 +140,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
     mockMvc
         .perform(
-            put("/categories/2")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(categoryRequest))
+            put("/categories/2").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
         .andExpect(status().isConflict());
   }
 

@@ -51,7 +51,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             post("/order-statuses")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             post("/order-statuses")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isConflict());
   }
@@ -90,7 +90,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             put("/order-statuses/2")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isNoContent());
   }
@@ -104,7 +104,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             put("/order-statuses/2")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isBadRequest());
   }
@@ -122,7 +122,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             put("/order-statuses/999")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isNotFound());
   }
@@ -140,7 +140,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
     mockMvc
         .perform(
             put("/order-statuses/3")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(orderStatusRequest))
         .andExpect(status().isConflict());
   }

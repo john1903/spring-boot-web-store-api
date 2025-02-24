@@ -49,7 +49,7 @@ public class RoleControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -67,7 +67,7 @@ public class RoleControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isConflict());
   }
 
@@ -77,7 +77,7 @@ public class RoleControllerTest extends IntegrationTest {
     String roleRequest = "{}";
 
     mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isBadRequest());
   }
 
@@ -92,7 +92,7 @@ public class RoleControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isNoContent());
   }
 
@@ -107,7 +107,7 @@ public class RoleControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isConflict());
   }
 
@@ -122,8 +122,7 @@ public class RoleControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            put("/roles/999").contentType(MediaType.APPLICATION_JSON_VALUE).content(roleRequest))
+        .perform(put("/roles/999").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
         .andExpect(status().isNotFound());
   }
 

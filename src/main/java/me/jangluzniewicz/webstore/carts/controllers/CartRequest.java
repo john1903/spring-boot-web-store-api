@@ -9,9 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class CartRequest {
-  @NotNull(message = "customerId is required")
-  private Long customerId;
-
   @NotNull(message = "items list can be empty but not null")
   private List<@Valid CartItemRequest> items;
 }

@@ -39,5 +39,11 @@
             <column name="password" value="$2a$10$tv8foJr7GtbQfW.kQ2E7LOJEvAVbFjhqYvxxOTaTSC8ZgTgxePcma"/>
             <column name="phone_number" value="222222222"/>
         </insert>
+        <insert tableName="users">
+            <column name="role_id" value="2"/>
+            <column name="email" value="test@test.com"/>
+            <column name="password" value="$2a$12$leDei.pnPXqiWU9cWBWFc.0EPugnAKGWFE/XGuJnt0dG8Yr4.dKDm"/>
+            <column name="phone_number" value="333333333"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

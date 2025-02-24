@@ -34,7 +34,8 @@ public class UserController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+  @PreAuthorize(
+      "hasRole('ADMIN') or (#id == authentication.principal.id and #userRequest.roleId != 1)")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateUser(
       @PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {

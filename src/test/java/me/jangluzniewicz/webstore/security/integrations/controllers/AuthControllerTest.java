@@ -25,8 +25,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/login").contentType(MediaType.APPLICATION_JSON_VALUE).content(loginRequest))
+        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.token", is(notNullValue())));
@@ -43,8 +42,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/login").contentType(MediaType.APPLICATION_JSON_VALUE).content(loginRequest))
+        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
         .andExpect(status().isUnauthorized());
   }
 
@@ -53,8 +51,7 @@ public class AuthControllerTest extends IntegrationTest {
     String loginRequest = "{}";
 
     mockMvc
-        .perform(
-            post("/auth/login").contentType(MediaType.APPLICATION_JSON_VALUE).content(loginRequest))
+        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
         .andExpect(status().isUnauthorized());
   }
 
@@ -71,8 +68,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/signup").contentType(MediaType.APPLICATION_JSON_VALUE).content(userRequest))
+        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(notNullValue())));
@@ -91,8 +87,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/signup").contentType(MediaType.APPLICATION_JSON_VALUE).content(userRequest))
+        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
         .andExpect(status().isConflict());
   }
 
@@ -101,8 +96,7 @@ public class AuthControllerTest extends IntegrationTest {
     String userRequest = "{}";
 
     mockMvc
-        .perform(
-            post("/auth/signup").contentType(MediaType.APPLICATION_JSON_VALUE).content(userRequest))
+        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
         .andExpect(status().isBadRequest());
   }
 
@@ -120,8 +114,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/signup").contentType(MediaType.APPLICATION_JSON_VALUE).content(userRequest))
+        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(notNullValue())));
@@ -140,8 +133,7 @@ public class AuthControllerTest extends IntegrationTest {
         """;
 
     mockMvc
-        .perform(
-            post("/auth/signup").contentType(MediaType.APPLICATION_JSON_VALUE).content(userRequest))
+        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
         .andExpect(status().isForbidden());
   }
 }

@@ -8,12 +8,10 @@ import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 
 @Builder
 public class CartRequestTestDataBuilder {
-  @Default private Long userId = 1L;
   @Default private List<CartItemRequestTestDataBuilder> items = new ArrayList<>();
 
   public CartRequest buildCartRequest() {
     return new CartRequest(
-        userId,
         items.stream()
             .map(CartItemRequestTestDataBuilder::buildCartItemRequest)
             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll));

@@ -141,6 +141,7 @@ class OrderServiceTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void getFilteredOrders_whenOrdersExist_thenReturnPagedResponse() {
     Page<OrderEntity> page = new PageImpl<>(List.of(orderEntity));
     when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);

@@ -109,6 +109,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void getFilteredProducts_whenProductsExist_thenReturnPagedResponse() {
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity));
     when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);

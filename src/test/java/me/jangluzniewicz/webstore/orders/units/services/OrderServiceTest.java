@@ -227,8 +227,19 @@ class OrderServiceTest {
 
   @Test
   void addRatingToOrder_whenOrderExistsAndRatingIsNull_thenAddRating() {
-    when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
-    when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
+    OrderEntity completedOrderEntity =
+        OrderEntityTestDataBuilder.builder()
+            .orderStatusEntityBuilder(OrderStatusEntityTestDataBuilder.builder().id(4L).build())
+            .build()
+            .buildOrderEntity();
+    Order completedOrder =
+        OrderTestDataBuilder.builder()
+            .orderStatusBuilder(OrderStatusTestDataBuilder.builder().id(4L).build())
+            .build()
+            .buildOrder();
+    when(orderRepository.findById(completedOrderEntity.getId()))
+        .thenReturn(Optional.of(completedOrderEntity));
+    when(orderMapper.fromEntity(completedOrderEntity)).thenReturn(completedOrder);
     OrderEntity orderWithRating =
         OrderEntityTestDataBuilder.builder()
             .ratingEntityBuilder(RatingEntityTestDataBuilder.builder().build())

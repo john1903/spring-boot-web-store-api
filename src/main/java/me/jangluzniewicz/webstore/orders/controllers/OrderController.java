@@ -53,13 +53,13 @@ public class OrderController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN') or #orderRequest.customerId == authentication.principal.id")
   public ResponseEntity<IdResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
     IdResponse response = orderService.createNewOrder(orderRequest);
     return ResponseEntity.created(URI.create("/orders/" + response.getId())).body(response);
   }
 
-  @PreAuthorize(
-      "hasRole('ADMIN') or @orderService.getOrderOwnerId(#id) == authentication.principal.id")
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateOrder(
       @PathVariable Long id, @Valid @RequestBody OrderRequest orderRequest) {

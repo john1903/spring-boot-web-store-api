@@ -31,6 +31,7 @@
         </insert>
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
+            <column name="order_status_id" value="4"/>
         </insert>
         <insert tableName="orders">
             <column name="customer_id" value="2"/>

@@ -208,12 +208,12 @@ public class GlobalExceptionHandler {
     ApiError apiError =
         ApiError.builder()
             .timestamp(LocalDateTime.now())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error(HttpStatus.BAD_REQUEST.name())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.name())
             .message(e.getMessage())
             .path(url)
             .build();
-    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(CsvReaderException.class)

@@ -184,6 +184,9 @@ public class OrderService implements IOrder {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+    if (!order.getStatus().getId().equals(ORDER_STATUS_COMPLETED_ID)) {
+      throw new ConflictException("Order with id " + id + " must be completed to add rating");
+    }
     if (order.getRating() != null) {
       throw new ConflictException("Rating for order with id " + id + " already exists");
     }

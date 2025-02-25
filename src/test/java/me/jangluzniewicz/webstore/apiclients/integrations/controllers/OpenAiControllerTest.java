@@ -1,25 +1,33 @@
 package me.jangluzniewicz.webstore.apiclients.integrations.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class OpenAiControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/products";
+  private static final long VALID_PRODUCT_ID = 1L;
+  private static final long INVALID_PRODUCT_ID = 999L;
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideGetOpenAiTestData")
+  @DisplayName("GET /products/{productId}/seo-description")
   @WithCustomUser(roles = {"ADMIN"})
-  void getSeoDescription_whenProductDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/products/999/seo-description")).andExpect(status().isNotFound());
+  void getOpenAiTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void getSeoDescription_whenUserIsNotAdmin_thenReturnForbidden() throws Exception {
-    mockMvc.perform(get("/products/1/seo-description")).andExpect(status().isForbidden());
+  static Stream<Arguments> provideGetOpenAiTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/" + VALID_PRODUCT_ID + "/seo-description", HttpStatus.OK),
+        Arguments.of(
+            BASE_URL + "/" + INVALID_PRODUCT_ID + "/seo-description", HttpStatus.NOT_FOUND));
   }
 }

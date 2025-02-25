@@ -14,9 +14,9 @@ import org.springframework.http.HttpStatus;
 
 public class UserControllerTest extends IntegrationTest {
   private static final String BASE_URL = "/users";
-  private static final long VALID_USER_ID_1 = 1;
-  private static final long VALID_USER_ID_2 = 2;
-  private static final long INVALID_USER_ID = 999;
+  private static final long VALID_USER_WITH_ROLE_ADMIN = 1L;
+  private static final long VALID_USER_WITH_ROLE_CUSTOMER = 2L;
+  private static final long INVALID_USER_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideAdminGetUsersTestData")
@@ -48,8 +48,11 @@ public class UserControllerTest extends IntegrationTest {
     String defaultRequest = UserRequestTestDataBuilder.builder().build().toJson();
     return Stream.of(
         Arguments.of(
-            BASE_URL + "/" + VALID_USER_ID_2, validRoleUpdateRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_2, invalidRequest, HttpStatus.BAD_REQUEST),
+            BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER,
+            validRoleUpdateRequest,
+            HttpStatus.NO_CONTENT),
+        Arguments.of(
+            BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER, invalidRequest, HttpStatus.BAD_REQUEST),
         Arguments.of(BASE_URL + "/" + INVALID_USER_ID, defaultRequest, HttpStatus.NOT_FOUND));
   }
 
@@ -63,28 +66,28 @@ public class UserControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideAdminDeleteUsersTestData() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_2, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER, HttpStatus.NO_CONTENT),
         Arguments.of(BASE_URL + "/" + INVALID_USER_ID, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
   @MethodSource("provideUserGetTests")
   @DisplayName("GET /users (USER)")
-  @WithCustomUser(id = VALID_USER_ID_2)
+  @WithCustomUser(id = VALID_USER_WITH_ROLE_CUSTOMER)
   void userGetTests(String url, HttpStatus expectedStatus) throws Exception {
     performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideUserGetTests() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_2, HttpStatus.OK),
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_1, HttpStatus.FORBIDDEN));
+        Arguments.of(BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/" + VALID_USER_WITH_ROLE_ADMIN, HttpStatus.FORBIDDEN));
   }
 
   @ParameterizedTest
   @MethodSource("provideUserUpdateTests")
   @DisplayName("PUT /users (USER)")
-  @WithCustomUser(id = VALID_USER_ID_2)
+  @WithCustomUser(id = VALID_USER_WITH_ROLE_CUSTOMER)
   void userUpdateTests(String url, String userRequest, HttpStatus expectedStatus) throws Exception {
     performPut(url, userRequest).andExpect(status().is(expectedStatus.value()));
   }
@@ -95,8 +98,15 @@ public class UserControllerTest extends IntegrationTest {
     String roleUpdateRequest = UserRequestTestDataBuilder.builder().roleId(1L).build().toJson();
     String defaultRequest = UserRequestTestDataBuilder.builder().build().toJson();
     return Stream.of(
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_2, validUpdateRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_2, roleUpdateRequest, HttpStatus.FORBIDDEN),
-        Arguments.of(BASE_URL + "/" + VALID_USER_ID_1, defaultRequest, HttpStatus.FORBIDDEN));
+        Arguments.of(
+            BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER,
+            validUpdateRequest,
+            HttpStatus.NO_CONTENT),
+        Arguments.of(
+            BASE_URL + "/" + VALID_USER_WITH_ROLE_CUSTOMER,
+            roleUpdateRequest,
+            HttpStatus.FORBIDDEN),
+        Arguments.of(
+            BASE_URL + "/" + VALID_USER_WITH_ROLE_ADMIN, defaultRequest, HttpStatus.FORBIDDEN));
   }
 }

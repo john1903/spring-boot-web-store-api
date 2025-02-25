@@ -15,8 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
 public class CartControllerTest extends IntegrationTest {
-  private static final String CART_CURRENT_URL = "/carts/current";
-  private static final String CART_ITEMS_URL = CART_CURRENT_URL + "/items";
+  private static final String BASE_URL = "/carts";
   private static final long VALID_USER_ID = 2L;
   private static final long INVALID_PRODUCT_ID = 999L;
 
@@ -29,7 +28,7 @@ public class CartControllerTest extends IntegrationTest {
   }
 
   static Stream<Arguments> provideGetCartTestData() {
-    return Stream.of(Arguments.of(CART_CURRENT_URL, HttpStatus.OK));
+    return Stream.of(Arguments.of(BASE_URL + "/current", HttpStatus.OK));
   }
 
   @ParameterizedTest
@@ -37,7 +36,8 @@ public class CartControllerTest extends IntegrationTest {
   @DisplayName("POST /carts/current/items")
   @WithCustomUser(id = VALID_USER_ID)
   void addItemToCartTests(String cartItemRequest, HttpStatus expectedStatus) throws Exception {
-    performPost(CART_ITEMS_URL, cartItemRequest).andExpect(status().is(expectedStatus.value()));
+    performPost(BASE_URL + "/current/items", cartItemRequest)
+        .andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideAddItemToCartTestData() {
@@ -58,7 +58,7 @@ public class CartControllerTest extends IntegrationTest {
   }
 
   static Stream<Arguments> provideEmptyCartTestData() {
-    return Stream.of(Arguments.of(CART_ITEMS_URL, HttpStatus.NO_CONTENT));
+    return Stream.of(Arguments.of(BASE_URL + "/current/items", HttpStatus.NO_CONTENT));
   }
 
   @ParameterizedTest
@@ -66,7 +66,7 @@ public class CartControllerTest extends IntegrationTest {
   @DisplayName("PUT /carts/current")
   @WithCustomUser(id = VALID_USER_ID)
   void updateCartTests(String cartRequest, HttpStatus expectedStatus) throws Exception {
-    performPut(CART_CURRENT_URL, cartRequest).andExpect(status().is(expectedStatus.value()));
+    performPut(BASE_URL + "/current", cartRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideUpdateCartTestData() {

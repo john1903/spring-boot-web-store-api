@@ -14,14 +14,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
 public class AuthControllerTest extends IntegrationTest {
-  private static final String LOGIN_URL = "/auth/login";
-  private static final String SIGNUP_URL = "/auth/signup";
+  private static final String BASE_URL = "/auth";
 
   @ParameterizedTest
   @MethodSource("provideLoginTestData")
   @DisplayName("POST /auth/login")
   void loginTests(String loginRequest, HttpStatus expectedStatus) throws Exception {
-    performPost(LOGIN_URL, loginRequest).andExpect(status().is(expectedStatus.value()));
+    performPost(BASE_URL + "/login", loginRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideLoginTestData() {
@@ -40,7 +39,7 @@ public class AuthControllerTest extends IntegrationTest {
   @MethodSource("provideCreateUserTestData")
   @DisplayName("POST /auth/signup")
   void createUserTests(String userRequest, HttpStatus expectedStatus) throws Exception {
-    performPost(SIGNUP_URL, userRequest).andExpect(status().is(expectedStatus.value()));
+    performPost(BASE_URL + "/signup", userRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideCreateUserTestData() {
@@ -62,7 +61,7 @@ public class AuthControllerTest extends IntegrationTest {
   @DisplayName("POST /auth/signup - (ADMIN)")
   @WithCustomUser(roles = {"ADMIN"})
   void createUserAdminTests(String userRequest, HttpStatus expectedStatus) throws Exception {
-    performPost(SIGNUP_URL, userRequest).andExpect(status().is(expectedStatus.value()));
+    performPost(BASE_URL + "/signup", userRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideCreateUserAdminTestData() {

@@ -21,6 +21,7 @@ public class OrderControllerTest extends IntegrationTest {
   private static final long VALID_ORDER_WITH_RATING_ID = 4L;
   private static final long VALID_ORDER_WITH_DIFFERENT_OWNER_ID = 5L;
   private static final long INVALID_ORDER_ID = 999L;
+  private static final long ORDER_STATUS_ACCEPTED_ID = 2L;
 
   @ParameterizedTest
   @MethodSource("provideAdminGetOrderTestData")
@@ -143,9 +144,11 @@ public class OrderControllerTest extends IntegrationTest {
   }
 
   static Stream<Arguments> provideUpdateOrderStatus() {
-    final long STATUS_ACCEPTED = 2L;
     String validOrderStatusRequest =
-        OrderStatusRequestTestDataBuilder.builder().orderStatusId(STATUS_ACCEPTED).build().toJson();
+        OrderStatusRequestTestDataBuilder.builder()
+            .orderStatusId(ORDER_STATUS_ACCEPTED_ID)
+            .build()
+            .toJson();
     String invalidOrderStatusRequest = "{}";
     return Stream.of(
         Arguments.of(

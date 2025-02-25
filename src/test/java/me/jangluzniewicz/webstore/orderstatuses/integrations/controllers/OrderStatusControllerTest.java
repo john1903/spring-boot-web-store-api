@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 
 public class OrderStatusControllerTest extends IntegrationTest {
   private static final String BASE_URL = "/order-statuses";
+  private static final long VALID_ORDER_STATUS_ID = 2L;
+  private static final long INVALID_ORDER_STATUS_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideGetOrderStatusTestData")
@@ -25,8 +27,8 @@ public class OrderStatusControllerTest extends IntegrationTest {
   static Stream<Arguments> provideGetOrderStatusTestData() {
     return Stream.of(
         Arguments.of(BASE_URL, HttpStatus.OK),
-        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_ORDER_STATUS_ID, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/" + INVALID_ORDER_STATUS_ID, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -66,10 +68,14 @@ public class OrderStatusControllerTest extends IntegrationTest {
     String duplicateUpdateRequest = OrderStatusRequestTestDataBuilder.builder().build().toJson();
 
     return Stream.of(
-        Arguments.of(BASE_URL + "/2", validUpdateRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/2", invalidUpdateRequest, HttpStatus.BAD_REQUEST),
-        Arguments.of(BASE_URL + "/999", validUpdateRequest, HttpStatus.NOT_FOUND),
-        Arguments.of(BASE_URL + "/3", duplicateUpdateRequest, HttpStatus.CONFLICT));
+        Arguments.of(
+            BASE_URL + "/" + VALID_ORDER_STATUS_ID, validUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(
+            BASE_URL + "/" + VALID_ORDER_STATUS_ID, invalidUpdateRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(
+            BASE_URL + "/" + INVALID_ORDER_STATUS_ID, validUpdateRequest, HttpStatus.NOT_FOUND),
+        Arguments.of(
+            BASE_URL + "/" + VALID_ORDER_STATUS_ID, duplicateUpdateRequest, HttpStatus.CONFLICT));
   }
 
   @ParameterizedTest
@@ -82,7 +88,7 @@ public class OrderStatusControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideDeleteOrderStatusTestData() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/2", HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_ORDER_STATUS_ID, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + INVALID_ORDER_STATUS_ID, HttpStatus.NOT_FOUND));
   }
 }

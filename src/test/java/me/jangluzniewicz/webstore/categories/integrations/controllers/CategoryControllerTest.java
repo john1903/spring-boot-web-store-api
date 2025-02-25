@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 
 public class CategoryControllerTest extends IntegrationTest {
   private static final String BASE_URL = "/categories";
+  private static final Long VALID_CATEGORY_ID = 2L;
+  private static final Long INVALID_CATEGORY_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideGetCategoryTestData")
@@ -25,8 +27,8 @@ public class CategoryControllerTest extends IntegrationTest {
   static Stream<Arguments> provideGetCategoryTestData() {
     return Stream.of(
         Arguments.of(BASE_URL, HttpStatus.OK),
-        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_CATEGORY_ID, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/" + INVALID_CATEGORY_ID, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -65,10 +67,13 @@ public class CategoryControllerTest extends IntegrationTest {
     String duplicateUpdateRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
 
     return Stream.of(
-        Arguments.of(BASE_URL + "/1", validUpdateRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/1", invalidUpdateRequest, HttpStatus.BAD_REQUEST),
-        Arguments.of(BASE_URL + "/999", validUpdateRequest, HttpStatus.NOT_FOUND),
-        Arguments.of(BASE_URL + "/2", duplicateUpdateRequest, HttpStatus.CONFLICT));
+        Arguments.of(BASE_URL + "/" + VALID_CATEGORY_ID, validUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(
+            BASE_URL + "/" + VALID_CATEGORY_ID, invalidUpdateRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(
+            BASE_URL + "/" + INVALID_CATEGORY_ID, validUpdateRequest, HttpStatus.NOT_FOUND),
+        Arguments.of(
+            BASE_URL + "/" + VALID_CATEGORY_ID, duplicateUpdateRequest, HttpStatus.CONFLICT));
   }
 
   @ParameterizedTest
@@ -81,7 +86,7 @@ public class CategoryControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideDeleteCategoryTestData() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/3", HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_CATEGORY_ID, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + INVALID_CATEGORY_ID, HttpStatus.NOT_FOUND));
   }
 }

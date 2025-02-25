@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 
 public class RoleControllerTest extends IntegrationTest {
   private static final String BASE_URL = "/roles";
+  private static final Long VALID_ROLE_ID = 1L;
+  private static final Long INVALID_ROLE_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideGetRoleTestData")
@@ -25,8 +27,8 @@ public class RoleControllerTest extends IntegrationTest {
   static Stream<Arguments> provideGetRoleTestData() {
     return Stream.of(
         Arguments.of(BASE_URL, HttpStatus.OK),
-        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_ROLE_ID, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/" + INVALID_ROLE_ID, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -61,9 +63,9 @@ public class RoleControllerTest extends IntegrationTest {
     String duplicateRoleRequest = RoleRequestTestDataBuilder.builder().build().toJson();
 
     return Stream.of(
-        Arguments.of(BASE_URL + "/1", validRoleRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/1", duplicateRoleRequest, HttpStatus.CONFLICT),
-        Arguments.of(BASE_URL + "/999", validRoleRequest, HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_ROLE_ID, validRoleRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + VALID_ROLE_ID, duplicateRoleRequest, HttpStatus.CONFLICT),
+        Arguments.of(BASE_URL + "/" + INVALID_ROLE_ID, validRoleRequest, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -76,7 +78,7 @@ public class RoleControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideDeleteRoleTestData() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/3", HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_ROLE_ID, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + INVALID_ROLE_ID, HttpStatus.NOT_FOUND));
   }
 }

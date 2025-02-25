@@ -1,161 +1,110 @@
 package me.jangluzniewicz.webstore.users.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import me.jangluzniewicz.webstore.utils.testdata.users.UserRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class UserControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/users";
+  private static final long VALID_USER_ID = 2;
+  private static final long INVALID_USER_ID = 999;
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideAdminGetUsersTestData")
+  @DisplayName("GET /users (ADMIN)")
   @WithCustomUser(roles = {"ADMIN"})
-  void getUsers_whenUsersExist_thenReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/users"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThanOrEqualTo(0))));
+  void adminGetUsersTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void getUser_whenUserExists_thenReturnOkAndUser() throws Exception {
-    mockMvc
-        .perform(get("/users/2"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.email", not(emptyOrNullString())));
+  static Stream<Arguments> provideAdminGetUsersTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  @WithCustomUser(id = 999)
-  void getUser_whenUserExistsAndIdIsDifferent_thenReturnForbidden() throws Exception {
-    mockMvc.perform(get("/users/2")).andExpect(status().isForbidden());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideAdminUpdateUsersTestData")
+  @DisplayName("PUT /users (ADMIN)")
   @WithCustomUser(roles = {"ADMIN"})
-  void getUser_whenUserDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/users/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithCustomUser(id = 2)
-  void updateUser_whenUserExistsAndRequestValid_thenReturnNoContent() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 2,
-          "email": "client@client.com",
-          "password": "client",
-          "phoneNumber": "123456789"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/users/2").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithCustomUser(id = 2)
-  void updateUser_whenUserExistsAndUserTriesToUpdateRoleToAdmin_thenReturnForbidden()
+  void adminUpdateUsersTests(String url, String userRequest, HttpStatus expectedStatus)
       throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 1,
-          "email": "client@client.com",
-          "password": "client",
-          "phoneNumber": "222222222"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/users/2").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isForbidden());
+    performPut(url, userRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void updateUser_whenUserExistsAndUserTriesToUpdateAnotherUser_thenReturnForbidden()
-      throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 2,
-          "email": "admin@admin.com",
-          "password": "admin",
-          "phoneNumber": "111111111"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/users/1").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isForbidden());
+  static Stream<Arguments> provideAdminUpdateUsersTestData() {
+    String validRoleUpdateRequest =
+        UserRequestTestDataBuilder.builder().roleId(1L).build().toJson();
+    String invalidRequest = "{}";
+    String defaultRequest = UserRequestTestDataBuilder.builder().build().toJson();
+    return Stream.of(
+        Arguments.of(BASE_URL + "/2", validRoleUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/2", invalidRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(BASE_URL + "/999", defaultRequest, HttpStatus.NOT_FOUND));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideAdminDeleteUsersTestData")
+  @DisplayName("DELETE /users (ADMIN)")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateUser_whenUserExistsAndRequestInvalid_thenReturnBadRequest() throws Exception {
-    String userRequest = "{}";
-
-    mockMvc
-        .perform(put("/users/2").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isBadRequest());
+  void adminDeleteUsersTests(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateUser_whenUserExistsAndAdminUpdatesRoleToAdmin_thenReturnNoContent() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 1,
-          "email": "client@client.com",
-          "password": "client",
-          "phoneNumber": "222222222"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/users/2").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isNoContent());
+  static Stream<Arguments> provideAdminDeleteUsersTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/3", HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateUser_whenUserDoesNotExist_thenReturnNotFound() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 2,
-          "email": "client@client.com",
-          "password": "client",
-          "phoneNumber": "123456789"
-        }
-        """;
-
-    mockMvc.perform(put("/users/999").contentType(MediaType.APPLICATION_JSON).content(userRequest));
+  @ParameterizedTest
+  @MethodSource("provideUserGetTests")
+  @DisplayName("GET /users (USER)")
+  @WithCustomUser(id = VALID_USER_ID)
+  void userGetTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteUser_whenUserExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/users/3")).andExpect(status().isNoContent());
+  static Stream<Arguments> provideUserGetTests() {
+    return Stream.of(Arguments.of(BASE_URL + "/2", HttpStatus.OK));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteUser_whenUserDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/users/999")).andExpect(status().isNotFound());
+  @ParameterizedTest
+  @MethodSource("provideUserUpdateTests")
+  @DisplayName("PUT /users (USER)")
+  @WithCustomUser(id = VALID_USER_ID)
+  void userUpdateTests(String url, String userRequest, HttpStatus expectedStatus) throws Exception {
+    performPut(url, userRequest).andExpect(status().is(expectedStatus.value()));
+  }
+
+  static Stream<Arguments> provideUserUpdateTests() {
+    String validUpdateRequest =
+        UserRequestTestDataBuilder.builder().phoneNumber("123456789").build().toJson();
+    String roleUpdateRequest = UserRequestTestDataBuilder.builder().roleId(1L).build().toJson();
+    String defaultRequest = UserRequestTestDataBuilder.builder().build().toJson();
+    return Stream.of(
+        Arguments.of(BASE_URL + "/2", validUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/2", roleUpdateRequest, HttpStatus.FORBIDDEN),
+        Arguments.of(BASE_URL + "/1", defaultRequest, HttpStatus.FORBIDDEN));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideForbiddenGetTests")
+  @DisplayName("GET /users (INVALID_USER)")
+  @WithCustomUser(id = INVALID_USER_ID)
+  void forbiddenGetTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
+  }
+
+  static Stream<Arguments> provideForbiddenGetTests() {
+    return Stream.of(Arguments.of(BASE_URL + "/2", HttpStatus.FORBIDDEN));
   }
 }

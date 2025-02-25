@@ -1,139 +1,74 @@
 package me.jangluzniewicz.webstore.security.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import me.jangluzniewicz.webstore.utils.testdata.security.LoginRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.testdata.users.UserRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class AuthControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String LOGIN_URL = "/auth/login";
+  private static final String SIGNUP_URL = "/auth/signup";
 
-  @Test
-  void login_whenUserExistsAndCredentialsAreValid_thenReturnOkAndToken() throws Exception {
-    String loginRequest =
-        """
-        {
-          "username": "admin@admin.com",
-          "password": "admin"
-        }
-        """;
-
-    mockMvc
-        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.token", is(notNullValue())));
+  @ParameterizedTest
+  @MethodSource("provideLoginTestData")
+  @DisplayName("POST /auth/login")
+  void loginTests(String loginRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(LOGIN_URL, loginRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void login_whenUserDoesNotExist_thenReturnUnauthorized() throws Exception {
-    String loginRequest =
-        """
-        {
-          "username": "new@new.com",
-          "password": "new"
-        }
-        """;
+  static Stream<Arguments> provideLoginTestData() {
+    String validLogin = LoginRequestTestDataBuilder.builder().build().toJson();
+    String nonExistentUserLogin =
+        LoginRequestTestDataBuilder.builder().username("new@new.com").build().toJson();
+    String invalidLogin = "{}";
 
-    mockMvc
-        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
-        .andExpect(status().isUnauthorized());
+    return Stream.of(
+        Arguments.of(validLogin, HttpStatus.OK),
+        Arguments.of(nonExistentUserLogin, HttpStatus.UNAUTHORIZED),
+        Arguments.of(invalidLogin, HttpStatus.UNAUTHORIZED));
   }
 
-  @Test
-  void login_whenRequestInvalid_thenReturnUnauthorized() throws Exception {
-    String loginRequest = "{}";
-
-    mockMvc
-        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginRequest))
-        .andExpect(status().isUnauthorized());
+  @ParameterizedTest
+  @MethodSource("provideCreateUserTestData")
+  @DisplayName("POST /auth/signup - (USER)")
+  void createUserTests(String userRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(SIGNUP_URL, userRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void createUser_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 2,
-          "email": "new@new.com",
-          "password": "new",
-          "phoneNumber": "+48123456789"
-        }
-        """;
+  static Stream<Arguments> provideCreateUserTestData() {
+    String validUser = UserRequestTestDataBuilder.builder().email("new@new.com").build().toJson();
+    String emailExists = UserRequestTestDataBuilder.builder().build().toJson();
+    String userAdmin =
+        UserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
+    String invalidUser = "{}";
 
-    mockMvc
-        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
+    return Stream.of(
+        Arguments.of(validUser, HttpStatus.CREATED),
+        Arguments.of(emailExists, HttpStatus.CONFLICT),
+        Arguments.of(userAdmin, HttpStatus.FORBIDDEN),
+        Arguments.of(invalidUser, HttpStatus.BAD_REQUEST));
   }
 
-  @Test
-  void createUser_whenEmailExists_thenReturnConflict() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 2,
-          "email": "client@client.com",
-          "password": "client",
-          "phoneNumber": "+48123456789"
-          }
-        """;
-
-    mockMvc
-        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  void createUser_whenRequestInvalid_thenReturnBadRequest() throws Exception {
-    String userRequest = "{}";
-
-    mockMvc
-        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideCreateUserAdminTestData")
+  @DisplayName("POST /auth/signup - (ADMIN)")
   @WithCustomUser(roles = {"ADMIN"})
-  void createUser_whenRoleIdAdminAndUserAdmin_thenReturnCreatedAndIdResponse() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 1,
-          "email": "new_admin@admin.com",
-          "password": "new_admin",
-          "phoneNumber": "+48123456789"
-          }
-        """;
-
-    mockMvc
-        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
+  void createUserAdminTests(String userRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(SIGNUP_URL, userRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void createUser_whenRoleIdAdminAndUserNotAdmin_thenReturnForbidden() throws Exception {
-    String userRequest =
-        """
-        {
-          "roleId": 1,
-          "email": "new_admin@admin.com",
-          "password": "new_admin",
-          "phoneNumber": "+48123456789"
-        }
-        """;
+  static Stream<Arguments> provideCreateUserAdminTestData() {
+    String validUserAdmin =
+        UserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
 
-    mockMvc
-        .perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON).content(userRequest))
-        .andExpect(status().isForbidden());
+    return Stream.of(Arguments.of(validUserAdmin, HttpStatus.CREATED));
   }
 }

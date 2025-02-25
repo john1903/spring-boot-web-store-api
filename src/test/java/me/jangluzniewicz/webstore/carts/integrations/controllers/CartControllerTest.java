@@ -28,9 +28,7 @@ public class CartControllerTest extends IntegrationTest {
   }
 
   static Stream<Arguments> provideGetCartTestData() {
-    return Stream.of(
-            Arguments.of(CART_CURRENT_URL, HttpStatus.OK)
-    );
+    return Stream.of(Arguments.of(CART_CURRENT_URL, HttpStatus.OK));
   }
 
   @ParameterizedTest
@@ -38,17 +36,16 @@ public class CartControllerTest extends IntegrationTest {
   @DisplayName("POST /carts/current/items")
   @WithCustomUser(id = VALID_USER_ID)
   void addItemToCartTests(String cartItemRequest, HttpStatus expectedStatus) throws Exception {
-    performPost(CART_ITEMS_URL, cartItemRequest)
-            .andExpect(status().is(expectedStatus.value()));
+    performPost(CART_ITEMS_URL, cartItemRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideAddItemToCartTestData() {
     String validCartItemRequest = CartItemRequestTestDataBuilder.builder().build().toJson();
-    String notFoundCartItemRequest = CartItemRequestTestDataBuilder.builder().productId(999L).build().toJson();
+    String notFoundCartItemRequest =
+        CartItemRequestTestDataBuilder.builder().productId(999L).build().toJson();
     return Stream.of(
-            Arguments.of(validCartItemRequest, HttpStatus.NO_CONTENT),
-            Arguments.of(notFoundCartItemRequest, HttpStatus.NOT_FOUND)
-    );
+        Arguments.of(validCartItemRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(notFoundCartItemRequest, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -60,9 +57,7 @@ public class CartControllerTest extends IntegrationTest {
   }
 
   static Stream<Arguments> provideEmptyCartTestData() {
-    return Stream.of(
-            Arguments.of(CART_ITEMS_URL, HttpStatus.NO_CONTENT)
-    );
+    return Stream.of(Arguments.of(CART_ITEMS_URL, HttpStatus.NO_CONTENT));
   }
 
   @ParameterizedTest
@@ -70,22 +65,22 @@ public class CartControllerTest extends IntegrationTest {
   @DisplayName("PUT /carts/current")
   @WithCustomUser(id = VALID_USER_ID)
   void updateCartTests(String cartRequest, HttpStatus expectedStatus) throws Exception {
-    performPut(CART_CURRENT_URL, cartRequest)
-            .andExpect(status().is(expectedStatus.value()));
+    performPut(CART_CURRENT_URL, cartRequest).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideUpdateCartTestData() {
-    String validCartRequest = CartRequestTestDataBuilder.builder()
+    String validCartRequest =
+        CartRequestTestDataBuilder.builder()
             .items(List.of(CartItemRequestTestDataBuilder.builder().quantity(2).build()))
             .build()
             .toJson();
-    String notFoundCartRequest = CartRequestTestDataBuilder.builder()
+    String notFoundCartRequest =
+        CartRequestTestDataBuilder.builder()
             .items(List.of(CartItemRequestTestDataBuilder.builder().productId(999L).build()))
             .build()
             .toJson();
     return Stream.of(
-            Arguments.of(validCartRequest, HttpStatus.NO_CONTENT),
-            Arguments.of(notFoundCartRequest, HttpStatus.NOT_FOUND)
-    );
+        Arguments.of(validCartRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(notFoundCartRequest, HttpStatus.NOT_FOUND));
   }
 }

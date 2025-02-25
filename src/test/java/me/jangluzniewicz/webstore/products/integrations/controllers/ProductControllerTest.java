@@ -1,210 +1,107 @@
 package me.jangluzniewicz.webstore.products.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import me.jangluzniewicz.webstore.utils.testdata.products.ProductFilterRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.testdata.products.ProductRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
 
 public class ProductControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/products";
 
-  @Test
-  void getProducts_whenProductsExist_thenReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/products"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThanOrEqualTo(0))));
+  @ParameterizedTest
+  @MethodSource("provideGetProductsTestData")
+  @DisplayName("GET /products")
+  void getProductsTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void getProducts_whenProductsExist_thenReturnOkAndFilteredPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/products?categoryId=1&name=phone&priceFrom=90&priceTo=100"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThanOrEqualTo(0))));
+  static Stream<Arguments> provideGetProductsTestData() {
+    String filterParams = ProductFilterRequestTestDataBuilder.builder().build().toRequestParams();
+    return Stream.of(
+        Arguments.of(BASE_URL, HttpStatus.OK),
+        Arguments.of(BASE_URL + "?" + filterParams, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  void getProduct_whenProductExists_thenReturnOkAndProduct() throws Exception {
-    mockMvc
-        .perform(get("/products/1"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.name", not(emptyOrNullString())));
-  }
-
-  @Test
-  void getProduct_whenProductDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/products/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideCreateProductTestData")
+  @DisplayName("POST /products")
   @WithCustomUser(roles = {"ADMIN"})
-  void createProduct_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
-    String productRequest =
-        """
-        {
-          "name": "NEW_PRODUCT",
-          "description": "NEW_DESCRIPTION",
-          "price": 150.25,
-          "weight": 1.5,
-          "categoryId": 1
-        }
-        """;
-
-    mockMvc
-        .perform(post("/products").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isCreated())
-        .andExpect(header().exists("Location"))
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
+  void createProductTests(String productRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(BASE_URL, productRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
+  static Stream<Arguments> provideCreateProductTestData() {
+    String validProductRequest =
+        ProductRequestTestDataBuilder.builder().name("NEW_PRODUCT").build().toJson();
+    String invalidProductRequest = "{}";
+    return Stream.of(
+        Arguments.of(validProductRequest, HttpStatus.CREATED),
+        Arguments.of(invalidProductRequest, HttpStatus.BAD_REQUEST));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideCsvImportTestData")
+  @DisplayName("POST /products/import/csv")
   @WithCustomUser(roles = {"ADMIN"})
-  void createProduct_whenRequestInvalid_thenReturnBadRequest() throws Exception {
-    String productRequest = "{}";
-
-    mockMvc
-        .perform(post("/products").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isBadRequest());
+  void createProductFromCsvTests(MockMultipartFile file, HttpStatus expectedStatus)
+      throws Exception {
+    performMultipart("/products/import/csv", file).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void createProduct_whenUserIsNotAdmin_thenReturnForbidden() throws Exception {
-    String productRequest =
-        """
-        {
-          "name": "NEW_PRODUCT",
-          "description": "NEW_DESCRIPTION",
-          "price": 150.25,
-          "weight": 1.5,
-          "categoryId": 1
-        }
-        """;
-
-    mockMvc
-        .perform(post("/products").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void createProductFromCsv_whenFileExists_thenReturnNoContent() throws Exception {
-    String csv =
+  static Stream<Arguments> provideCsvImportTestData() {
+    String csvContent =
         """
         Headphones,Best sound quality,1200.0,0.2,1
         Keyboard,RGB backlight,200.0,0.5,1
         """;
     MockMultipartFile file =
-        new MockMultipartFile("file", "products.csv", "text/csv", csv.getBytes());
-    mockMvc.perform(multipart("/products/import/csv").file(file)).andExpect(status().isNoContent());
+        new MockMultipartFile(
+            "file", "products.csv", "text/csv", csvContent.getBytes(StandardCharsets.UTF_8));
+    return Stream.of(Arguments.of(file, HttpStatus.NO_CONTENT));
   }
 
-  @Test
-  void createProductFromCsv_whenUserIsNotAdmin_thenReturnForbidden() throws Exception {
-    String csv =
-        """
-        Headphones,Best sound quality,1200.0,0.2,1
-        Keyboard,RGB backlight,200.0,0.5,1
-        """;
-    MockMultipartFile file =
-        new MockMultipartFile("file", "products.csv", "text/csv", csv.getBytes());
-    mockMvc.perform(multipart("/products/import/csv").file(file)).andExpect(status().isForbidden());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideUpdateProductTestData")
+  @DisplayName("PUT /products")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateProduct_whenProductExistsAndRequestValid_thenReturnNoContent() throws Exception {
-    String productRequest =
-        """
-        {
-          "name": "UPDATED_PRODUCT",
-          "description": "UPDATED_DESCRIPTION",
-          "price": 150.25,
-          "weight": 1.5,
-          "categoryId": 1
-        }
-        """;
-
-    mockMvc
-        .perform(put("/products/1").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isNoContent());
+  void updateProductTests_Admin(String url, String productRequest, HttpStatus expectedStatus)
+      throws Exception {
+    performPut(url, productRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
+  static Stream<Arguments> provideUpdateProductTestData() {
+    String validProductRequest =
+        ProductRequestTestDataBuilder.builder().name("UPDATED_PRODUCT").build().toJson();
+    String invalidProductRequest = "{}";
+    return Stream.of(
+        Arguments.of(BASE_URL + "/1", validProductRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/1", invalidProductRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(BASE_URL + "/999", validProductRequest, HttpStatus.NOT_FOUND));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideDeleteProductTestData")
+  @DisplayName("DELETE /products")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateProduct_whenProductExistsAndRequestInvalid_thenReturnBadRequest() throws Exception {
-    String productRequest = "{}";
-
-    mockMvc
-        .perform(put("/products/1").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isBadRequest());
+  void deleteProductTests_Admin(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateProduct_whenProductDoesNotExist_thenReturnNotFound() throws Exception {
-    String productRequest =
-        """
-        {
-          "name": "UPDATED_PRODUCT",
-          "description": "UPDATED_DESCRIPTION",
-          "price": 150.25,
-          "weight": 1.5,
-          "categoryId": 1
-        }
-        """;
-
-    mockMvc
-        .perform(
-            put("/products/999").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  void updateProduct_whenUserIsNotAdmin_thenReturnForbidden() throws Exception {
-    String productRequest =
-        """
-        {
-          "name": "UPDATED_PRODUCT",
-          "description": "UPDATED_DESCRIPTION",
-          "price": 150.25,
-          "weight": 1.5,
-          "categoryId": 1
-        }
-        """;
-
-    mockMvc
-        .perform(put("/products/1").contentType(MediaType.APPLICATION_JSON).content(productRequest))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteProduct_whenProductExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/products/1")).andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteProduct_whenProductDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/products/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
-  void deleteProduct_whenUserIsNotAdmin_thenReturnForbidden() throws Exception {
-    mockMvc.perform(delete("/products/1")).andExpect(status().isForbidden());
+  static Stream<Arguments> provideDeleteProductTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/1", HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 }

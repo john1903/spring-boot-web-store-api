@@ -9,10 +9,10 @@ import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryEntityTestDa
 @Builder
 public class ProductEntityTestDataBuilder {
   @Default private Long id = 1L;
-  @Default private String name = "Bicycle";
-  @Default private String description = "Mountain bike";
-  @Default private BigDecimal price = BigDecimal.valueOf(1000.0);
-  @Default private BigDecimal weight = BigDecimal.valueOf(10.0);
+  @Default private String name = "Headphones";
+  @Default private String description = "Wireless headphones";
+  @Default private BigDecimal price = BigDecimal.valueOf(99.99);
+  @Default private BigDecimal weight = BigDecimal.valueOf(0.5);
 
   @Default
   private CategoryEntityTestDataBuilder categoryBuilder =

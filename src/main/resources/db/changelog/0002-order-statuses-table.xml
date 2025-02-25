@@ -16,7 +16,7 @@
     </changeSet>
     <changeSet id="0002-2" author="jangluzniewicz">
         <insert tableName="order_statuses">
-            <column name="name" value="NOT APPROVED"/>
+            <column name="name" value="NOT_APPROVED"/>
         </insert>
         <insert tableName="order_statuses">
             <column name="name" value="APPROVED"/>

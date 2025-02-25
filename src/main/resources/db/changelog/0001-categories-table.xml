@@ -16,13 +16,13 @@
     </changeSet>
     <changeSet id="0001-2" author="jangluzniewicz" context="dev, test">
         <insert tableName="categories">
-            <column name="name" value="ELECTRONICS"/>
+            <column name="name" value="Electronics"/>
         </insert>
         <insert tableName="categories">
-            <column name="name" value="BOOKS"/>
+            <column name="name" value="Books"/>
         </insert>
         <insert tableName="categories">
-            <column name="name" value="CLOTHING"/>
+            <column name="name" value="Clothing"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.categories.models.Category;
 @Builder
 public class CategoryTestDataBuilder {
   @Default private Long id = 1L;
-  @Default private String name = "Bicycles";
+  @Default private String name = "Electronics";
 
   public Category buildCategory() {
     return Category.builder().id(id).name(name).build();

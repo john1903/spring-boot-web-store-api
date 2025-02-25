@@ -64,7 +64,10 @@ class ProductServiceTest {
     category = CategoryTestDataBuilder.builder().build().buildCategory();
     productRequest = ProductRequestTestDataBuilder.builder().build().buildProductRequest();
     productRequest2 =
-        ProductRequestTestDataBuilder.builder().name("Bicycle XXL").build().buildProductRequest();
+        ProductRequestTestDataBuilder.builder()
+            .name("Headphones Pro")
+            .build()
+            .buildProductRequest();
     productFilterRequest =
         ProductFilterRequestTestDataBuilder.builder().build().buildProductFilterRequest();
   }

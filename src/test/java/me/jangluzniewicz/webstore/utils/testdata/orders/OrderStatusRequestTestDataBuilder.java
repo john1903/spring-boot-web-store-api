@@ -11,4 +11,13 @@ public class OrderStatusRequestTestDataBuilder {
   public OrderStatusRequest buildChangeOrderStatusRequest() {
     return new OrderStatusRequest(orderStatusId);
   }
+
+  public String toJson() {
+    return """
+        {
+          "orderStatusId": %d
+        }
+        """
+        .formatted(orderStatusId);
+  }
 }

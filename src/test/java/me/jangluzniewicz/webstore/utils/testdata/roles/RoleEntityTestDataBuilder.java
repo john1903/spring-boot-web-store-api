@@ -6,8 +6,8 @@ import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 
 @Builder
 public class RoleEntityTestDataBuilder {
-  @Default private Long id = 1L;
-  @Default private String name = "EMPLOYEE";
+  @Default private Long id = 2L;
+  @Default private String name = "USER";
 
   public RoleEntity buildRoleEntity() {
     return RoleEntity.builder().id(id).name(name).build();

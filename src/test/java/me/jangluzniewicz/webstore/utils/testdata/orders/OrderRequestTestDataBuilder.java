@@ -21,4 +21,13 @@ public class OrderRequestTestDataBuilder {
             .map(OrderItemRequestTestDataBuilder::buildOrderItemRequest)
             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
   }
+
+  public String toJson() {
+    return String.format(
+        "{\"customerId\":%d,\"items\":[%s]}",
+        customerId,
+        items.stream()
+            .map(OrderItemRequestTestDataBuilder::toJson)
+            .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append));
+  }
 }

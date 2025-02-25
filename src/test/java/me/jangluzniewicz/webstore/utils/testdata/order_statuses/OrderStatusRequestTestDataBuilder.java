@@ -6,9 +6,18 @@ import me.jangluzniewicz.webstore.orderstatuses.controllers.OrderStatusRequest;
 
 @Builder
 public class OrderStatusRequestTestDataBuilder {
-  @Default private String name = "PENDING";
+  @Default private String name = "NOT_APPROVED";
 
   public OrderStatusRequest buildOrderStatusRequest() {
     return new OrderStatusRequest(name);
+  }
+
+  public String toJson() {
+    return """
+    {
+      "name": "%s"
+    }
+    """
+        .formatted(name);
   }
 }

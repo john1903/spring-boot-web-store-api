@@ -16,4 +16,13 @@ public class CartRequestTestDataBuilder {
             .map(CartItemRequestTestDataBuilder::buildCartItemRequest)
             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
   }
+
+  public String toJson() {
+    return String.format(
+        "{\"items\":[%s]}",
+        items.stream()
+            .map(CartItemRequestTestDataBuilder::toJson)
+            .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+            .toString());
+  }
 }

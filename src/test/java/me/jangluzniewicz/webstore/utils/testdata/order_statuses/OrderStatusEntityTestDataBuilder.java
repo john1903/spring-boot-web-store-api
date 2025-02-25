@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.orderstatuses.entities.OrderStatusEntity;
 @Builder
 public class OrderStatusEntityTestDataBuilder {
   @Default private Long id = 1L;
-  @Default private String name = "PENDING";
+  @Default private String name = "NOT_APPROVED";
 
   public OrderStatusEntity buildOrderStatusEntity() {
     return OrderStatusEntity.builder().id(id).name(name).build();

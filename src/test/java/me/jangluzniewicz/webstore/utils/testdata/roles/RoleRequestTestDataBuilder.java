@@ -6,9 +6,18 @@ import me.jangluzniewicz.webstore.roles.controllers.RoleRequest;
 
 @Builder
 public class RoleRequestTestDataBuilder {
-  @Default private String name = "EMPLOYEE";
+  @Default private String name = "USER";
 
   public RoleRequest buildRoleRequest() {
     return new RoleRequest(name);
+  }
+
+  public String toJson() {
+    return """
+    {
+      "name": "%s"
+    }
+    """
+        .formatted(name);
   }
 }

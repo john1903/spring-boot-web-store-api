@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
+import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryRequestTestDataBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,11 +43,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @WithCustomUser(roles = {"ADMIN"})
   void createCategory_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
     String categoryRequest =
-        """
-        {
-          "name": "NEW_CATEGORY"
-        }
-        """;
+        CategoryRequestTestDataBuilder.builder().name("NEW_CATEGORY").build().toJson();
 
     mockMvc
         .perform(
@@ -71,12 +68,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @Test
   @WithCustomUser(roles = {"ADMIN"})
   void createCategory_whenCategoryNameExists_thenReturnConflict() throws Exception {
-    String categoryRequest =
-        """
-        {
-          "name": "ELECTRONICS"
-        }
-        """;
+    String categoryRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
 
     mockMvc
         .perform(
@@ -88,11 +80,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @WithCustomUser(roles = {"ADMIN"})
   void updateCategory_whenCategoryExistsAndRequestValid_thenReturnNoContent() throws Exception {
     String categoryRequest =
-        """
-        {
-          "name": "UPDATED"
-        }
-        """;
+        CategoryRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
 
     mockMvc
         .perform(
@@ -115,11 +103,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @WithCustomUser(roles = {"ADMIN"})
   void updateCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
     String categoryRequest =
-        """
-        {
-          "name": "UPDATED"
-        }
-        """;
+        CategoryRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
 
     mockMvc
         .perform(
@@ -131,12 +115,7 @@ public class CategoryControllerTest extends IntegrationTest {
   @WithCustomUser(roles = {"ADMIN"})
   void updateCategory_whenCategoryExistsAndCategoryNameExists_thenReturnConflict()
       throws Exception {
-    String categoryRequest =
-        """
-        {
-          "name": "ELECTRONICS"
-        }
-        """;
+    String categoryRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
 
     mockMvc
         .perform(

@@ -6,11 +6,21 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderItemRequest;
 
 @Builder
 public class OrderItemRequestTestDataBuilder {
-  @Default private Long id = 1L;
+  private Long id;
   @Default private Long productId = 1L;
   @Default Integer quantity = 1;
 
   public OrderItemRequest buildOrderItemRequest() {
     return new OrderItemRequest(id, productId, quantity);
+  }
+
+  public String toJson() {
+    return """
+        {
+          "productId": %d,
+          "quantity": %d
+        }
+        """
+        .formatted(productId, quantity);
   }
 }

@@ -6,9 +6,18 @@ import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
 
 @Builder
 public class CategoryRequestTestDataBuilder {
-  @Default private String name = "Bicycles";
+  @Default private String name = "Electronics";
 
   public CategoryRequest buildCategoryRequest() {
     return new CategoryRequest(name);
+  }
+
+  public String toJson() {
+    return """
+    {
+      "name": "%s"
+    }
+    """
+        .formatted(name);
   }
 }

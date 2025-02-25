@@ -45,7 +45,7 @@ class RoleServiceTest {
     roleEntity = RoleEntityTestDataBuilder.builder().build().buildRoleEntity();
     role = RoleTestDataBuilder.builder().build().buildRole();
     roleRequest1 = RoleRequestTestDataBuilder.builder().build().buildRoleRequest();
-    roleRequest2 = RoleRequestTestDataBuilder.builder().name("USER").build().buildRoleRequest();
+    roleRequest2 = RoleRequestTestDataBuilder.builder().name("ADMIN").build().buildRoleRequest();
   }
 
   @Test

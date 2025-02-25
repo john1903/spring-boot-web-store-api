@@ -6,12 +6,24 @@ import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 
 @Builder
 public class UserRequestTestDataBuilder {
-  @Default private Long roleId = 1L;
-  @Default private String email = "admin@admin.com";
-  @Default private String password = "admin";
-  @Default private String phoneNumber = "+48123456789";
+  @Default private Long roleId = 2L;
+  @Default private String email = "client@client.com";
+  @Default private String password = "client";
+  @Default private String phoneNumber = "222222222";
 
   public UserRequest buildUserRequest() {
     return new UserRequest(roleId, email, password, phoneNumber);
+  }
+
+  public String toJson() {
+    return """
+    {
+      "roleId": %d,
+      "email": "%s",
+      "password": "%s",
+      "phoneNumber": "%s"
+    }
+    """
+        .formatted(roleId, email, password, phoneNumber);
   }
 }

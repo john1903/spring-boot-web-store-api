@@ -7,7 +7,7 @@ import me.jangluzniewicz.webstore.categories.entities.CategoryEntity;
 @Builder
 public class CategoryEntityTestDataBuilder {
   @Default private Long id = 1L;
-  @Default private String name = "Bicycles";
+  @Default private String name = "Electronics";
 
   public CategoryEntity buildCategoryEntity() {
     return CategoryEntity.builder().id(id).name(name).build();

@@ -57,7 +57,7 @@ public class ProductControllerTest extends IntegrationTest {
   @WithCustomUser(roles = {"ADMIN"})
   void createProductFromCsvTests(MockMultipartFile file, HttpStatus expectedStatus)
       throws Exception {
-    performMultipart("/products/import/csv", file).andExpect(status().is(expectedStatus.value()));
+    performMultipart(BASE_URL + "/import/csv", file).andExpect(status().is(expectedStatus.value()));
   }
 
   static Stream<Arguments> provideCsvImportTestData() {
@@ -76,7 +76,7 @@ public class ProductControllerTest extends IntegrationTest {
   @MethodSource("provideUpdateProductTestData")
   @DisplayName("PUT /products")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateProductTests_Admin(String url, String productRequest, HttpStatus expectedStatus)
+  void updateProductTests(String url, String productRequest, HttpStatus expectedStatus)
       throws Exception {
     performPut(url, productRequest).andExpect(status().is(expectedStatus.value()));
   }
@@ -95,7 +95,7 @@ public class ProductControllerTest extends IntegrationTest {
   @MethodSource("provideDeleteProductTestData")
   @DisplayName("DELETE /products")
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteProductTests_Admin(String url, HttpStatus expectedStatus) throws Exception {
+  void deleteProductTests(String url, HttpStatus expectedStatus) throws Exception {
     performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 

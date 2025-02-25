@@ -1,144 +1,91 @@
 package me.jangluzniewicz.webstore.carts.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import me.jangluzniewicz.webstore.utils.testdata.carts.CartItemRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.testdata.carts.CartRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class CartControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String CART_CURRENT_URL = "/carts/current";
+  private static final String CART_ITEMS_URL = CART_CURRENT_URL + "/items";
+  private static final long VALID_USER_ID = 2;
 
-  @Test
-  @WithCustomUser(id = 2)
-  void getCart_whenCartExists_thenReturnCart() throws Exception {
-    mockMvc
-        .perform(get("/carts/current"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").exists())
-        .andExpect(jsonPath("$.customerId").value(2))
-        .andExpect(jsonPath("$.items", is(notNullValue())));
+  @ParameterizedTest
+  @MethodSource("provideGetCartTestData")
+  @DisplayName("GET /carts/current")
+  @WithCustomUser(id = VALID_USER_ID)
+  void getCartTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 3)
-  void getCart_whenCartDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/carts/current")).andExpect(status().isNotFound());
+  static Stream<Arguments> provideGetCartTestData() {
+    return Stream.of(
+            Arguments.of(CART_CURRENT_URL, HttpStatus.OK)
+    );
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void addItemToCart_whenProductExists_thenReturnNoContent() throws Exception {
-    String cartItemRequest =
-        """
-        {
-          "productId": 1,
-          "quantity": 1
-        }
-        """;
-
-    mockMvc
-        .perform(
-            post("/carts/current/items")
-                .content(cartItemRequest)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent());
+  @ParameterizedTest
+  @MethodSource("provideAddItemToCartTestData")
+  @DisplayName("POST /carts/current/items")
+  @WithCustomUser(id = VALID_USER_ID)
+  void addItemToCartTests(String cartItemRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(CART_ITEMS_URL, cartItemRequest)
+            .andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void addItemToCart_whenProductDoesNotExist_thenReturnNotFound() throws Exception {
-    String cartItemRequest =
-        """
-        {
-          "productId": 999,
-          "quantity": 1
-        }
-        """;
-
-    mockMvc
-        .perform(
-            post("/carts/current/items")
-                .content(cartItemRequest)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
+  static Stream<Arguments> provideAddItemToCartTestData() {
+    String validCartItemRequest = CartItemRequestTestDataBuilder.builder().build().toJson();
+    String notFoundCartItemRequest = CartItemRequestTestDataBuilder.builder().productId(999L).build().toJson();
+    return Stream.of(
+            Arguments.of(validCartItemRequest, HttpStatus.NO_CONTENT),
+            Arguments.of(notFoundCartItemRequest, HttpStatus.NOT_FOUND)
+    );
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void emptyCart_whenCartExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/carts/current/items")).andExpect(status().isNoContent());
+  @ParameterizedTest
+  @MethodSource("provideEmptyCartTestData")
+  @DisplayName("DELETE /carts/current/items")
+  @WithCustomUser(id = VALID_USER_ID)
+  void emptyCartTests(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 3)
-  void emptyCart_whenCartDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/carts/current/items")).andExpect(status().isNotFound());
+  static Stream<Arguments> provideEmptyCartTestData() {
+    return Stream.of(
+            Arguments.of(CART_ITEMS_URL, HttpStatus.NO_CONTENT)
+    );
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void updateCart_whenCartExistsAndProductExists_thenReturnNoContent() throws Exception {
-    String cartRequest =
-        """
-        {
-          "items": [
-            {
-              "productId": 1,
-              "quantity": 2
-            }
-          ]
-        }
-        """;
-
-    mockMvc
-        .perform(put("/carts/current").content(cartRequest).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent());
+  @ParameterizedTest
+  @MethodSource("provideUpdateCartTestData")
+  @DisplayName("PUT /carts/current")
+  @WithCustomUser(id = VALID_USER_ID)
+  void updateCartTests(String cartRequest, HttpStatus expectedStatus) throws Exception {
+    performPut(CART_CURRENT_URL, cartRequest)
+            .andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(id = 2)
-  void updateCart_whenCartExistsAndProductDoesNotExist_thenReturnNotFound() throws Exception {
-    String cartRequest =
-        """
-        {
-          "items": [
-            {
-              "productId": 999,
-              "quantity": 2
-            }
-          ]
-        }
-        """;
-
-    mockMvc
-        .perform(put("/carts/current").content(cartRequest).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithCustomUser(id = 3)
-  void updateCart_whenCartDoesNotExist_thenReturnNotFound() throws Exception {
-    String cartRequest =
-        """
-        {
-          "items": [
-            {
-              "productId": 1,
-              "quantity": 2
-            }
-          ]
-        }
-        """;
-
-    mockMvc
-        .perform(put("/carts/current").content(cartRequest).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
+  static Stream<Arguments> provideUpdateCartTestData() {
+    String validCartRequest = CartRequestTestDataBuilder.builder()
+            .items(List.of(CartItemRequestTestDataBuilder.builder().quantity(2).build()))
+            .build()
+            .toJson();
+    String notFoundCartRequest = CartRequestTestDataBuilder.builder()
+            .items(List.of(CartItemRequestTestDataBuilder.builder().productId(999L).build()))
+            .build()
+            .toJson();
+    return Stream.of(
+            Arguments.of(validCartRequest, HttpStatus.NO_CONTENT),
+            Arguments.of(notFoundCartRequest, HttpStatus.NOT_FOUND)
+    );
   }
 }

@@ -13,5 +13,5 @@ public @interface WithCustomUser {
 
   String password() default "password";
 
-  String[] roles() default {"USER"};
+  String[] roles() default {"CUSTOMER"};
 }

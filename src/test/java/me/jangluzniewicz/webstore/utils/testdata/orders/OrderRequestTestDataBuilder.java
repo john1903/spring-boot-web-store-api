@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
 
 @Builder
 public class OrderRequestTestDataBuilder {
-  @Default private Long customerId = 1L;
+  @Default private Long customerId = 2L;
 
   @Default
   private List<OrderItemRequestTestDataBuilder> items =

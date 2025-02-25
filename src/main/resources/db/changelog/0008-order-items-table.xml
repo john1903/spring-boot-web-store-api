@@ -52,5 +52,11 @@
             <column name="quantity" value="1"/>
             <column name="price" value="1999.99"/>
         </insert>
+        <insert tableName="order_items">
+            <column name="order_id" value="5"/>
+            <column name="product_id" value="2"/>
+            <column name="quantity" value="1"/>
+            <column name="price" value="799.99"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

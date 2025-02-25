@@ -42,5 +42,8 @@
             <column name="order_status_id" value="4"/>
             <column name="rating_id" value="1"/>
         </insert>
+        <insert tableName="orders">
+            <column name="customer_id" value="1"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -17,7 +17,8 @@ import org.springframework.http.HttpStatus;
 public class CartControllerTest extends IntegrationTest {
   private static final String CART_CURRENT_URL = "/carts/current";
   private static final String CART_ITEMS_URL = CART_CURRENT_URL + "/items";
-  private static final long VALID_USER_ID = 2;
+  private static final long VALID_USER_ID = 2L;
+  private static final long INVALID_PRODUCT_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideGetCartTestData")
@@ -42,7 +43,7 @@ public class CartControllerTest extends IntegrationTest {
   static Stream<Arguments> provideAddItemToCartTestData() {
     String validCartItemRequest = CartItemRequestTestDataBuilder.builder().build().toJson();
     String notFoundCartItemRequest =
-        CartItemRequestTestDataBuilder.builder().productId(999L).build().toJson();
+        CartItemRequestTestDataBuilder.builder().productId(INVALID_PRODUCT_ID).build().toJson();
     return Stream.of(
         Arguments.of(validCartItemRequest, HttpStatus.NO_CONTENT),
         Arguments.of(notFoundCartItemRequest, HttpStatus.NOT_FOUND));
@@ -76,7 +77,9 @@ public class CartControllerTest extends IntegrationTest {
             .toJson();
     String notFoundCartRequest =
         CartRequestTestDataBuilder.builder()
-            .items(List.of(CartItemRequestTestDataBuilder.builder().productId(999L).build()))
+            .items(
+                List.of(
+                    CartItemRequestTestDataBuilder.builder().productId(INVALID_PRODUCT_ID).build()))
             .build()
             .toJson();
     return Stream.of(

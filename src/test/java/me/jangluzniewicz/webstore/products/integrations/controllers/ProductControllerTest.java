@@ -17,6 +17,8 @@ import org.springframework.mock.web.MockMultipartFile;
 
 public class ProductControllerTest extends IntegrationTest {
   private static final String BASE_URL = "/products";
+  private static final long VALID_PRODUCT_ID = 1L;
+  private static final long INVALID_PRODUCT_ID = 999L;
 
   @ParameterizedTest
   @MethodSource("provideGetProductsTestData")
@@ -30,8 +32,8 @@ public class ProductControllerTest extends IntegrationTest {
     return Stream.of(
         Arguments.of(BASE_URL, HttpStatus.OK),
         Arguments.of(BASE_URL + "?" + filterParams, HttpStatus.OK),
-        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_PRODUCT_ID, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/" + INVALID_PRODUCT_ID, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -86,9 +88,11 @@ public class ProductControllerTest extends IntegrationTest {
         ProductRequestTestDataBuilder.builder().name("UPDATED_PRODUCT").build().toJson();
     String invalidProductRequest = "{}";
     return Stream.of(
-        Arguments.of(BASE_URL + "/1", validProductRequest, HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/1", invalidProductRequest, HttpStatus.BAD_REQUEST),
-        Arguments.of(BASE_URL + "/999", validProductRequest, HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_PRODUCT_ID, validProductRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(
+            BASE_URL + "/" + VALID_PRODUCT_ID, invalidProductRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(
+            BASE_URL + "/" + INVALID_PRODUCT_ID, validProductRequest, HttpStatus.NOT_FOUND));
   }
 
   @ParameterizedTest
@@ -101,7 +105,7 @@ public class ProductControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideDeleteProductTestData() {
     return Stream.of(
-        Arguments.of(BASE_URL + "/1", HttpStatus.NO_CONTENT),
-        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
+        Arguments.of(BASE_URL + "/" + VALID_PRODUCT_ID, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/" + INVALID_PRODUCT_ID, HttpStatus.NOT_FOUND));
   }
 }

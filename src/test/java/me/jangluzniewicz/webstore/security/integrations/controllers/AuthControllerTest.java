@@ -38,7 +38,7 @@ public class AuthControllerTest extends IntegrationTest {
 
   @ParameterizedTest
   @MethodSource("provideCreateUserTestData")
-  @DisplayName("POST /auth/signup - (USER)")
+  @DisplayName("POST /auth/signup")
   void createUserTests(String userRequest, HttpStatus expectedStatus) throws Exception {
     performPost(SIGNUP_URL, userRequest).andExpect(status().is(expectedStatus.value()));
   }

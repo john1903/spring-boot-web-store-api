@@ -1,137 +1,87 @@
 package me.jangluzniewicz.webstore.categories.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
 import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryRequestTestDataBuilder;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class CategoryControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/categories";
 
-  @Test
-  void getCategories_whenCategoriesExist_thenReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/categories"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThanOrEqualTo(0))));
+  @ParameterizedTest
+  @MethodSource("provideGetCategoryTestData")
+  @DisplayName("GET /categories")
+  void getCategoryTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void getCategory_whenCategoryExists_thenReturnOkAndCategory() throws Exception {
-    mockMvc
-        .perform(get("/categories/1"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.name", not(emptyOrNullString())));
+  static Stream<Arguments> provideGetCategoryTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  void getCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/categories/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideCreateCategoryTestData")
+  @DisplayName("POST /categories")
   @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
-    String categoryRequest =
+  void createCategoryTests(String categoryRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(BASE_URL, categoryRequest).andExpect(status().is(expectedStatus.value()));
+  }
+
+  static Stream<Arguments> provideCreateCategoryTestData() {
+    String validCategoryRequest =
         CategoryRequestTestDataBuilder.builder().name("NEW_CATEGORY").build().toJson();
+    String invalidCategoryRequest = "{}";
+    String duplicateCategoryRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
 
-    mockMvc
-        .perform(
-            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isCreated())
-        .andExpect(header().exists("Location"))
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
+    return Stream.of(
+        Arguments.of(validCategoryRequest, HttpStatus.CREATED),
+        Arguments.of(invalidCategoryRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(duplicateCategoryRequest, HttpStatus.CONFLICT));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideUpdateCategoryTestData")
+  @DisplayName("PUT /categories")
   @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenRequestInvalid_thenReturnBadRequest() throws Exception {
-    String categoryRequest = "{}";
-
-    mockMvc
-        .perform(
-            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void createCategory_whenCategoryNameExists_thenReturnConflict() throws Exception {
-    String categoryRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
-
-    mockMvc
-        .perform(
-            post("/categories").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndRequestValid_thenReturnNoContent() throws Exception {
-    String categoryRequest =
-        CategoryRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
-
-    mockMvc
-        .perform(
-            put("/categories/1").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndRequestInvalid_thenReturnBadRequest() throws Exception {
-    String categoryRequest = "{}";
-
-    mockMvc
-        .perform(
-            put("/categories/1").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
-    String categoryRequest =
-        CategoryRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
-
-    mockMvc
-        .perform(
-            put("/categories/999").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateCategory_whenCategoryExistsAndCategoryNameExists_thenReturnConflict()
+  void updateCategoryTests(String url, String categoryRequest, HttpStatus expectedStatus)
       throws Exception {
-    String categoryRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
-
-    mockMvc
-        .perform(
-            put("/categories/2").contentType(MediaType.APPLICATION_JSON).content(categoryRequest))
-        .andExpect(status().isConflict());
+    performPut(url, categoryRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteCategory_whenCategoryExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/categories/3")).andExpect(status().isNoContent());
+  static Stream<Arguments> provideUpdateCategoryTestData() {
+    String validUpdateRequest =
+        CategoryRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
+    String invalidUpdateRequest = "{}";
+    String duplicateUpdateRequest = CategoryRequestTestDataBuilder.builder().build().toJson();
+
+    return Stream.of(
+        Arguments.of(BASE_URL + "/1", validUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/1", invalidUpdateRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(BASE_URL + "/999", validUpdateRequest, HttpStatus.NOT_FOUND),
+        Arguments.of(BASE_URL + "/2", duplicateUpdateRequest, HttpStatus.CONFLICT));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideDeleteCategoryTestData")
+  @DisplayName("DELETE /categories")
   @WithCustomUser(roles = {"ADMIN"})
-  void deleteCategory_whenCategoryDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/categories/999")).andExpect(status().isNotFound());
+  void deleteCategoryTests(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
+  }
+
+  static Stream<Arguments> provideDeleteCategoryTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/3", HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 }

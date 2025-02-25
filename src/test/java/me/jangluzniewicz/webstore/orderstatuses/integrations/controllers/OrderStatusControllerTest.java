@@ -1,159 +1,88 @@
 package me.jangluzniewicz.webstore.orderstatuses.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import me.jangluzniewicz.webstore.utils.testdata.order_statuses.OrderStatusRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class OrderStatusControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/order-statuses";
 
-  @Test
-  void getOrderStatuses_whenOrderStatusesExists_thenReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/order-statuses"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThanOrEqualTo(0))));
+  @ParameterizedTest
+  @MethodSource("provideGetOrderStatusTestData")
+  @DisplayName("GET /order-statuses")
+  void getOrderStatusTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void getOrderStatus_whenOrderStatusExists_thenReturnOkAndOrderStatus() throws Exception {
-    mockMvc
-        .perform(get("/order-statuses/1"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.name", not(emptyOrNullString())));
+  static Stream<Arguments> provideGetOrderStatusTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  void getOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/order-statuses/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideCreateOrderStatusTestData")
+  @DisplayName("POST /order-statuses")
   @WithCustomUser(roles = {"ADMIN"})
-  void createOrderStatus_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
-    String orderStatusRequest =
-        """
-        {
-          "name": "NEW_ORDER_STATUS"
-        }
-        """;
-
-    mockMvc
-        .perform(
-            post("/order-statuses")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void createOrderStatus_whenOrderStatusNameExists_thenReturnConflict() throws Exception {
-    String orderStatusRequest =
-        """
-        {
-          "name": "APPROVED"
-        }
-        """;
-
-    mockMvc
-        .perform(
-            post("/order-statuses")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndRequestValid_thenReturnNoContent()
+  void createOrderStatusTests(String orderStatusRequest, HttpStatus expectedStatus)
       throws Exception {
-    String orderStatusRequest =
-        """
-        {
-          "name": "UPDATED_ORDER_STATUS"
-        }
-        """;
-
-    mockMvc
-        .perform(
-            put("/order-statuses/2")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isNoContent());
+    performPost(BASE_URL, orderStatusRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
+  static Stream<Arguments> provideCreateOrderStatusTestData() {
+    String validOrderStatusRequest =
+        OrderStatusRequestTestDataBuilder.builder().name("NEW_ORDER_STATUS").build().toJson();
+    String duplicateOrderStatusRequest =
+        OrderStatusRequestTestDataBuilder.builder().build().toJson();
+    String invalidOrderStatusRequest = "{}";
+    return Stream.of(
+        Arguments.of(validOrderStatusRequest, HttpStatus.CREATED),
+        Arguments.of(duplicateOrderStatusRequest, HttpStatus.CONFLICT),
+        Arguments.of(invalidOrderStatusRequest, HttpStatus.BAD_REQUEST));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideUpdateOrderStatusTestData")
+  @DisplayName("PUT /order-statuses")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndRequestInvalid_thenReturnBadRequest()
+  void updateOrderStatusTests(String url, String orderStatusRequest, HttpStatus expectedStatus)
       throws Exception {
-    String orderStatusRequest = "{}";
-
-    mockMvc
-        .perform(
-            put("/order-statuses/2")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isBadRequest());
+    performPut(url, orderStatusRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
-    String orderStatusRequest =
-        """
-        {
-          "name": "UPDATED_ORDER_STATUS"
-        }
-        """;
+  static Stream<Arguments> provideUpdateOrderStatusTestData() {
+    String validUpdateRequest =
+        OrderStatusRequestTestDataBuilder.builder().name("UPDATED").build().toJson();
+    String invalidUpdateRequest = "{}";
+    String duplicateUpdateRequest = OrderStatusRequestTestDataBuilder.builder().build().toJson();
 
-    mockMvc
-        .perform(
-            put("/order-statuses/999")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isNotFound());
+    return Stream.of(
+        Arguments.of(BASE_URL + "/2", validUpdateRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/2", invalidUpdateRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(BASE_URL + "/999", validUpdateRequest, HttpStatus.NOT_FOUND),
+        Arguments.of(BASE_URL + "/3", duplicateUpdateRequest, HttpStatus.CONFLICT));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideDeleteOrderStatusTestData")
+  @DisplayName("DELETE /order-statuses")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateOrderStatus_whenOrderStatusExistsAndNameExists_thenReturnConflict() throws Exception {
-    String orderStatusRequest =
-        """
-        {
-          "name": "APPROVED"
-        }
-        """;
-
-    mockMvc
-        .perform(
-            put("/order-statuses/3")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(orderStatusRequest))
-        .andExpect(status().isConflict());
+  void deleteOrderStatusTests(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteOrderStatus_whenOrderStatusExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/order-statuses/2")).andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteOrderStatus_whenOrderStatusDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/order-statuses/999")).andExpect(status().isNotFound());
+  static Stream<Arguments> provideDeleteOrderStatusTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/2", HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 }

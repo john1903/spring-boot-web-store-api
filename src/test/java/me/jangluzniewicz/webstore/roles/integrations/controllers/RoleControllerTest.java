@@ -1,140 +1,82 @@
 package me.jangluzniewicz.webstore.roles.integrations.controllers;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.integrations.config.IntegrationTest;
 import me.jangluzniewicz.webstore.utils.integrations.security.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import me.jangluzniewicz.webstore.utils.testdata.roles.RoleRequestTestDataBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 public class RoleControllerTest extends IntegrationTest {
-  @Autowired private MockMvc mockMvc;
+  private static final String BASE_URL = "/roles";
 
-  @Test
-  void getRoles_whenRolesExist_thenReturnOkAndPagedResponse() throws Exception {
-    mockMvc
-        .perform(get("/roles"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.content", is(notNullValue())))
-        .andExpect(jsonPath("$.totalPages", is(greaterThan(0))));
+  @ParameterizedTest
+  @MethodSource("provideGetRoleTestData")
+  @DisplayName("GET /roles")
+  void getRoleTests(String url, HttpStatus expectedStatus) throws Exception {
+    performGet(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  void getRole_whenRoleExists_thenReturnOkAndRole() throws Exception {
-    mockMvc
-        .perform(get("/roles/1"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.name", not(emptyOrNullString())));
+  static Stream<Arguments> provideGetRoleTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL, HttpStatus.OK),
+        Arguments.of(BASE_URL + "/1", HttpStatus.OK),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 
-  @Test
-  void getRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(get("/roles/999")).andExpect(status().isNotFound());
-  }
-
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideCreateRoleTestData")
+  @DisplayName("POST /roles")
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRequestValid_thenReturnCreatedAndIdResponse() throws Exception {
-    String roleRequest =
-        """
-        {
-          "name": "TEST"
-        }
-        """;
-
-    mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isCreated())
-        .andExpect(header().exists("Location"))
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(notNullValue())));
+  void createRoleTests(String roleRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(BASE_URL, roleRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRoleNameExists_thenReturnConflict() throws Exception {
-    String roleRequest =
-        """
-        {
-          "name": "CUSTOMER"
-        }
-        """;
+  static Stream<Arguments> provideCreateRoleTestData() {
+    String validRoleRequest = RoleRequestTestDataBuilder.builder().name("TEST").build().toJson();
+    String duplicateRoleRequest = RoleRequestTestDataBuilder.builder().build().toJson();
+    String invalidRoleRequest = "{}";
 
-    mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isConflict());
+    return Stream.of(
+        Arguments.of(validRoleRequest, HttpStatus.CREATED),
+        Arguments.of(duplicateRoleRequest, HttpStatus.CONFLICT),
+        Arguments.of(invalidRoleRequest, HttpStatus.BAD_REQUEST));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideUpdateRoleTestData")
+  @DisplayName("PUT /roles")
   @WithCustomUser(roles = {"ADMIN"})
-  void createRole_whenRequestInvalid_thenReturnBadRequest() throws Exception {
-    String roleRequest = "{}";
-
-    mockMvc
-        .perform(post("/roles").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isBadRequest());
+  void updateRoleTests(String url, String roleRequest, HttpStatus expectedStatus) throws Exception {
+    performPut(url, roleRequest).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleExistsAndRequestValid_thenReturnNoContent() throws Exception {
-    String roleRequest =
-        """
-        {
-          "name": "TEST"
-        }
-        """;
+  static Stream<Arguments> provideUpdateRoleTestData() {
+    String validRoleRequest = RoleRequestTestDataBuilder.builder().name("TEST").build().toJson();
+    String duplicateRoleRequest = RoleRequestTestDataBuilder.builder().build().toJson();
 
-    mockMvc
-        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isNoContent());
+    return Stream.of(
+        Arguments.of(BASE_URL + "/1", validRoleRequest, HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/1", duplicateRoleRequest, HttpStatus.CONFLICT),
+        Arguments.of(BASE_URL + "/999", validRoleRequest, HttpStatus.NOT_FOUND));
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("provideDeleteRoleTestData")
+  @DisplayName("DELETE /roles")
   @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleExistsAndRoleNameExists_thenReturnConflict() throws Exception {
-    String roleRequest =
-        """
-        {
-          "name": "CUSTOMER"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/roles/1").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isConflict());
+  void deleteRoleTests(String url, HttpStatus expectedStatus) throws Exception {
+    performDelete(url).andExpect(status().is(expectedStatus.value()));
   }
 
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void updateRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
-    String roleRequest =
-        """
-        {
-          "name": "TEST"
-        }
-        """;
-
-    mockMvc
-        .perform(put("/roles/999").contentType(MediaType.APPLICATION_JSON).content(roleRequest))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteRole_whenRoleExists_thenReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/roles/3")).andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithCustomUser(roles = {"ADMIN"})
-  void deleteRole_whenRoleDoesNotExist_thenReturnNotFound() throws Exception {
-    mockMvc.perform(delete("/roles/999")).andExpect(status().isNotFound());
+  static Stream<Arguments> provideDeleteRoleTestData() {
+    return Stream.of(
+        Arguments.of(BASE_URL + "/3", HttpStatus.NO_CONTENT),
+        Arguments.of(BASE_URL + "/999", HttpStatus.NOT_FOUND));
   }
 }

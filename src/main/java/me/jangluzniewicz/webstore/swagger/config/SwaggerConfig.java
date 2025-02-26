@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "WebStore API", version = "v1.0.0"))
 @SecurityScheme(
-    name = "jwtAuth",
+    name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
     bearerFormat = "JWT",
     scheme = "bearer")

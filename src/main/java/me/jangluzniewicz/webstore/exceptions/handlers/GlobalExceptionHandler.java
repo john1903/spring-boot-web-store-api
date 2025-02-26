@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.exceptions.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import me.jangluzniewicz.webstore.exceptions.*;
@@ -62,6 +63,31 @@ public class GlobalExceptionHandler {
                     ErrorDetail.builder()
                         .field(fieldError.getField())
                         .message(fieldError.getDefaultMessage())
+                        .build())
+            .toList();
+    ApiDetailedError apiError =
+        ApiDetailedError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getMessage())
+            .path(url)
+            .details(errorDetails)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ApiDetailedError> handleConstraintViolationException(
+      ConstraintViolationException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    List<ErrorDetail> errorDetails =
+        e.getConstraintViolations().stream()
+            .map(
+                violation ->
+                    ErrorDetail.builder()
+                        .field(violation.getPropertyPath().toString())
+                        .message(violation.getMessage())
                         .build())
             .toList();
     ApiDetailedError apiError =

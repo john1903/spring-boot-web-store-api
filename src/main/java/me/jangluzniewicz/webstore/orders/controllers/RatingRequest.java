@@ -13,6 +13,7 @@ import lombok.Getter;
 @Getter
 public class RatingRequest {
   @Schema(description = "Rating ID", example = "1", nullable = true)
+  @Min(value = 1, message = "id must be at least 1")
   private Long id;
 
   @Schema(description = "Rating value", example = "4")

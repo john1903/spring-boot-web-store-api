@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.users.controllers;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,6 +16,7 @@ public class UserRequest {
       description = "Identifier of the role assigned to the user",
       example = "2",
       nullable = true)
+  @Min(value = 1, message = "roleId must be greater than 0")
   private Long roleId;
 
   @Schema(description = "Email address of the user", example = "user@example.com")
@@ -25,6 +27,7 @@ public class UserRequest {
 
   @Schema(description = "Password of the user", example = "P@ssw0rd")
   @NotNull(message = "password is required")
+  @Size(min = 8, max = 255, message = "password must be between 8 and 255 characters")
   private String password;
 
   @Schema(description = "Phone number of the user", example = "+12345678901")

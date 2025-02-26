@@ -12,10 +12,12 @@ import lombok.Getter;
 @Getter
 public class OrderItemRequest {
   @Schema(description = "Order item ID", example = "1", nullable = true)
+  @Min(value = 1, message = "id must be at least 1")
   private Long id;
 
   @Schema(description = "Product ID", example = "10")
   @NotNull(message = "productId is required")
+  @Min(value = 1, message = "productId must be at least 1")
   private Long productId;
 
   @Schema(description = "Quantity of the product", example = "2")

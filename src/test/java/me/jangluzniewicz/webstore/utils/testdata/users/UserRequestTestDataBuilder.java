@@ -8,7 +8,7 @@ import me.jangluzniewicz.webstore.users.controllers.UserRequest;
 public class UserRequestTestDataBuilder {
   @Default private Long roleId = 2L;
   @Default private String email = "client@client.com";
-  @Default private String password = "client";
+  @Default private String password = "P@ssw0rd";
   @Default private String phoneNumber = "222222222";
 
   public UserRequest buildUserRequest() {

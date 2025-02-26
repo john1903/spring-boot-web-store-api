@@ -2,6 +2,7 @@ package me.jangluzniewicz.webstore.products.controllers;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -35,5 +36,6 @@ public class ProductRequest {
 
   @Schema(description = "Category ID to which the product belongs", example = "2")
   @NotNull(message = "categoryId is required")
+  @Min(value = 1, message = "categoryId must be a positive number")
   private Long categoryId;
 }

@@ -43,13 +43,7 @@ public class ProductController {
               schema = @Schema(implementation = PagedResponse.class)))
   @GetMapping
   public ResponseEntity<PagedResponse<Product>> getProducts(
-      @Parameter(
-              in = ParameterIn.QUERY,
-              description = "Filter criteria",
-              schema = @Schema(implementation = ProductFilterRequest.class))
-          @Valid
-          @ModelAttribute
-          ProductFilterRequest filterRequest,
+      @Valid @ModelAttribute ProductFilterRequest filterRequest,
       @Parameter(in = ParameterIn.QUERY, description = "Page number", example = "0")
           @RequestParam(defaultValue = "0")
           Integer page,

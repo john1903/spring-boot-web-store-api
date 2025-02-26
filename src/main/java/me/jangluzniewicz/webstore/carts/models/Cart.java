@@ -26,6 +26,6 @@ public class Cart {
   @Schema(description = "List of items in the cart")
   private List<CartItem> items;
 
-  @Schema(description = "Total price of the cart", example = "199.99", nullable = true)
+  @Schema(description = "Total price of the cart", example = "599.98", nullable = true)
   private BigDecimal total;
 }

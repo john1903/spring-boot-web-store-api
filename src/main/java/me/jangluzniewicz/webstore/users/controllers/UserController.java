@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
 import org.springframework.http.MediaType;
@@ -73,7 +74,7 @@ public class UserController {
     return userService
         .getUserById(id)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("User not found"));
   }
 
   @Operation(

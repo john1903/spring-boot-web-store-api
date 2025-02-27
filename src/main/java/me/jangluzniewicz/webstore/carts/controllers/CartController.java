@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
 import me.jangluzniewicz.webstore.carts.models.Cart;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.security.interfaces.ISecurity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class CartController {
     return cartService
         .getCartByCustomerId(authService.getCurrentUser().getId())
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
   @Operation(

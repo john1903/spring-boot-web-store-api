@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.security.services.JwtService;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,7 +23,7 @@ public class JwtSuccessHandler implements AuthenticationSuccessHandler {
   public void onAuthenticationSuccess(
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    response.setContentType("application/json");
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     List<String> roles =
         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     Long id =

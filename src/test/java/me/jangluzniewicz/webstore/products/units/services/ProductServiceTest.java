@@ -39,6 +39,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -209,7 +210,7 @@ class ProductServiceTest {
 
   @Test
   void createNewProductsFromCsv_whenFileIsNotCsv_thenThrowIllegalArgumentException() {
-    when(file.getContentType()).thenReturn("application/json");
+    when(file.getContentType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
 
     assertThrows(
         IllegalArgumentException.class, () -> productService.createNewProductsFromCsv(file));

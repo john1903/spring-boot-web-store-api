@@ -15,15 +15,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 public class BearerTokenFilter extends HttpFilter {
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
   private final SecurityContextHolderStrategy securityContextHolderStrategy =
       SecurityContextHolder.getContextHolderStrategy();
-  private final AuthenticationFailureHandler failureHandler =
-      new SimpleUrlAuthenticationFailureHandler();
+  private final AuthenticationFailureHandler failureHandler = new JwtFailureHandler();
   private final JwtService jwtService;
 
   public BearerTokenFilter(JwtService jwtService) {

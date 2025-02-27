@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
 import org.springframework.http.MediaType;
@@ -72,7 +73,7 @@ public class ProductController {
     return productService
         .getProductById(id)
         .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
   @Operation(

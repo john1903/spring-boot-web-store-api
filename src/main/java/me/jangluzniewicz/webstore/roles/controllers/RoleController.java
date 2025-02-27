@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.models.Role;
 import org.springframework.http.MediaType;
@@ -66,7 +67,7 @@ public class RoleController {
     return roleService
         .getRoleById(id)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("Role not found"));
   }
 
   @Operation(

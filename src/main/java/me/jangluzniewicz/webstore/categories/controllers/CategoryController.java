@@ -15,6 +15,7 @@ import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.models.Category;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -68,7 +69,7 @@ public class CategoryController {
     return categoryService
         .getCategoryById(id)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("Category not found"));
   }
 
   @Operation(

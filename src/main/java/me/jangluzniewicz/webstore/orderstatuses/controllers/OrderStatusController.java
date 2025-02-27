@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.orderstatuses.interfaces.IOrderStatus;
 import me.jangluzniewicz.webstore.orderstatuses.models.OrderStatus;
 import org.springframework.http.MediaType;
@@ -74,7 +75,7 @@ public class OrderStatusController {
     return orderStatusService
         .getOrderStatusById(id)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(() -> new NotFoundException("Order status not found"));
   }
 
   @Operation(

@@ -22,7 +22,6 @@ public class UserEntity {
 
   @ManyToOne
   @JoinColumn(name = "role_id", nullable = false)
-  @NonNull
   private RoleEntity role;
 
   @Column(nullable = false, unique = true)

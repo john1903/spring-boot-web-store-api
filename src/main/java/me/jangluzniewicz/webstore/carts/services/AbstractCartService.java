@@ -71,20 +71,30 @@ public abstract class AbstractCartService implements ICart {
   @Transactional
   public void addProductToCart(Long customerId, CartItemRequest cartItemRequest) {
     Cart cart = fetchCart(customerId);
-    cart.getItems()
-        .add(
-            CartItem.builder()
-                .product(
-                    productService
-                        .getProductById(cartItemRequest.getProductId())
-                        .orElseThrow(
-                            () ->
-                                new NotFoundException(
-                                    "Product with id "
-                                        + cartItemRequest.getProductId()
-                                        + " not found")))
-                .quantity(cartItemRequest.getQuantity())
-                .build());
+    Optional<CartItem> existingItem =
+        cart.getItems().stream()
+            .filter(item -> item.getProduct().getId().equals(cartItemRequest.getProductId()))
+            .findFirst();
+    if (existingItem.isPresent()) {
+      existingItem
+          .get()
+          .setQuantity(existingItem.get().getQuantity() + cartItemRequest.getQuantity());
+    } else {
+      cart.getItems()
+          .add(
+              CartItem.builder()
+                  .product(
+                      productService
+                          .getProductById(cartItemRequest.getProductId())
+                          .orElseThrow(
+                              () ->
+                                  new NotFoundException(
+                                      "Product with id "
+                                          + cartItemRequest.getProductId()
+                                          + " not found")))
+                  .quantity(cartItemRequest.getQuantity())
+                  .build());
+    }
     cartRepository.save(cartMapper.toEntity(cart));
   }
 

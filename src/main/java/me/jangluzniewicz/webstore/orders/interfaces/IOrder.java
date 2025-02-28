@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
+import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
-import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.models.Order;
 
@@ -80,10 +80,11 @@ public interface IOrder {
    * Changes the status of an existing order.
    *
    * @param id the ID of the order whose status is to be changed; must be a positive number.
-   * @param orderStatusRequest the request object containing the new status of the order; must not
-   *     be null.
+   * @param changeOrderStatusRequest the request object containing the new status of the order; must
+   *     not be null.
    */
-  void changeOrderStatus(@NotNull @Min(1) Long id, @NotNull OrderStatusRequest orderStatusRequest);
+  void changeOrderStatus(
+      @NotNull @Min(1) Long id, @NotNull ChangeOrderStatusRequest changeOrderStatusRequest);
 
   /**
    * Adds a rating to an existing order.

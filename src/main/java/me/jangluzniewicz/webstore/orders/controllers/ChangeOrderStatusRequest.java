@@ -9,7 +9,7 @@ import lombok.Getter;
 @Schema(description = "Payload for updating an order's status")
 @AllArgsConstructor
 @Getter
-public class OrderStatusRequest {
+public class ChangeOrderStatusRequest {
   @Schema(description = "New order status ID", example = "3")
   @NotNull(message = "orderStatusId is required")
   @Min(value = 1, message = "orderStatusId must be at least 1")

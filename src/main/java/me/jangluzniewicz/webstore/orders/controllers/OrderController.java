@@ -175,11 +175,11 @@ public class OrderController {
       @RequestBody(
               description = "Order status update payload",
               required = true,
-              content = @Content(schema = @Schema(implementation = OrderStatusRequest.class)))
+              content = @Content(schema = @Schema(implementation = ChangeOrderStatusRequest.class)))
           @Valid
           @org.springframework.web.bind.annotation.RequestBody
-          OrderStatusRequest orderStatusRequest) {
-    orderService.changeOrderStatus(id, orderStatusRequest);
+          ChangeOrderStatusRequest changeOrderStatusRequest) {
+    orderService.changeOrderStatus(id, changeOrderStatusRequest);
     return ResponseEntity.noContent().build();
   }
 

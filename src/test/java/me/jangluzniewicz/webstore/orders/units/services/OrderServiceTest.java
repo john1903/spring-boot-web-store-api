@@ -10,9 +10,9 @@ import java.util.Optional;
 import me.jangluzniewicz.webstore.exceptions.ConflictException;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.OrderStatusNotAllowedException;
+import me.jangluzniewicz.webstore.orders.controllers.ChangeOrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderFilterRequest;
 import me.jangluzniewicz.webstore.orders.controllers.OrderRequest;
-import me.jangluzniewicz.webstore.orders.controllers.OrderStatusRequest;
 import me.jangluzniewicz.webstore.orders.controllers.RatingRequest;
 import me.jangluzniewicz.webstore.orders.entities.OrderEntity;
 import me.jangluzniewicz.webstore.orders.mappers.OrderMapper;
@@ -57,7 +57,7 @@ class OrderServiceTest {
   private Order order;
   private OrderRequest orderRequest1;
   private OrderRequest orderRequest2;
-  private OrderStatusRequest orderStatusRequest;
+  private ChangeOrderStatusRequest changeOrderStatusRequest;
   private OrderFilterRequest orderFilterRequest;
   private RatingRequest ratingRequest;
 
@@ -76,8 +76,8 @@ class OrderServiceTest {
             .buildOrderRequest();
     orderFilterRequest =
         OrderFilterRequestTestDataBuilder.builder().build().buildOrderFilterRequest();
-    orderStatusRequest =
-        OrderStatusRequestTestDataBuilder.builder().build().buildChangeOrderStatusRequest();
+    changeOrderStatusRequest =
+        ChangeOrderStatusRequestTestDataBuilder.builder().build().buildChangeOrderStatusRequest();
     ratingRequest = RatingRequestTestDataBuilder.builder().build().buildRatingRequest();
   }
 
@@ -154,12 +154,12 @@ class OrderServiceTest {
   void changeOrderStatus_whenOrderExistsAndOrderStatusExists_thenUpdateOrderStatus() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
-    when(orderStatusService.getOrderStatusById(orderStatusRequest.getOrderStatusId()))
+    when(orderStatusService.getOrderStatusById(changeOrderStatusRequest.getOrderStatusId()))
         .thenReturn(Optional.of(orderStatus));
     when(orderRepository.save(any())).thenReturn(orderEntity);
 
     assertDoesNotThrow(
-        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test
@@ -168,19 +168,19 @@ class OrderServiceTest {
 
     assertThrows(
         NotFoundException.class,
-        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test
   void changeOrderStatus_whenOrderStatusDoesNotExist_thenThrowNotFoundException() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);
-    when(orderStatusService.getOrderStatusById(orderStatusRequest.getOrderStatusId()))
+    when(orderStatusService.getOrderStatusById(changeOrderStatusRequest.getOrderStatusId()))
         .thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class,
-        () -> orderService.changeOrderStatus(orderEntity.getId(), orderStatusRequest));
+        () -> orderService.changeOrderStatus(orderEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test
@@ -201,7 +201,8 @@ class OrderServiceTest {
 
     assertThrows(
         OrderStatusNotAllowedException.class,
-        () -> orderService.changeOrderStatus(cancelledOrderEntity.getId(), orderStatusRequest));
+        () ->
+            orderService.changeOrderStatus(cancelledOrderEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test
@@ -222,7 +223,7 @@ class OrderServiceTest {
 
     assertThrows(
         OrderStatusNotAllowedException.class,
-        () -> orderService.changeOrderStatus(completedEntity.getId(), orderStatusRequest));
+        () -> orderService.changeOrderStatus(completedEntity.getId(), changeOrderStatusRequest));
   }
 
   @Test

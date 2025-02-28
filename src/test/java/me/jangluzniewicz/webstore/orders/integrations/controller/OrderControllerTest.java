@@ -145,7 +145,7 @@ public class OrderControllerTest extends IntegrationTest {
 
   static Stream<Arguments> provideUpdateOrderStatus() {
     String validOrderStatusRequest =
-        OrderStatusRequestTestDataBuilder.builder()
+        ChangeOrderStatusRequestTestDataBuilder.builder()
             .orderStatusId(ORDER_STATUS_ACCEPTED_ID)
             .build()
             .toJson();

@@ -158,7 +158,7 @@ public class OrderService implements IOrder {
 
   @Override
   @Transactional
-  public void changeOrderStatus(Long id, OrderStatusRequest orderStatusRequest) {
+  public void changeOrderStatus(Long id, ChangeOrderStatusRequest changeOrderStatusRequest) {
     Order order =
         getOrderById(id)
             .orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
@@ -168,12 +168,12 @@ public class OrderService implements IOrder {
     }
     order.setStatus(
         orderStatusService
-            .getOrderStatusById(orderStatusRequest.getOrderStatusId())
+            .getOrderStatusById(changeOrderStatusRequest.getOrderStatusId())
             .orElseThrow(
                 () ->
                     new NotFoundException(
                         "Order status with id "
-                            + orderStatusRequest.getOrderStatusId()
+                            + changeOrderStatusRequest.getOrderStatusId()
                             + " not found")));
     orderRepository.save(orderMapper.toEntity(order));
   }

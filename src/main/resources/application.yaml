@@ -9,9 +9,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY:sk-your-api-key}
   cache:
     type: redis
   servlet:
@@ -21,12 +18,3 @@ server:
   port: 3000
   servlet:
     context-path: /api
-jwt:
-  secret: ${JWT_SECRET:c467be2fdfa1dfcebbc490bc57b5e21f52a33a14106ccf0b78b0ad2dd3d244f7}
-cors:
-  host: ${CORS_HOST:http://localhost:8080/}
-aws:
-  access-key: ${AWS_ACCESS_KEY:your-access-key}
-  secret-key: ${AWS_SECRET_KEY:your-secret-key}
-  s3:
-    bucket: ${AWS_S3_BUCKET:your-bucket-name}

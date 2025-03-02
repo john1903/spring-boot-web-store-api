@@ -10,7 +10,19 @@ spring:
       password: ${REDIS_PASSWORD}
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
   jpa:
     show-sql: false
   liquibase:
     contexts: prod
+jwt:
+  secret: ${JWT_SECRET}
+cors:
+  host: ${CORS_HOST}
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  s3:
+    bucket: ${AWS_S3_BUCKET}

@@ -14,7 +14,7 @@ public class ProductRequestTestDataBuilder {
   @Default private Long categoryId = 1L;
 
   public ProductRequest buildProductRequest() {
-    return new ProductRequest(name, description, price, weight, categoryId);
+    return new ProductRequest(null, name, description, price, weight, categoryId);
   }
 
   public String toJson() {

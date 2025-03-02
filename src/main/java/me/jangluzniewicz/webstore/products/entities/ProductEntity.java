@@ -19,6 +19,9 @@ public class ProductEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(name = "image_uri")
+  private String imageUri;
+
   @Column(nullable = false)
   @NonNull
   private String name;

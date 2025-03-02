@@ -9,7 +9,7 @@ public class CategoryRequestTestDataBuilder {
   @Default private String name = "Electronics";
 
   public CategoryRequest buildCategoryRequest() {
-    return new CategoryRequest(name);
+    return new CategoryRequest(null, name);
   }
 
   public String toJson() {

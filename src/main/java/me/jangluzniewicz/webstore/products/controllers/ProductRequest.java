@@ -8,11 +8,15 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Schema(description = "Payload for creating or updating a product")
 @AllArgsConstructor
 @Getter
 public class ProductRequest {
+  @Schema(description = "Image of the product", nullable = true)
+  private MultipartFile image;
+
   @Schema(description = "Name of the product", example = "Mountain Bike")
   @NotNull(message = "name is required")
   @Size(min = 1, max = 255, message = "name must be between 1 and 255 characters")

@@ -17,6 +17,9 @@ public class CategoryEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(name = "image_uri")
+  private String imageUri;
+
   @Column(nullable = false, unique = true)
   @NonNull
   private String name;

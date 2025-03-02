@@ -40,6 +40,7 @@ public class CsvProductRequestReader implements ICsvReader<ProductRequest> {
         try {
           ProductRequest productRequest =
               new ProductRequest(
+                  null,
                   row[0],
                   row[1],
                   BigDecimal.valueOf(Double.parseDouble(row[2])),

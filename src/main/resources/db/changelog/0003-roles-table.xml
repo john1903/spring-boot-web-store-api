@@ -21,6 +21,8 @@
         <insert tableName="roles">
             <column name="name" value="CUSTOMER"/>
         </insert>
+    </changeSet>
+    <changeSet id="0003-3" author="jangluzniewicz" context="test">
         <insert tableName="roles">
             <column name="name" value="NO_USE"/>
         </insert>

@@ -16,6 +16,9 @@ public class Category {
   @Schema(description = "Unique identifier of the category", example = "1")
   private Long id;
 
+  @Schema(description = "Image URI of the category")
+  private String imageUri;
+
   @NonNull
   @Schema(description = "Name of the category", example = "Bicycles")
   private String name;

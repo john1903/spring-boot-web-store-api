@@ -9,12 +9,13 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
+            <column name="image_uri" type="varchar(255)"/>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="0001-2" author="jangluzniewicz" context="dev, test">
+    <changeSet id="0001-2" author="jangluzniewicz" context="test">
         <insert tableName="categories">
             <column name="name" value="Electronics"/>
         </insert>

@@ -18,6 +18,9 @@ public class Product {
   @Schema(description = "Unique identifier of the product", example = "1")
   private Long id;
 
+  @Schema(description = "Image URI of the product")
+  private String imageUri;
+
   @NonNull
   @Schema(description = "Name of the product", example = "Mountain Bike")
   private String name;

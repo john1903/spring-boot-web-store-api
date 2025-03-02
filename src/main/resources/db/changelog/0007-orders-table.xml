@@ -25,7 +25,7 @@
                                     constraintName="fk_orders_rating_id" referencedTableName="ratings"
                                     referencedColumnNames="id"/>
     </changeSet>
-    <changeSet id="0007-2" author="jangluzniewicz" context="dev, test">
+    <changeSet id="0007-2" author="jangluzniewicz" context="test">
         <insert tableName="orders">
             <column name="customer_id" value="2"/>
         </insert>

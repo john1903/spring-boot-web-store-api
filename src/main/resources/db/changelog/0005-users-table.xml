@@ -26,7 +26,7 @@
                                  constraintName="fk_users_role_id" referencedTableName="roles"
                                  referencedColumnNames="id"/>
     </changeSet>
-    <changeSet id="0005-2" author="jangluzniewicz" context="dev, test">
+    <changeSet id="0005-2" author="jangluzniewicz" context="test">
         <insert tableName="users">
             <column name="role_id" value="1"/>
             <column name="email" value="admin@admin.com"/>

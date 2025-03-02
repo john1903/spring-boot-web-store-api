@@ -14,6 +14,9 @@ spring:
       api-key: ${OPENAI_API_KEY:sk-your-api-key}
   cache:
     type: redis
+  servlet:
+    multipart:
+      max-file-size: 2MB
 server:
   port: 3000
   servlet:

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.aws.interfaces.IAwsS3;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.commons.interfaces.ICsvReader;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
@@ -33,16 +34,19 @@ public class ProductService implements IProduct {
   private final ProductMapper productMapper;
   private final ICategory categoryService;
   private final ICsvReader<ProductRequest> csvReader;
+  private final IAwsS3 awsS3;
 
   public ProductService(
       ProductRepository productRepository,
       ProductMapper productMapper,
       ICategory categoryService,
-      ICsvReader<ProductRequest> csvReader) {
+      ICsvReader<ProductRequest> csvReader,
+      IAwsS3 awsS3) {
     this.productRepository = productRepository;
     this.productMapper = productMapper;
     this.categoryService = categoryService;
     this.csvReader = csvReader;
+    this.awsS3 = awsS3;
   }
 
   @Override
@@ -125,14 +129,15 @@ public class ProductService implements IProduct {
 
   @Override
   public Optional<Product> getProductById(Long id) {
-    return productRepository.findById(id).map(productMapper::fromEntity);
-  }
-
-  @Override
-  public PagedResponse<Product> getAllProducts(Integer page, Integer size) {
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Product> products = productRepository.findAll(pageable).map(productMapper::fromEntity);
-    return new PagedResponse<>(products.getTotalPages(), products.toList());
+    return productRepository
+        .findById(id)
+        .map(
+            productEntity -> {
+              var product = productMapper.fromEntity(productEntity);
+              product.setImageUrl(
+                  awsS3.getSignedUrl(product.getImageUri() != null ? product.getImageUri() : ""));
+              return product;
+            });
   }
 
   @Override
@@ -141,7 +146,16 @@ public class ProductService implements IProduct {
     Pageable pageable = PageRequest.of(page, size);
     Specification<ProductEntity> specification = ProductSpecification.filterBy(filter);
     Page<Product> products =
-        productRepository.findAll(specification, pageable).map(productMapper::fromEntity);
+        productRepository
+            .findAll(specification, pageable)
+            .map(
+                productEntity -> {
+                  var product = productMapper.fromEntity(productEntity);
+                  product.setImageUrl(
+                      awsS3.getSignedUrl(
+                          product.getImageUri() != null ? product.getImageUri() : ""));
+                  return product;
+                });
     return new PagedResponse<>(products.getTotalPages(), products.toList());
   }
 

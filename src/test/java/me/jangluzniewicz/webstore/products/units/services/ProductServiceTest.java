@@ -104,15 +104,6 @@ class ProductServiceTest {
   }
 
   @Test
-  void getAllProducts_whenProductsExist_thenReturnPagedResponse() {
-    Page<ProductEntity> page = new PageImpl<>(List.of(productEntity));
-    when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
-    when(productMapper.fromEntity(productEntity)).thenReturn(product);
-
-    assertEquals(1, productService.getAllProducts(0, 10).getTotalPages());
-  }
-
-  @Test
   @SuppressWarnings("unchecked")
   void getFilteredProducts_whenProductsExist_thenReturnPagedResponse() {
     Page<ProductEntity> page = new PageImpl<>(List.of(productEntity));

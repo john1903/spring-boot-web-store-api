@@ -2,6 +2,7 @@ package me.jangluzniewicz.webstore.categories.services;
 
 import jakarta.transaction.Transactional;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.aws.interfaces.IAwsS3;
 import me.jangluzniewicz.webstore.categories.controllers.CategoryRequest;
 import me.jangluzniewicz.webstore.categories.interfaces.ICategory;
 import me.jangluzniewicz.webstore.categories.mappers.CategoryMapper;
@@ -22,10 +23,13 @@ import org.springframework.validation.annotation.Validated;
 public class CategoryService implements ICategory {
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
+  private final IAwsS3 awsS3;
 
-  public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+  public CategoryService(
+      CategoryRepository categoryRepository, CategoryMapper categoryMapper, IAwsS3 awsS3) {
     this.categoryRepository = categoryRepository;
     this.categoryMapper = categoryMapper;
+    this.awsS3 = awsS3;
   }
 
   @Override
@@ -41,14 +45,31 @@ public class CategoryService implements ICategory {
 
   @Override
   public Optional<Category> getCategoryById(Long id) {
-    return categoryRepository.findById(id).map(categoryMapper::fromEntity);
+    return categoryRepository
+        .findById(id)
+        .map(
+            categoryEntity -> {
+              var category = categoryMapper.fromEntity(categoryEntity);
+              category.setImageUrl(
+                  awsS3.getSignedUrl(category.getImageUri() != null ? category.getImageUri() : ""));
+              return category;
+            });
   }
 
   @Override
   public PagedResponse<Category> getAllCategories(Integer page, Integer size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Category> categories =
-        categoryRepository.findAll(pageable).map(categoryMapper::fromEntity);
+        categoryRepository
+            .findAll(pageable)
+            .map(
+                categoryEntity -> {
+                  var category = categoryMapper.fromEntity(categoryEntity);
+                  category.setImageUrl(
+                      awsS3.getSignedUrl(
+                          category.getImageUri() != null ? category.getImageUri() : ""));
+                  return category;
+                });
     return new PagedResponse<>(categories.getTotalPages(), categories.toList());
   }
 

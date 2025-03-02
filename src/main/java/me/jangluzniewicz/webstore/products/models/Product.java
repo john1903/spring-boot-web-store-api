@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.products.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import lombok.*;
@@ -18,8 +19,12 @@ public class Product {
   @Schema(description = "Unique identifier of the product", example = "1")
   private Long id;
 
+  @JsonIgnore
   @Schema(description = "Image URI of the product")
   private String imageUri;
+
+  @Schema(description = "Image URL of the product")
+  private String imageUrl;
 
   @NonNull
   @Schema(description = "Name of the product", example = "Mountain Bike")

@@ -30,4 +30,3 @@ aws:
   secret-key: ${AWS_SECRET_KEY:your-secret-key}
   s3:
     bucket: ${AWS_S3_BUCKET:your-bucket-name}
-    region: ${AWS_REGION:eu-central-1}

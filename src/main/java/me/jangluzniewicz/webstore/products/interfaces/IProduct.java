@@ -47,16 +47,6 @@ public interface IProduct {
   Optional<Product> getProductById(@NotNull @Min(1) Long id);
 
   /**
-   * Retrieves all products with pagination.
-   *
-   * @param page the page number to retrieve; must be a non-negative number.
-   * @param size the number of products per page; must be a positive number.
-   * @return a {@link PagedResponse} containing the paginated list of products.
-   */
-  PagedResponse<Product> getAllProducts(
-      @NotNull @Min(0) Integer page, @NotNull @Min(1) Integer size);
-
-  /**
    * Retrieves filtered products with pagination.
    *
    * @param filter the filter criteria for retrieving products; must not be null.

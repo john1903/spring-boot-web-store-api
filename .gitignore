@@ -37,3 +37,6 @@ build/
 
 ### Docker ###
 docker-compose.yaml
+
+### Config ###
+**/application-dev.yaml

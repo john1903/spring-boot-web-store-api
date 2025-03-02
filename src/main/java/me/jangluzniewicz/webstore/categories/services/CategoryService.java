@@ -51,7 +51,9 @@ public class CategoryService implements ICategory {
             categoryEntity -> {
               var category = categoryMapper.fromEntity(categoryEntity);
               category.setImageUrl(
-                  awsS3.getSignedUrl(category.getImageUri() != null ? category.getImageUri() : ""));
+                  category.getImageUri() != null && !category.getImageUri().isEmpty()
+                      ? awsS3.getSignedUrl(category.getImageUri())
+                      : "");
               return category;
             });
   }
@@ -66,8 +68,9 @@ public class CategoryService implements ICategory {
                 categoryEntity -> {
                   var category = categoryMapper.fromEntity(categoryEntity);
                   category.setImageUrl(
-                      awsS3.getSignedUrl(
-                          category.getImageUri() != null ? category.getImageUri() : ""));
+                      category.getImageUri() != null && !category.getImageUri().isEmpty()
+                          ? awsS3.getSignedUrl(category.getImageUri())
+                          : "");
                   return category;
                 });
     return new PagedResponse<>(categories.getTotalPages(), categories.toList());

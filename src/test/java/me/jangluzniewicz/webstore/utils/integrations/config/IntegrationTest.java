@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles(profiles = {"test", "local"})
 @Transactional
 public abstract class IntegrationTest {
   @Autowired private MockMvc mockMvc;

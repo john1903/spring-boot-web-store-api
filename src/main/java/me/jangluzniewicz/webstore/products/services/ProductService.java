@@ -135,7 +135,9 @@ public class ProductService implements IProduct {
             productEntity -> {
               var product = productMapper.fromEntity(productEntity);
               product.setImageUrl(
-                  awsS3.getSignedUrl(product.getImageUri() != null ? product.getImageUri() : ""));
+                  product.getImageUri() != null && !product.getImageUri().isEmpty()
+                      ? awsS3.getSignedUrl(product.getImageUri())
+                      : "");
               return product;
             });
   }
@@ -152,8 +154,9 @@ public class ProductService implements IProduct {
                 productEntity -> {
                   var product = productMapper.fromEntity(productEntity);
                   product.setImageUrl(
-                      awsS3.getSignedUrl(
-                          product.getImageUri() != null ? product.getImageUri() : ""));
+                      product.getImageUri() != null && !product.getImageUri().isEmpty()
+                          ? awsS3.getSignedUrl(product.getImageUri())
+                          : "");
                   return product;
                 });
     return new PagedResponse<>(products.getTotalPages(), products.toList());

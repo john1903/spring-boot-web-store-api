@@ -1,0 +1,9 @@
+spring:
+  ai:
+    openai:
+      api-key: <OPENAI_API_KEY>
+aws:
+  access-key: <AWS_ACCESS_KEY>
+  secret-key: <AWS_SECRET_KEY>
+  s3:
+    bucket: <AWS_S3_BUCKET>

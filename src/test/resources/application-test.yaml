@@ -8,3 +8,5 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     contexts: test
+jwt:
+  secret: cee86fe38f76573ccb30716aaf318cf6073f48e6cd4cf1f66c04139e95e47af6

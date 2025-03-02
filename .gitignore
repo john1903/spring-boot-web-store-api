@@ -39,4 +39,4 @@ build/
 docker-compose.yaml
 
 ### Config ###
-**/application-dev.yaml
+**/application-local.yaml

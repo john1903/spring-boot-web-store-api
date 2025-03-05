@@ -9,16 +9,14 @@ import me.jangluzniewicz.webstore.security.services.CustomUserDetailsService;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.utils.testdata.users.UserTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-@ExtendWith(MockitoExtension.class)
-class CustomUserDetailsServiceTest {
+class CustomUserDetailsServiceTest extends UnitTest {
   @Mock private IUser userService;
   @InjectMocks private CustomUserDetailsService customUserDetailsService;
 

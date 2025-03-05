@@ -1,6 +1,7 @@
 package me.jangluzniewicz.webstore.carts.services;
 
 import java.util.Optional;
+import me.jangluzniewicz.webstore.aws.interfaces.IAwsS3;
 import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.mappers.CartMapper;
@@ -17,8 +18,8 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class CartServiceWithCache extends AbstractCartService {
   public CartServiceWithCache(
-      CartRepository cartRepository, CartMapper cartMapper, IProduct productService) {
-    super(cartRepository, cartMapper, productService);
+      CartRepository cartRepository, CartMapper cartMapper, IProduct productService, IAwsS3 awsS3) {
+    super(cartRepository, cartMapper, productService, awsS3);
   }
 
   @Override

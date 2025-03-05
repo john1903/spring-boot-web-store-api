@@ -3,6 +3,7 @@ package me.jangluzniewicz.webstore.carts.services;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Optional;
+import me.jangluzniewicz.webstore.aws.interfaces.IAwsS3;
 import me.jangluzniewicz.webstore.carts.controllers.CartItemRequest;
 import me.jangluzniewicz.webstore.carts.controllers.CartRequest;
 import me.jangluzniewicz.webstore.carts.interfaces.ICart;
@@ -19,12 +20,14 @@ public abstract class AbstractCartService implements ICart {
   protected final CartRepository cartRepository;
   protected final CartMapper cartMapper;
   protected final IProduct productService;
+  protected final IAwsS3 awsS3;
 
   public AbstractCartService(
-      CartRepository cartRepository, CartMapper cartMapper, IProduct productService) {
+      CartRepository cartRepository, CartMapper cartMapper, IProduct productService, IAwsS3 awsS3) {
     this.cartRepository = cartRepository;
     this.cartMapper = cartMapper;
     this.productService = productService;
+    this.awsS3 = awsS3;
   }
 
   @Override
@@ -39,7 +42,21 @@ public abstract class AbstractCartService implements ICart {
 
   @Override
   public Optional<Cart> getCartByCustomerId(Long customerId) {
-    return cartRepository.findByCustomerId(customerId).map(cartMapper::fromEntity);
+    return cartRepository
+        .findByCustomerId(customerId)
+        .map(
+            cartEntity -> {
+              Cart cart = cartMapper.fromEntity(cartEntity);
+              cart.getItems().stream()
+                  .map(CartItem::getProduct)
+                  .forEach(
+                      product ->
+                          product.setImageUrl(
+                              product.getImageUri() != null
+                                  ? awsS3.getSignedUrl(product.getImageUri())
+                                  : null));
+              return cart;
+            });
   }
 
   @Override

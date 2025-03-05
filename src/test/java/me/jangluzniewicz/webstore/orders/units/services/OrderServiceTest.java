@@ -30,19 +30,17 @@ import me.jangluzniewicz.webstore.utils.testdata.order_statuses.OrderStatusTestD
 import me.jangluzniewicz.webstore.utils.testdata.orders.*;
 import me.jangluzniewicz.webstore.utils.testdata.products.ProductTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.users.UserTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-@ExtendWith(MockitoExtension.class)
-class OrderServiceTest {
+class OrderServiceTest extends UnitTest {
   @Mock private OrderRepository orderRepository;
   @Mock private IOrderStatus orderStatusService;
   @Mock private IUser userService;

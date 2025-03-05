@@ -12,11 +12,12 @@ import me.jangluzniewicz.webstore.security.models.CustomUser;
 import me.jangluzniewicz.webstore.security.services.JwtService;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.utils.testdata.users.UserTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 
-class JwtServiceTest {
+class JwtServiceTest extends UnitTest {
   private static final String JWT_SECRET =
       "c467be2fdfa1dfcebbc490bc57b5e21f52a33a14106ccf0b78b0ad2dd3d244f7";
   private JwtService jwtService;

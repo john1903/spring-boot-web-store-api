@@ -20,17 +20,15 @@ import me.jangluzniewicz.webstore.roles.services.RoleService;
 import me.jangluzniewicz.webstore.utils.testdata.roles.RoleEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.roles.RoleRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.roles.RoleTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-@ExtendWith(MockitoExtension.class)
-class RoleServiceTest {
+class RoleServiceTest extends UnitTest {
   @Mock private RoleRepository roleRepository;
   @Mock private RoleMapper roleMapper;
   @InjectMocks private RoleService roleService;

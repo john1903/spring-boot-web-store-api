@@ -14,14 +14,12 @@ import java.util.Set;
 import me.jangluzniewicz.webstore.commons.services.CsvProductRequestReader;
 import me.jangluzniewicz.webstore.exceptions.CsvReaderException;
 import me.jangluzniewicz.webstore.products.controllers.ProductRequest;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class CsvProductRequestReaderTest {
+class CsvProductRequestReaderTest extends UnitTest {
   @Mock Validator validator;
   @InjectMocks CsvProductRequestReader csvProductRequestReader;
 

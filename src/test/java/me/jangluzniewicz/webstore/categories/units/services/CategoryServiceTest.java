@@ -20,17 +20,15 @@ import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryEntityTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.categories.CategoryTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-@ExtendWith(MockitoExtension.class)
-class CategoryServiceTest {
+class CategoryServiceTest extends UnitTest {
   @Mock private CategoryRepository categoryRepository;
   @Mock private CategoryMapper categoryMapper;
   @InjectMocks private CategoryService categoryService;

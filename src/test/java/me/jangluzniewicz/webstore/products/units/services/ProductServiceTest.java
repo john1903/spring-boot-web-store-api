@@ -29,12 +29,11 @@ import me.jangluzniewicz.webstore.utils.testdata.products.ProductEntityTestDataB
 import me.jangluzniewicz.webstore.utils.testdata.products.ProductFilterRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.products.ProductRequestTestDataBuilder;
 import me.jangluzniewicz.webstore.utils.testdata.products.ProductTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
-@ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+class ProductServiceTest extends UnitTest {
   @Mock private ProductRepository productRepository;
   @Mock private ProductMapper productMapper;
   @Mock private ICategory categoryService;

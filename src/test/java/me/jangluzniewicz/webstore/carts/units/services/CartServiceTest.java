@@ -22,15 +22,13 @@ import me.jangluzniewicz.webstore.products.interfaces.IProduct;
 import me.jangluzniewicz.webstore.products.models.Product;
 import me.jangluzniewicz.webstore.utils.testdata.carts.*;
 import me.jangluzniewicz.webstore.utils.testdata.products.ProductTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class CartServiceTest {
+class CartServiceTest extends UnitTest {
   @Mock private CartRepository cartRepository;
   @Mock private CartMapper cartMapper;
   @Mock private IProduct productService;

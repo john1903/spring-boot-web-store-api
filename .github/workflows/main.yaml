@@ -28,6 +28,8 @@ jobs:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_URL: ${{ secrets.AWS_URL }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: mvn -B test -Dspring.profiles.active=test,ci -Dgroups=e2e --file pom.xml
 
       - name: Build Application
@@ -76,11 +78,14 @@ jobs:
       - name: Run Docker container
         run: |
           docker run -d \
+            --restart always \
             --name web-store-api-container \
             -p 3000:3000 \
             -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
             -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
             -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+            -e AWS_URL="${{ secrets.AWS_URL }}" \
+            -e AWS_REGION="${{ secrets.AWS_REGION }}" \
             -e CORS_HOST="${{ secrets.CORS_HOST }}" \
             -e DB_HOST="${{ secrets.DB_HOST }}" \
             -e DB_NAME="${{ secrets.DB_NAME }}" \

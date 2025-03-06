@@ -5,5 +5,7 @@ spring:
 aws:
   access-key: ${AWS_ACCESS_KEY}
   secret-key: ${AWS_SECRET_KEY}
+  url: ${AWS_URL}
+  region: ${AWS_REGION}
   s3:
     bucket: ${AWS_S3_BUCKET}

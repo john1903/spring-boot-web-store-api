@@ -40,7 +40,7 @@ jobs:
         run: |
           timestamp=$(date '+%Y-%m-%d-%H%M%S')
           echo "TIMESTAMP=$timestamp" >> $GITHUB_ENV
-          echo "::set-output name=timestamp::$timestamp"
+          echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image
         uses: docker/build-push-action@v6
@@ -78,7 +78,6 @@ jobs:
       - name: Run Docker container
         run: |
           docker run -d \
-            --restart always \
             --name web-store-api-container \
             -p 3000:3000 \
             -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \

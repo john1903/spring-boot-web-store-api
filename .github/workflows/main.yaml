@@ -1,0 +1,98 @@
+name: CI/CD Web Store Api
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build, Test, and Deploy Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      TIMESTAMP: ${{ steps.set_timestamp.outputs.timestamp }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '23'
+
+      - name: Unit Test
+        run: mvn -B test -Dspring.profiles.active=test,ci -Dgroups=unit --file pom.xml
+
+      - name: End-to-End Test
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: mvn -B test -Dspring.profiles.active=test,ci -Dgroups=e2e --file pom.xml
+
+      - name: Build Application
+        run: mvn clean package -DskipTests --file pom.xml
+
+      - name: Set timestamp
+        id: set_timestamp
+        run: |
+          timestamp=$(date '+%Y-%m-%d-%H%M%S')
+          echo "TIMESTAMP=$timestamp" >> $GITHUB_ENV
+          echo "::set-output name=timestamp::$timestamp"
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/web-store-api:${{ env.TIMESTAMP }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/web-store-api:${{ env.TIMESTAMP }}
+
+  deploy:
+    name: Deploy to Ubuntu Linux Server
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from Docker Hub
+        run: docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/web-store-api:${{ needs.build.outputs.TIMESTAMP }}
+
+      - name: Delete existing Docker container
+        run: docker rm -f web-store-api-container
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+            --name web-store-api-container \
+            -p 3000:3000 \
+            -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
+            -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
+            -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+            -e CORS_HOST="${{ secrets.CORS_HOST }}" \
+            -e DB_HOST="${{ secrets.DB_HOST }}" \
+            -e DB_NAME="${{ secrets.DB_NAME }}" \
+            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -e DB_PORT="${{ secrets.DB_PORT }}" \
+            -e DB_USER="${{ secrets.DB_USER }}" \
+            -e DOCKER_HUB_ACCESS_TOKEN="${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" \
+            -e DOCKER_HUB_USERNAME="${{ secrets.DOCKER_HUB_USERNAME }}" \
+            -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            -e REDIS_URI="${{ secrets.REDIS_URI }}" \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/web-store-api:${{ needs.build.outputs.TIMESTAMP }}
+
+      - name: Prune Docker Images
+        run: docker image prune -a -f

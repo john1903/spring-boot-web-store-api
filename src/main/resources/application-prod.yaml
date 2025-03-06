@@ -6,10 +6,7 @@ spring:
     password: ${DB_PASSWORD}
   data:
     redis:
-      username: ${REDIS_USER}
-      password: ${REDIS_PASSWORD}
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      url: redis://${REDIS_URI}
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}

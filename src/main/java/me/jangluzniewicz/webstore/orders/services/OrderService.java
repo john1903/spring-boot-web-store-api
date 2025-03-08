@@ -57,12 +57,18 @@ public class OrderService implements IOrder {
     Order order =
         Order.builder()
             .customer(
-                userService
-                    .getUserById(orderRequest.getCustomerId())
-                    .orElseThrow(
-                        () ->
-                            new NotFoundException(
-                                "User with id " + orderRequest.getCustomerId() + " not found")))
+                orderRequest.getCustomerId() != null
+                    ? userService
+                        .getUserById(orderRequest.getCustomerId())
+                        .orElseThrow(
+                            () ->
+                                new NotFoundException(
+                                    "User with id " + orderRequest.getCustomerId() + " not found"))
+                    : userService
+                        .getUserByEmail("GUEST")
+                        .orElseThrow(() -> new NotFoundException("Guest user not found")))
+            .email(orderRequest.getEmail())
+            .phoneNumber(orderRequest.getPhoneNumber())
             .items(
                 orderRequest.getItems().stream()
                     .map(

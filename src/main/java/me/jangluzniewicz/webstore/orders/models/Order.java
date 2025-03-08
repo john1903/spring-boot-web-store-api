@@ -33,6 +33,12 @@ public class Order {
   @NonNull
   private User customer;
 
+  @Schema(description = "Email address of the user", example = "customer@customer.com")
+  private String email;
+
+  @Schema(description = "Phone number of the user", example = "+12345678901")
+  private String phoneNumber;
+
   @Schema(description = "Current status of the order")
   private OrderStatus status;
 

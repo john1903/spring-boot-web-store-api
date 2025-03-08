@@ -104,6 +104,18 @@ class OrderServiceTest extends UnitTest {
   }
 
   @Test
+  void createNewOrder_whenUserIsGuest_thenReturnIdResponse() {
+    OrderRequest guestOrderRequest =
+        OrderRequestTestDataBuilder.builder().customerId(null).build().buildOrderRequest();
+
+    when(userService.getUserByEmail("GUEST")).thenReturn(Optional.of(user));
+    when(productService.getProductById(product.getId())).thenReturn(Optional.of(product));
+    when(orderRepository.save(any())).thenReturn(orderEntity);
+
+    assertEquals(orderEntity.getId(), orderService.createNewOrder(guestOrderRequest).getId());
+  }
+
+  @Test
   void getOrderById_whenOrderExists_thenReturnOrder() {
     when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
     when(orderMapper.fromEntity(orderEntity)).thenReturn(order);

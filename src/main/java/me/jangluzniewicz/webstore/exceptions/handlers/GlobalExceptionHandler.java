@@ -11,10 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -96,6 +98,36 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST.value())
             .error(HttpStatus.BAD_REQUEST.name())
             .message(e.getMessage())
+            .path(url)
+            .details(errorDetails)
+            .build();
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(HandlerMethodValidationException.class)
+  public ResponseEntity<ApiDetailedError> handleHandlerMethodValidationException(
+      HandlerMethodValidationException e, HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    List<ErrorDetail> errorDetails =
+        e.getAllErrors().stream()
+            .map(
+                objectError -> {
+                  String field = null;
+                  if (objectError instanceof FieldError) {
+                    field = ((FieldError) objectError).getField();
+                  }
+                  return ErrorDetail.builder()
+                      .field(field)
+                      .message(objectError.getDefaultMessage())
+                      .build();
+                })
+            .toList();
+    ApiDetailedError apiError =
+        ApiDetailedError.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .message(e.getReason())
             .path(url)
             .details(errorDetails)
             .build();

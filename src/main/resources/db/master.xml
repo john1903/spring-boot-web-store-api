@@ -16,4 +16,5 @@
     <include file="changelog/0010-cart-items-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/0011-dev-test-data.xml" relativeToChangelogFile="true" context="dev"/>
     <include file="changelog/0012-guest-customer-data.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/0013-order-table-altered.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

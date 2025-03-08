@@ -36,6 +36,11 @@ public class OrderEntity {
   @NonNull
   private UserEntity customer;
 
+  private String email;
+
+  @Column(name = "phone_number")
+  private String phoneNumber;
+
   @ManyToOne
   @JoinColumn(name = "order_status_id")
   private OrderStatusEntity status;

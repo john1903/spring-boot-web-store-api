@@ -107,6 +107,43 @@ public class OrderControllerTest extends E2ETest {
   }
 
   @ParameterizedTest
+  @MethodSource("guestCreateOrderTestData")
+  @DisplayName("POST /orders (GUEST)")
+  void guestCreateOrderTests(String orderRequest, HttpStatus expectedStatus) throws Exception {
+    performPost(BASE_URL, orderRequest).andExpect(status().is(expectedStatus.value()));
+  }
+
+  static Stream<Arguments> guestCreateOrderTestData() {
+    String validOrderRequest =
+        OrderRequestTestDataBuilder.builder()
+            .customerId(null)
+            .email("customer@customer.com")
+            .phoneNumber("123456789")
+            .build()
+            .toJson();
+    String invalidOrderRequest = "{}";
+    String orderRequestWithoutEmail =
+        OrderRequestTestDataBuilder.builder()
+            .customerId(null)
+            .email(null)
+            .phoneNumber("123456789")
+            .build()
+            .toJson();
+    String orderRequestWithoutPhoneNumber =
+        OrderRequestTestDataBuilder.builder()
+            .customerId(null)
+            .phoneNumber(null)
+            .email("customer@customer.com")
+            .build()
+            .toJson();
+    return Stream.of(
+        Arguments.of(validOrderRequest, HttpStatus.CREATED),
+        Arguments.of(invalidOrderRequest, HttpStatus.BAD_REQUEST),
+        Arguments.of(orderRequestWithoutEmail, HttpStatus.BAD_REQUEST),
+        Arguments.of(orderRequestWithoutPhoneNumber, HttpStatus.BAD_REQUEST));
+  }
+
+  @ParameterizedTest
   @MethodSource("provideUpdateOrderTestData")
   @DisplayName("PUT /orders")
   @WithCustomUser(roles = {"ADMIN"})

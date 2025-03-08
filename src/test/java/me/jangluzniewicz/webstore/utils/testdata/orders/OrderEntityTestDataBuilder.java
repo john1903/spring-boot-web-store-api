@@ -16,6 +16,10 @@ public class OrderEntityTestDataBuilder {
   @Default
   private UserEntityTestDataBuilder userEntityBuilder = UserEntityTestDataBuilder.builder().build();
 
+  @Default private String email = "customer@customer.com";
+
+  @Default private String phoneNumber = "+12345678901";
+
   @Default
   private OrderStatusEntityTestDataBuilder orderStatusEntityBuilder =
       OrderStatusEntityTestDataBuilder.builder().build();
@@ -32,6 +36,8 @@ public class OrderEntityTestDataBuilder {
         .statusChangeDate(LocalDateTime.now())
         .id(id)
         .customer(userEntityBuilder.buildUserEntity())
+        .email(email)
+        .phoneNumber(phoneNumber)
         .status(orderStatusEntityBuilder.buildOrderStatusEntity())
         .rating(ratingEntityBuilder != null ? ratingEntityBuilder.buildRatingEntity() : null)
         .items(

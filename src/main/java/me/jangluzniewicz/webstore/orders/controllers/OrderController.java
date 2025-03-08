@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Orders", description = "Operations related to orders")
 @RestController
-@PreAuthorize("isAuthenticated()")
 @RequestMapping("/orders")
 public class OrderController {
   private final IOrder orderService;
@@ -73,6 +73,7 @@ public class OrderController {
               schema = @Schema(implementation = Order.class)))
   @ApiResponse(responseCode = "404", description = "Order not found", content = @Content)
   @GetMapping("/{id}")
+  @PreAuthorize("isAuthenticated()")
   @PostAuthorize("hasRole('ADMIN') or returnObject.body.customer.id == authentication.principal.id")
   public ResponseEntity<Order> getOrder(
       @Parameter(in = ParameterIn.PATH, description = "Order ID", required = true, example = "1")
@@ -96,6 +97,7 @@ public class OrderController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = PagedResponse.class)))
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/current")
   public ResponseEntity<PagedResponse<Order>> getCurrentUserOrders(
       @Parameter(in = ParameterIn.QUERY, description = "Page number", example = "0")
@@ -119,13 +121,15 @@ public class OrderController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = IdResponse.class)))
-  @PreAuthorize("hasRole('ADMIN') or #orderRequest.customerId == authentication.principal.id")
+  @PreAuthorize(
+      "#orderRequest.customerId == null or (hasRole('ADMIN') or #orderRequest.customerId == authentication.principal.id)")
   @PostMapping
   public ResponseEntity<IdResponse> createOrder(
       @RequestBody(
               description = "Order creation payload",
               required = true,
               content = @Content(schema = @Schema(implementation = OrderRequest.class)))
+          @NotNull
           @Valid
           @org.springframework.web.bind.annotation.RequestBody
           OrderRequest orderRequest) {
@@ -194,7 +198,7 @@ public class OrderController {
       description = "Order already rated or not completed",
       content = @Content)
   @PreAuthorize(
-      "hasRole('ADMIN') or @orderService.getOrderOwnerId(#id) == authentication.principal.id")
+      "isAuthenticated() and (hasRole('ADMIN') or @orderService.getOrderOwnerId(#id) == authentication.principal.id)")
   @PostMapping("/{id}/rating")
   public ResponseEntity<Void> rateOrder(
       @Parameter(in = ParameterIn.PATH, description = "Order ID", required = true, example = "1")

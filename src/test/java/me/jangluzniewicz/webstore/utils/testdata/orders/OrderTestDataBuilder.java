@@ -14,6 +14,10 @@ public class OrderTestDataBuilder {
   @Default private Long id = 1L;
   @Default private UserTestDataBuilder userBuilder = UserTestDataBuilder.builder().build();
 
+  @Default private String email = "customer@customer.com";
+
+  @Default private String phoneNumber = "+12345678901";
+
   @Default
   private OrderStatusTestDataBuilder orderStatusBuilder =
       OrderStatusTestDataBuilder.builder().build();
@@ -30,6 +34,8 @@ public class OrderTestDataBuilder {
         .statusChangeDate(LocalDateTime.now())
         .id(id)
         .customer(userBuilder.buildUser())
+        .email(email)
+        .phoneNumber(phoneNumber)
         .status(orderStatusBuilder.buildOrderStatus())
         .rating(ratingBuilder != null ? ratingBuilder.buildRating() : null)
         .items(

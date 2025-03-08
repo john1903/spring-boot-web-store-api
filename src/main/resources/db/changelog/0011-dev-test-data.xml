@@ -6,29 +6,29 @@
 
     <changeSet id="0011-1" author="jangluzniewicz">
         <insert tableName="categories">
-            <column name="image_uri" value="public/categories/img-1.jpg"/>
+            <column name="image_uri" value="category-men.jpg"/>
             <column name="name" value="Men"/>
         </insert>
         <insert tableName="categories">
-            <column name="image_uri" value="public/categories/img-2.jpg"/>
+            <column name="image_uri" value="category-women.jpg"/>
             <column name="name" value="Women"/>
         </insert>
         <insert tableName="categories">
-            <column name="image_uri" value="public/categories/img-3.jpg"/>
+            <column name="image_uri" value="category-kids.jpg"/>
             <column name="name" value="Kids"/>
         </insert>
         <insert tableName="categories">
-            <column name="image_uri" value="public/categories/img-4.jpg"/>
+            <column name="image_uri" value="category-unisex.jpg"/>
             <column name="name" value="Unisex"/>
         </insert>
         <insert tableName="categories">
-            <column name="image_uri" value="public/categories/img-5.jpg"/>
+            <column name="image_uri" value="category-recommended.jpg"/>
             <column name="name" value="Recommended"/>
         </insert>
     </changeSet>
-    <changeSet id="0002-1" author="jangluzniewicz">
+    <changeSet id="0011-2" author="jangluzniewicz">
         <insert tableName="products">
-            <column name="image_uri" value="public/products/img-1.jpg"/>
+            <column name="image_uri" value="product-1.jpg"/>
             <column name="name" value="Hydrating Facial Cream"/>
             <column name="description" value="A lightweight cream that provides intense hydration and restores skin balance for a glowing complexion."/>
             <column name="price" value="39.99"/>
@@ -36,7 +36,7 @@
             <column name="category_id" value="5"/>
         </insert>
         <insert tableName="products">
-            <column name="image_uri" value="public/products/img-2.jpg"/>
+            <column name="image_uri" value="product-2.jpg"/>
             <column name="name" value="Anti-Aging Serum"/>
             <column name="description" value="A powerful serum formulated with antioxidants and peptides to reduce the appearance of wrinkles and fine lines."/>
             <column name="price" value="49.99"/>
@@ -44,7 +44,7 @@
             <column name="category_id" value="5"/>
         </insert>
         <insert tableName="products">
-            <column name="image_uri" value="public/products/img-3.jpg"/>
+            <column name="image_uri" value="product-3.jpg"/>
             <column name="name" value="Brightening Moisturizer"/>
             <column name="description" value="A daily moisturizer enriched with vitamins to brighten the skin tone and improve overall texture."/>
             <column name="price" value="29.99"/>
@@ -52,7 +52,7 @@
             <column name="category_id" value="5"/>
         </insert>
         <insert tableName="products">
-            <column name="image_uri" value="public/products/img-4.jpg"/>
+            <column name="image_uri" value="product-4.jpg"/>
             <column name="name" value="Revitalizing Night Serum"/>
             <column name="description" value="A rich night serum that works overnight to repair and replenish skin, leaving it smooth and radiant by morning."/>
             <column name="price" value="44.99"/>

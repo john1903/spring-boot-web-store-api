@@ -1,5 +1,6 @@
 package me.jangluzniewicz.webstore.users.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import me.jangluzniewicz.webstore.roles.models.Role;
@@ -25,6 +26,7 @@ public class User {
   private String email;
 
   @NonNull
+  @JsonIgnore
   @Schema(description = "User's password", example = "P@ssw0rd")
   private String password;
 

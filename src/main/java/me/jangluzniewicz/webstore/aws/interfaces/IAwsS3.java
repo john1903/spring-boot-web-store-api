@@ -6,4 +6,8 @@ public interface IAwsS3 {
   String uploadFile(String folderPath, MultipartFile file);
 
   String getSignedUrl(String key);
+
+  String updateFile(String key, MultipartFile file);
+
+  void deleteFile(String key);
 }

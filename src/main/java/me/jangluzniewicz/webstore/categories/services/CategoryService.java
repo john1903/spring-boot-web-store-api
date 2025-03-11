@@ -40,6 +40,9 @@ public class CategoryService implements ICategory {
           "Category with name " + categoryRequest.getName() + " already exists");
     }
     Category category = Category.builder().name(categoryRequest.getName()).build();
+    if (categoryRequest.getImage() != null) {
+      category.setImageUri(awsS3.uploadFile("", categoryRequest.getImage()));
+    }
     return new IdResponse(categoryRepository.save(categoryMapper.toEntity(category)).getId());
   }
 
@@ -88,13 +91,23 @@ public class CategoryService implements ICategory {
           "Category with name " + categoryRequest.getName() + " already exists");
     }
     category.setName(categoryRequest.getName());
+    if (categoryRequest.getImage() != null) {
+      category.setImageUri(
+          category.getImageUri() != null
+              ? awsS3.updateFile(category.getImageUri(), categoryRequest.getImage())
+              : awsS3.uploadFile("", categoryRequest.getImage()));
+    }
     categoryRepository.save(categoryMapper.toEntity(category));
   }
 
   @Override
   public void deleteCategory(Long id) {
-    if (!categoryRepository.existsById(id)) {
-      throw new NotFoundException("Category with id " + id + " not found");
+    var category =
+        categoryRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Category with id " + id + " not found"));
+    if (category.getImageUri() != null) {
+      awsS3.deleteFile(category.getImageUri());
     }
     categoryRepository.deleteById(id);
   }

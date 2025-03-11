@@ -2,17 +2,16 @@ package me.jangluzniewicz.webstore.utils.testdata.users;
 
 import lombok.Builder;
 import lombok.Builder.Default;
-import me.jangluzniewicz.webstore.users.controllers.UserRequest;
+import me.jangluzniewicz.webstore.users.controllers.UpdateUserRequest;
 
 @Builder
-public class UserRequestTestDataBuilder {
+public class UpdateUserRequestTestDataBuilder {
   @Default private Long roleId = 2L;
   @Default private String email = "client@client.com";
-  @Default private String password = "P@ssw0rd";
   @Default private String phoneNumber = "222222222";
 
-  public UserRequest buildUserRequest() {
-    return new UserRequest(roleId, email, password, phoneNumber);
+  public UpdateUserRequest buildUserRequest() {
+    return new UpdateUserRequest(roleId, email, phoneNumber);
   }
 
   public String toJson() {
@@ -20,10 +19,9 @@ public class UserRequestTestDataBuilder {
     {
       "roleId": %d,
       "email": "%s",
-      "password": "%s",
       "phoneNumber": "%s"
     }
     """
-        .formatted(roleId, email, password, phoneNumber);
+        .formatted(roleId, email, phoneNumber);
   }
 }

@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
-import me.jangluzniewicz.webstore.users.controllers.UserRequest;
+import me.jangluzniewicz.webstore.users.controllers.CreateUserRequest;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,17 +43,17 @@ public class AuthController {
               schema = @Schema(implementation = IdResponse.class)))
   @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   @ApiResponse(responseCode = "409", description = "Email already in use", content = @Content)
-  @PreAuthorize("#userRequest.roleId != 1 or hasRole('ADMIN')")
+  @PreAuthorize("#createUserRequest.roleId != 1 or hasRole('ADMIN')")
   @PostMapping("/signup")
   public ResponseEntity<IdResponse> createUser(
       @RequestBody(
               description = "User registration payload",
               required = true,
-              content = @Content(schema = @Schema(implementation = UserRequest.class)))
+              content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
           @Valid
           @org.springframework.web.bind.annotation.RequestBody
-          UserRequest userRequest) {
-    IdResponse response = userService.registerNewUser(userRequest);
+          CreateUserRequest createUserRequest) {
+    IdResponse response = userService.registerNewUser(createUserRequest);
     return ResponseEntity.created(URI.create("/users/" + response.getId())).body(response);
   }
 }

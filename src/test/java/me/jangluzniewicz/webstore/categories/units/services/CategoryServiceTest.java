@@ -141,14 +141,15 @@ class CategoryServiceTest extends UnitTest {
 
   @Test
   void deleteCategory_whenExists_thenDeleteSuccessfully() {
-    when(categoryRepository.existsById(categoryEntity.getId())).thenReturn(true);
+    when(categoryRepository.findById(categoryEntity.getId()))
+        .thenReturn(Optional.of(categoryEntity));
 
     assertDoesNotThrow(() -> categoryService.deleteCategory(categoryEntity.getId()));
   }
 
   @Test
   void deleteCategory_whenNotExists_thenThrowException() {
-    when(categoryRepository.existsById(categoryEntity.getId())).thenReturn(false);
+    when(categoryRepository.findById(categoryEntity.getId())).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class, () -> categoryService.deleteCategory(categoryEntity.getId()));

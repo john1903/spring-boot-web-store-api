@@ -15,16 +15,16 @@ import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
 import me.jangluzniewicz.webstore.roles.models.Role;
-import me.jangluzniewicz.webstore.users.controllers.UserRequest;
+import me.jangluzniewicz.webstore.users.controllers.ChangeUserPasswordRequest;
+import me.jangluzniewicz.webstore.users.controllers.CreateUserRequest;
+import me.jangluzniewicz.webstore.users.controllers.UpdateUserRequest;
 import me.jangluzniewicz.webstore.users.entities.UserEntity;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
 import me.jangluzniewicz.webstore.users.repositories.UserRepository;
 import me.jangluzniewicz.webstore.users.services.UserService;
 import me.jangluzniewicz.webstore.utils.testdata.roles.RoleTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.testdata.users.UserEntityTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.testdata.users.UserRequestTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.testdata.users.UserTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.testdata.users.*;
 import me.jangluzniewicz.webstore.utils.units.config.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class UserServiceTest extends UnitTest {
@@ -45,50 +46,56 @@ class UserServiceTest extends UnitTest {
   private UserEntity userEntity;
   private User user;
   private Role role;
-  private UserRequest userRequest1;
-  private UserRequest userRequest2;
+  private CreateUserRequest createUserRequest1;
+  private UpdateUserRequest updateUserRequest1;
+  private ChangeUserPasswordRequest changeUserPasswordRequest;
 
   @BeforeEach
   public void setUp() {
     userEntity = UserEntityTestDataBuilder.builder().build().buildUserEntity();
     user = UserTestDataBuilder.builder().build().buildUser();
     role = RoleTestDataBuilder.builder().build().buildRole();
-    userRequest1 = UserRequestTestDataBuilder.builder().build().buildUserRequest();
-    userRequest2 =
-        UserRequestTestDataBuilder.builder().email("new@new.com").build().buildUserRequest();
+    createUserRequest1 = CreateUserRequestTestDataBuilder.builder().build().buildUserRequest();
+    updateUserRequest1 =
+        UpdateUserRequestTestDataBuilder.builder().email("new@new.com").build().buildUserRequest();
+    changeUserPasswordRequest =
+        ChangeUserPasswordRequestTestDataBuilder.builder().build().buildUserRequest();
   }
 
   @Test
   void registerNewUser_whenEmailIsUniqueAndRoleExists_thenReturnIdResponse() {
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
-    when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
-    when(roleService.getRoleById(userRequest1.getRoleId())).thenReturn(Optional.of(role));
+    when(userRepository.existsByEmailIgnoreCase(createUserRequest1.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(createUserRequest1.getPassword()))
+        .thenReturn(userEntity.getPassword());
+    when(roleService.getRoleById(createUserRequest1.getRoleId())).thenReturn(Optional.of(role));
     when(userRepository.save(any())).thenReturn(userEntity);
     when(cartService.createNewCart(userEntity.getId())).thenReturn(new IdResponse(1L));
 
-    assertEquals(userEntity.getId(), userService.registerNewUser(userRequest1).getId());
+    assertEquals(userEntity.getId(), userService.registerNewUser(createUserRequest1).getId());
   }
 
   @Test
   void registerNewUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(true);
+    when(userRepository.existsByEmailIgnoreCase(createUserRequest1.getEmail())).thenReturn(true);
 
-    assertThrows(NotUniqueException.class, () -> userService.registerNewUser(userRequest1));
+    assertThrows(NotUniqueException.class, () -> userService.registerNewUser(createUserRequest1));
   }
 
   @Test
   void registerNewUser_whenRoleDoesNotExist_thenThrowNotFoundException() {
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
-    when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
+    when(userRepository.existsByEmailIgnoreCase(createUserRequest1.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(createUserRequest1.getPassword()))
+        .thenReturn(userEntity.getPassword());
     when(roleService.getRoleById(any())).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> userService.registerNewUser(userRequest1));
+    assertThrows(NotFoundException.class, () -> userService.registerNewUser(createUserRequest1));
   }
 
   @Test
   void registerNewUser_whenRoleIsNull_thenReturnIdResponse() {
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
-    when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
+    when(userRepository.existsByEmailIgnoreCase(createUserRequest1.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(createUserRequest1.getPassword()))
+        .thenReturn(userEntity.getPassword());
     when(userRepository.save(any())).thenReturn(userEntity);
     when(cartService.createNewCart(userEntity.getId()))
         .thenReturn(new IdResponse(userEntity.getId()));
@@ -97,7 +104,7 @@ class UserServiceTest extends UnitTest {
         userEntity.getId(),
         userService
             .registerNewUser(
-                UserRequestTestDataBuilder.builder().roleId(null).build().buildUserRequest())
+                CreateUserRequestTestDataBuilder.builder().roleId(null).build().buildUserRequest())
             .getId());
   }
 
@@ -105,17 +112,16 @@ class UserServiceTest extends UnitTest {
   void updateUser_whenUserExistsAndEmailIsUnique_thenUpdateUser() {
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
-    when(userRepository.existsByEmailIgnoreCase(userRequest2.getEmail())).thenReturn(false);
-    when(roleService.getRoleById(userRequest1.getRoleId())).thenReturn(Optional.of(role));
-    when(passwordEncoder.encode(userRequest2.getPassword())).thenReturn(userEntity.getPassword());
+    when(userRepository.existsByEmailIgnoreCase(updateUserRequest1.getEmail())).thenReturn(false);
+    when(roleService.getRoleById(updateUserRequest1.getRoleId())).thenReturn(Optional.of(role));
     UserEntity entityUpdated =
         UserEntityTestDataBuilder.builder()
-            .email(userRequest2.getEmail())
+            .email(updateUserRequest1.getEmail())
             .build()
             .buildUserEntity();
     when(userRepository.save(any())).thenReturn(entityUpdated);
 
-    assertDoesNotThrow(() -> userService.updateUser(userEntity.getId(), userRequest2));
+    assertDoesNotThrow(() -> userService.updateUser(userEntity.getId(), updateUserRequest1));
   }
 
   @Test
@@ -123,40 +129,88 @@ class UserServiceTest extends UnitTest {
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.empty());
 
     assertThrows(
-        NotFoundException.class, () -> userService.updateUser(userEntity.getId(), userRequest2));
+        NotFoundException.class,
+        () -> userService.updateUser(userEntity.getId(), updateUserRequest1));
   }
 
   @Test
   void updateUser_whenEmailAlreadyExists_thenThrowNotUniqueException() {
+    UpdateUserRequest updateUserRequestWithExistingEmail =
+        UpdateUserRequestTestDataBuilder.builder()
+            .email("email@email.com")
+            .build()
+            .buildUserRequest();
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
-    when(userRepository.existsByEmailIgnoreCase(userRequest2.getEmail())).thenReturn(true);
+    when(userRepository.existsByEmailIgnoreCase(updateUserRequestWithExistingEmail.getEmail()))
+        .thenReturn(true);
 
     assertThrows(
-        NotUniqueException.class, () -> userService.updateUser(userEntity.getId(), userRequest2));
+        NotUniqueException.class,
+        () -> userService.updateUser(userEntity.getId(), updateUserRequestWithExistingEmail));
   }
 
   @Test
   void updateUser_whenEmailIsTheSame_thenDoNotThrowException() {
+    UpdateUserRequest updateUserRequestWithSameEmail =
+        UpdateUserRequestTestDataBuilder.builder().build().buildUserRequest();
+
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(true);
-    when(roleService.getRoleById(userRequest1.getRoleId())).thenReturn(Optional.of(role));
-    when(passwordEncoder.encode(userRequest1.getPassword())).thenReturn(userEntity.getPassword());
+    when(roleService.getRoleById(updateUserRequestWithSameEmail.getRoleId()))
+        .thenReturn(Optional.of(role));
     when(userRepository.save(any())).thenReturn(userEntity);
 
-    assertDoesNotThrow(() -> userService.updateUser(userEntity.getId(), userRequest1));
+    assertDoesNotThrow(
+        () -> userService.updateUser(userEntity.getId(), updateUserRequestWithSameEmail));
   }
 
   @Test
   void updateUser_whenRoleDoesNotExist_thenThrowNotFoundException() {
     when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
     when(userMapper.fromEntity(userEntity)).thenReturn(user);
-    when(userRepository.existsByEmailIgnoreCase(userRequest1.getEmail())).thenReturn(false);
-    when(roleService.getRoleById(userRequest1.getRoleId())).thenReturn(Optional.empty());
+    when(roleService.getRoleById(updateUserRequest1.getRoleId())).thenReturn(Optional.empty());
 
     assertThrows(
-        NotFoundException.class, () -> userService.updateUser(userEntity.getId(), userRequest1));
+        NotFoundException.class,
+        () -> userService.updateUser(userEntity.getId(), updateUserRequest1));
+  }
+
+  @Test
+  void changePassword_whenUserExistsAndCurrentPasswordIsCorrect_thenChangePassword() {
+    when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+    when(userMapper.fromEntity(userEntity)).thenReturn(user);
+    when(passwordEncoder.matches(
+            changeUserPasswordRequest.getCurrentPassword(), userEntity.getPassword()))
+        .thenReturn(true);
+    when(passwordEncoder.encode(changeUserPasswordRequest.getNewPassword()))
+        .thenReturn(userEntity.getPassword());
+    when(userRepository.save(any())).thenReturn(userEntity);
+
+    assertDoesNotThrow(
+        () -> userService.changePassword(userEntity.getId(), changeUserPasswordRequest));
+  }
+
+  @Test
+  void changePassword_whenUserDoesNotExist_thenThrowNotFoundException() {
+    when(userRepository.findById(userEntity.getId())).thenReturn(Optional.empty());
+
+    assertThrows(
+        NotFoundException.class,
+        () -> userService.changePassword(userEntity.getId(), changeUserPasswordRequest));
+  }
+
+  @Test
+  void changePassword_whenCurrentPasswordIsIncorrect_thenThrowAccessDeniedException() {
+    when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+    when(userMapper.fromEntity(userEntity)).thenReturn(user);
+    when(passwordEncoder.matches(
+            changeUserPasswordRequest.getCurrentPassword(), userEntity.getPassword()))
+        .thenReturn(false);
+
+    assertThrows(
+        AccessDeniedException.class,
+        () -> userService.changePassword(userEntity.getId(), changeUserPasswordRequest));
   }
 
   @Test

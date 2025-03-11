@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -51,5 +52,27 @@ public class S3Service implements IAwsS3 {
             .getObjectRequest(getObjectRequest)
             .build();
     return s3Presigner.presignGetObject(presignRequest).url().toString();
+  }
+
+  @Override
+  public String updateFile(String key, MultipartFile file) {
+    try {
+      s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
+      s3Client.putObject(
+          PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+          RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+      return key;
+    } catch (Exception e) {
+      throw new AwsException("Error updating file in S3");
+    }
+  }
+
+  @Override
+  public void deleteFile(String key) {
+    try {
+      s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
+    } catch (Exception e) {
+      throw new AwsException("Error deleting file from S3");
+    }
   }
 }

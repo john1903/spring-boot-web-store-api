@@ -68,6 +68,9 @@ public class ProductService implements IProduct {
                                     + productRequest.getCategoryId()
                                     + " not found")))
             .build();
+    if (productRequest.getImage() != null) {
+      product.setImageUri(awsS3.uploadFile("", productRequest.getImage()));
+    }
     return new IdResponse(productRepository.save(productMapper.toEntity(product)).getId());
   }
 
@@ -124,6 +127,12 @@ public class ProductService implements IProduct {
                 () ->
                     new NotFoundException(
                         "Category with id " + productRequest.getCategoryId() + " not found")));
+    if (productRequest.getImage() != null) {
+      product.setImageUri(
+          product.getImageUri() != null
+              ? awsS3.updateFile(product.getImageUri(), productRequest.getImage())
+              : awsS3.uploadFile("", productRequest.getImage()));
+    }
     productRepository.save(productMapper.toEntity(product));
   }
 
@@ -165,8 +174,12 @@ public class ProductService implements IProduct {
   @Override
   @Transactional
   public void deleteProduct(Long id) {
-    if (!productRepository.existsById(id)) {
-      throw new NotFoundException("Product with id " + id + " not found");
+    var product =
+        productRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Product with id " + id + " not found"));
+    if (product.getImageUri() != null) {
+      awsS3.deleteFile(product.getImageUri());
     }
     productRepository.deleteById(id);
   }

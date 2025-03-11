@@ -7,7 +7,9 @@ import me.jangluzniewicz.webstore.commons.models.PagedResponse;
 import me.jangluzniewicz.webstore.exceptions.NotFoundException;
 import me.jangluzniewicz.webstore.exceptions.NotUniqueException;
 import me.jangluzniewicz.webstore.roles.interfaces.IRole;
-import me.jangluzniewicz.webstore.users.controllers.UserRequest;
+import me.jangluzniewicz.webstore.users.controllers.ChangeUserPasswordRequest;
+import me.jangluzniewicz.webstore.users.controllers.CreateUserRequest;
+import me.jangluzniewicz.webstore.users.controllers.UpdateUserRequest;
 import me.jangluzniewicz.webstore.users.interfaces.IUser;
 import me.jangluzniewicz.webstore.users.mappers.UserMapper;
 import me.jangluzniewicz.webstore.users.models.User;
@@ -15,6 +17,7 @@ import me.jangluzniewicz.webstore.users.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,23 +47,24 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public IdResponse registerNewUser(UserRequest userRequest) {
-    if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())) {
-      throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
+  public IdResponse registerNewUser(CreateUserRequest createUserRequest) {
+    if (userRepository.existsByEmailIgnoreCase(createUserRequest.getEmail())) {
+      throw new NotUniqueException(
+          "User with email " + createUserRequest.getEmail() + " already exists");
     }
     User user =
         User.builder()
-            .email(userRequest.getEmail())
-            .phoneNumber(userRequest.getPhoneNumber())
-            .password(passwordEncoder.encode(userRequest.getPassword()))
+            .email(createUserRequest.getEmail())
+            .phoneNumber(createUserRequest.getPhoneNumber())
+            .password(passwordEncoder.encode(createUserRequest.getPassword()))
             .role(
-                userRequest.getRoleId() != null
+                createUserRequest.getRoleId() != null
                     ? roleService
-                        .getRoleById(userRequest.getRoleId())
+                        .getRoleById(createUserRequest.getRoleId())
                         .orElseThrow(
                             () ->
                                 new NotFoundException(
-                                    "Role with id " + userRequest.getRoleId() + " not found"))
+                                    "Role with id " + createUserRequest.getRoleId() + " not found"))
                     : null)
             .build();
     Long userId = userRepository.save(userMapper.toEntity(user)).getId();
@@ -70,23 +74,39 @@ public class UserService implements IUser {
 
   @Override
   @Transactional
-  public void updateUser(Long id, UserRequest userRequest) {
+  public void updateUser(Long id, UpdateUserRequest updateUserRequest) {
     User user =
         getUserById(id)
             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
-    if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())
-        && !user.getEmail().equals(userRequest.getEmail())) {
-      throw new NotUniqueException("User with email " + userRequest.getEmail() + " already exists");
-    }
+    Optional.ofNullable(updateUserRequest.getEmail())
+        .filter(email -> !user.getEmail().equals(email))
+        .ifPresent(
+            email -> {
+              if (userRepository.existsByEmailIgnoreCase(email)) {
+                throw new NotUniqueException("User with email " + email + " already exists");
+              }
+              user.setEmail(email);
+            });
+    Optional.ofNullable(updateUserRequest.getPhoneNumber()).ifPresent(user::setPhoneNumber);
     final Long USER_ROLE_ID = 2L;
-    Long roleId = Optional.ofNullable(userRequest.getRoleId()).orElse(USER_ROLE_ID);
+    Long roleId = Optional.ofNullable(updateUserRequest.getRoleId()).orElse(USER_ROLE_ID);
     user.setRole(
         roleService
             .getRoleById(roleId)
             .orElseThrow(() -> new NotFoundException("Role with id " + roleId + " not found")));
-    user.setEmail(userRequest.getEmail());
-    user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-    user.setPhoneNumber(userRequest.getPhoneNumber());
+    userRepository.save(userMapper.toEntity(user));
+  }
+
+  @Override
+  public void changePassword(Long id, ChangeUserPasswordRequest changeUserPasswordRequest) {
+    User user =
+        getUserById(id)
+            .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+    if (!passwordEncoder.matches(
+        changeUserPasswordRequest.getCurrentPassword(), user.getPassword())) {
+      throw new AccessDeniedException("Invalid current password");
+    }
+    user.setPassword(passwordEncoder.encode(changeUserPasswordRequest.getNewPassword()));
     userRepository.save(userMapper.toEntity(user));
   }
 

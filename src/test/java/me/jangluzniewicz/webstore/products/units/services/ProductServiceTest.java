@@ -149,14 +149,14 @@ class ProductServiceTest extends UnitTest {
 
   @Test
   void deleteProduct_whenProductExists_thenDeleteSuccessfully() {
-    when(productRepository.existsById(productEntity.getId())).thenReturn(true);
+    when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
 
     assertDoesNotThrow(() -> productService.deleteProduct(productEntity.getId()));
   }
 
   @Test
   void deleteProduct_whenProductDoesNotExist_thenThrowNotFoundException() {
-    when(productRepository.existsById(productEntity.getId())).thenReturn(false);
+    when(productRepository.findById(productEntity.getId())).thenReturn(Optional.empty());
 
     assertThrows(
         NotFoundException.class, () -> productService.deleteProduct(productEntity.getId()));

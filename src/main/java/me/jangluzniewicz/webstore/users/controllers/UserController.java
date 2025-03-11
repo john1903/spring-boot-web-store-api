@@ -86,7 +86,7 @@ public class UserController {
   @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
   @ApiResponse(responseCode = "409", description = "User email already exists", content = @Content)
   @PreAuthorize(
-      "hasRole('ADMIN') or (#id == authentication.principal.id and #userRequest.roleId != 1)")
+      "hasRole('ADMIN') or (#id == authentication.principal.id and #updateUserRequest.roleId != 1)")
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateUser(
       @Parameter(
@@ -99,11 +99,40 @@ public class UserController {
       @RequestBody(
               description = "User update payload",
               required = true,
-              content = @Content(schema = @Schema(implementation = UserRequest.class)))
+              content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
           @Valid
           @org.springframework.web.bind.annotation.RequestBody
-          UserRequest userRequest) {
-    userService.updateUser(id, userRequest);
+          UpdateUserRequest updateUserRequest) {
+    userService.updateUser(id, updateUserRequest);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Operation(
+      summary = "Change user password",
+      description = "Changes the password of the user. Accessible for ADMIN or the user itself.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponse(responseCode = "204", description = "Password changed", content = @Content)
+  @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+  @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+  @PutMapping("/{id}/password")
+  public ResponseEntity<Void> changePassword(
+      @Parameter(
+              in = ParameterIn.PATH,
+              description = "ID of the user to update",
+              required = true,
+              example = "1")
+          @PathVariable
+          Long id,
+      @RequestBody(
+              description = "User password change payload",
+              required = true,
+              content =
+                  @Content(schema = @Schema(implementation = ChangeUserPasswordRequest.class)))
+          @Valid
+          @org.springframework.web.bind.annotation.RequestBody
+          ChangeUserPasswordRequest changeUserPasswordRequest) {
+    userService.changePassword(id, changeUserPasswordRequest);
     return ResponseEntity.noContent().build();
   }
 

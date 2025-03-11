@@ -11,7 +11,7 @@ import lombok.Getter;
 @Schema(description = "Payload for updating a user")
 @AllArgsConstructor
 @Getter
-public class UserRequest {
+public class CreateUserRequest {
   @Schema(
       description = "Identifier of the role assigned to the user",
       example = "2",

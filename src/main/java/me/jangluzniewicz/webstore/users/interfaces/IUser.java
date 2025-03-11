@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import me.jangluzniewicz.webstore.commons.models.IdResponse;
 import me.jangluzniewicz.webstore.commons.models.PagedResponse;
-import me.jangluzniewicz.webstore.users.controllers.UserRequest;
+import me.jangluzniewicz.webstore.users.controllers.ChangeUserPasswordRequest;
+import me.jangluzniewicz.webstore.users.controllers.CreateUserRequest;
+import me.jangluzniewicz.webstore.users.controllers.UpdateUserRequest;
 import me.jangluzniewicz.webstore.users.models.User;
 
 /** Interface for managing users. */
@@ -14,11 +16,11 @@ public interface IUser {
   /**
    * Registers a new user.
    *
-   * @param userRequest the request object containing the details of the user to be registered; must
-   *     not be null.
+   * @param createUserRequest the request object containing the details of the user to be
+   *     registered; must not be null.
    * @return an {@link IdResponse} containing the ID of the newly registered user.
    */
-  IdResponse registerNewUser(@NotNull UserRequest userRequest);
+  IdResponse registerNewUser(@NotNull CreateUserRequest createUserRequest);
 
   /**
    * Retrieves a user by their ID.
@@ -49,10 +51,20 @@ public interface IUser {
    * Updates an existing user.
    *
    * @param id the ID of the user to be updated; must be a positive number.
-   * @param userRequest the request object containing the updated details of the user; must not be
+   * @param updateUserRequest the request object containing the updated details of the user; must
+   *     not be null.
+   */
+  void updateUser(@NotNull @Min(1) Long id, @NotNull UpdateUserRequest updateUserRequest);
+
+  /**
+   * Changes the password of a user.
+   *
+   * @param id the ID of the user whose password is to be changed; must be a positive number.
+   * @param changeUserPasswordRequest the request object containing the new password; must not be
    *     null.
    */
-  void updateUser(@NotNull @Min(1) Long id, @NotNull UserRequest userRequest);
+  void changePassword(
+      @NotNull @Min(1) Long id, @NotNull ChangeUserPasswordRequest changeUserPasswordRequest);
 
   /**
    * Deletes a user by their ID.

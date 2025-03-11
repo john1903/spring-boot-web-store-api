@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import me.jangluzniewicz.webstore.roles.entities.RoleEntity;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @DynamicInsert
+@DynamicUpdate
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NoArgsConstructor

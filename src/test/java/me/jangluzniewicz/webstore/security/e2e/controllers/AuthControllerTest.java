@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import me.jangluzniewicz.webstore.utils.e2e.config.E2ETest;
 import me.jangluzniewicz.webstore.utils.e2e.security.WithCustomUser;
 import me.jangluzniewicz.webstore.utils.testdata.security.LoginRequestTestDataBuilder;
-import me.jangluzniewicz.webstore.utils.testdata.users.UserRequestTestDataBuilder;
+import me.jangluzniewicz.webstore.utils.testdata.users.CreateUserRequestTestDataBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,10 +43,11 @@ public class AuthControllerTest extends E2ETest {
   }
 
   static Stream<Arguments> provideCreateUserTestData() {
-    String validUser = UserRequestTestDataBuilder.builder().email("new@new.com").build().toJson();
-    String emailExists = UserRequestTestDataBuilder.builder().build().toJson();
+    String validUser =
+        CreateUserRequestTestDataBuilder.builder().email("new@new.com").build().toJson();
+    String emailExists = CreateUserRequestTestDataBuilder.builder().build().toJson();
     String userAdmin =
-        UserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
+        CreateUserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
     String invalidUser = "{}";
 
     return Stream.of(
@@ -66,7 +67,7 @@ public class AuthControllerTest extends E2ETest {
 
   static Stream<Arguments> provideCreateUserAdminTestData() {
     String validUserAdmin =
-        UserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
+        CreateUserRequestTestDataBuilder.builder().email("new@new.com").roleId(1L).build().toJson();
 
     return Stream.of(Arguments.of(validUserAdmin, HttpStatus.CREATED));
   }

@@ -34,19 +34,19 @@ public class CartServiceWithCache extends AbstractCartService {
   }
 
   @Override
-  @CacheEvict(value = "carts", key = "#customerId")
+  @CacheEvict(value = "carts", key = "#customerId", beforeInvocation = true)
   public void updateCart(Long customerId, CartRequest cartRequest) {
     super.updateCart(customerId, cartRequest);
   }
 
   @Override
-  @CacheEvict(value = "carts", key = "#customerId")
+  @CacheEvict(value = "carts", key = "#customerId", beforeInvocation = true)
   public void addProductToCart(Long customerId, CartItemRequest cartItemRequest) {
     super.addProductToCart(customerId, cartItemRequest);
   }
 
   @Override
-  @CacheEvict(value = "carts", key = "#customerId")
+  @CacheEvict(value = "carts", key = "#customerId", beforeInvocation = true)
   public void emptyCart(Long customerId) {
     super.emptyCart(customerId);
   }

@@ -13,6 +13,7 @@ This API is designed for an online store with a focus on scalability, security, 
 
 - **Security:**  
   - JWT authentication using Spring Security with custom filters.
+  - Critical endpoints secured with role-based access control.
 
 - **Shopping Cart:**  
   - Efficient cart management with Redis caching.
@@ -29,17 +30,30 @@ This API is designed for an online store with a focus on scalability, security, 
   - Test Data Builder pattern for test data setup.
   - 96% test coverage as measured by Jacoco.
 
+- **AWS S3 Integration:**  
+  - Integration with AWS S3 for storing product and categories images.
+  - Image upload and retrieval using the AWS SDK.
+
+- **Swagger Documentation:**  
+  - API documentation using Swagger UI.
+
 ## Project Structure
 
 The application is organized into distinct modules, each responsible for a specific domain:
 
+- **aws**
+- **cache**
 - **carts**
 - **categories**
+- **commons**
+- **exceptions**
+- **openai**
 - **orders**
 - **orderstatuses**
 - **products**
 - **roles**
 - **security**
+- **swagger**
 - **users**
 
 This modular structure keeps the codebase organized and supports scalable development.
@@ -54,31 +68,34 @@ This modular structure keeps the codebase organized and supports scalable develo
 - **Development Tools:** Lombok to reduce boilerplate code, MapStruct for DTO mapping, and Jakarta Validation for request validation.  
 - **Containerization:** Docker Compose to manage Postgres and Redis services.
 
-## Environment Configuration
-
-Ensure the following environment variables are set for proper application functionality:
-
-```
-JWT_SECRET
-CORS_HOST
-OPENAI_API_KEY
-DB_HOST
-DB_PORT
-DB_NAME
-DB_USER
-DB_PASSWORD
-REDIS_USER
-REDIS_PASSWORD
-REDIS_HOST
-REDIS_PORT
-```
-
 ## Docker Compose Setup
 
 Use the following `docker-compose.yml` to set up the required services:
 
 ```yaml
 services:
+  web:
+    image: john1903/web-store-api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URI=cache:6379
+      - OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+      - JWT_SECRET=<YOUR_JWT_SECRET>
+      - CORS_HOST=<YOUR_CORS_HOST>
+      - AWS_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY>
+      - AWS_SECRET_KEY=<YOUR_AWS_SECRET_KEY>
+      - AWS_S3_BUCKET=<YOUR_AWS_S3_BUCKET>
+      - AWS_URL=<YOUR_AWS_URL>
+      - AWS_REGION=<YOUR_AWS_REGION>
+    depends_on:
+      - db
+      - cache
   db:
     image: postgres:17-alpine
     ports:
@@ -89,13 +106,10 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
   cache:
     image: redis:7.4.2-alpine
     ports:
       - "6379:6379"
-    environment:
-      REDIS_PASSWORD: redis
     volumes:
       - redis_data:/data
 

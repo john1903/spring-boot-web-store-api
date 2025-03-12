@@ -10,22 +10,21 @@
     </parent>
     <groupId>me.jangluzniewicz</groupId>
     <artifactId>web-store</artifactId>
-    <version>0.0.1</version>
+    <version>1.1.0</version>
     <name>web-store</name>
     <description>web-store</description>
     <url/>
     <licenses>
-        <license/>
+        <license>
+            <name>All rights reserved</name>
+            <url>https://jangluzniewicz.me</url>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>Jan Gluzniewicz</name>
+        </developer>
     </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
     <properties>
         <java.version>23</java.version>
     </properties>
